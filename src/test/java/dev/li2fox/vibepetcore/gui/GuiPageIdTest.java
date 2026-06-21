@@ -21,6 +21,10 @@ final class GuiPageIdTest {
         assertEquals(GuiPageId.SOURCE_FORGE, GuiPageId.fromMenuId("forge:pet").orElseThrow());
         assertEquals(GuiPageId.SOURCE_LEGENDARY, GuiPageId.fromMenuId("legendary:master").orElseThrow());
         assertEquals(GuiPageId.SOURCE_LEGENDARY, GuiPageId.fromMenuId("legendary:pet").orElseThrow());
+        assertEquals(GuiPageId.SOURCE_HELP, GuiPageId.fromMenuId("help:master").orElseThrow());
+        assertEquals(GuiPageId.SOURCE_HELP, GuiPageId.fromMenuId("help:pet").orElseThrow());
+        assertEquals(GuiPageId.PET_ARMOR_HELP, GuiPageId.fromMenuId("petarmor:master").orElseThrow());
+        assertEquals(GuiPageId.PET_ARMOR_HELP, GuiPageId.fromMenuId("petarmor:pet").orElseThrow());
     }
 
     @Test

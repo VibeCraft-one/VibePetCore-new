@@ -65,6 +65,8 @@ public final class PetGuiService implements Listener {
     private final SourceBoxPage sourceBoxPage;
     private final SourceForgePage sourceForgePage;
     private final SourceLegendaryPage sourceLegendaryPage;
+    private final SourceHelpPage sourceHelpPage;
+    private final PetArmorHelpPage petArmorHelpPage;
     private final PetOverviewPage petOverviewPage;
     private final Map<UUID, Long> petMenuClickCooldowns = new java.util.HashMap<>();
     private final Map<UUID, Long> guiActionCooldowns = new java.util.HashMap<>();
@@ -92,6 +94,10 @@ public final class PetGuiService implements Listener {
         this.guiRouter.register(sourceForgePage);
         this.sourceLegendaryPage = new SourceLegendaryPage(this);
         this.guiRouter.register(sourceLegendaryPage);
+        this.sourceHelpPage = new SourceHelpPage(this);
+        this.guiRouter.register(sourceHelpPage);
+        this.petArmorHelpPage = new PetArmorHelpPage(this);
+        this.guiRouter.register(petArmorHelpPage);
         this.petOverviewPage = new PetOverviewPage(this);
         this.guiRouter.register(petOverviewPage);
     }
@@ -212,27 +218,7 @@ public final class PetGuiService implements Listener {
         guiRouter.open(GuiPageId.PET_OVERVIEW, player);
     }
     void openHelpOverview(Player player, String source) {
-        String normalizedSource = normalizeSource(source);
-        Inventory inventory = Bukkit.createInventory(new PetGuiHolder("help:" + normalizedSource), 54, title(GameText.guiTitleHelpOverview()));
-        fillFrame(inventory);
-        inventory.setItem(10, item(Material.BOOK, "&e" + GameText.petOverviewHelpTitle(), List.of(GameText.petOverviewHelpHint())));
-        inventory.setItem(13, item(Material.COOKED_BEEF, msg("gui.help.care.title", "&eCare and food"), List.of(
-            msg("gui.help.care.line.one", "&7Each pet card lists its food and role."),
-            msg("gui.help.care.line.two", "&7Food restores satiety; rare resources help growth."),
-            msg("gui.help.care.line.three", "&7Use this as a bestiary, not as core progress.")
-        )));
-        inventory.setItem(16, petArmorService.createArmor(dev.li2fox.vibepetcore.pet.armor.PetArmorTier.COPPER));
-
-        int[] petSlots = petHelpSlots();
-        List<PetType> types = playablePetTypes();
-        for (int index = 0; index < petSlots.length && index < types.size(); index++) {
-            PetType type = types.get(index);
-            inventory.setItem(petSlots[index], item(eggMaterial(type), "&e" + GameText.petTypeName(type), helpGuiSupport.helpCardLore(type)));
-        }
-
-        inventory.setItem(49, back());
-        playMenuOpen(player, Sound.UI_BUTTON_CLICK, 0.6F, 1.1F);
-        player.openInventory(inventory);
+        sourceHelpPage.open(player, source);
     }
 
     void openLegendaryFeatures(Player player, String source) {
@@ -243,7 +229,7 @@ public final class PetGuiService implements Listener {
         openPetInfo(player, rawType, "master");
     }
 
-    private void openPetInfo(Player player, String rawType, String source) {
+    void openPetInfo(Player player, String rawType, String source) {
         PetType type = PetType.parse(rawType).orElse(PetType.WOLF);
         String normalizedSource = normalizeSource(source);
         Optional<OwnedPetData> petData = selectedPetForType(player, type);
@@ -309,8 +295,6 @@ public final class PetGuiService implements Listener {
                     }
                     if (holder.menuId().startsWith("quests")) {
                         handleQuestClick(player, holder.menuId(), event.getSlot());
-                    } else if (holder.menuId().startsWith("help")) {
-                        handleHelpClick(player, holder.menuId(), event.getSlot());
                     } else if (holder.menuId().startsWith("petinfo")) {
                         handlePetInfoClick(player, holder.menuId(), event.getSlot());
                     }
@@ -483,48 +467,8 @@ public final class PetGuiService implements Listener {
         openMain(player);
     }
 
-    private void handleHelpClick(Player player, String menuId, int slot) {
-        if (slot == 16) {
-            openPetArmorHelp(player, sourceFromMenu(menuId));
-            return;
-        }
-        PetType clickedType = petTypeByHelpSlot(slot);
-        if (clickedType != null) {
-            openPetInfo(player, clickedType.name(), sourceFromMenu(menuId));
-        }
-    }
-
-    private void openPetArmorHelp(Player player, String source) {
-        Inventory inventory = Bukkit.createInventory(
-            new PetGuiHolder("petarmor:" + normalizeSource(source)),
-            54,
-            title(GameText.text("pet.armor.gui.title", "VibePet - Броня", "VibePet - Armor"))
-        );
-        fillFrame(inventory);
-        inventory.setItem(4, item(Material.HEART_OF_THE_SEA, "&b" + GameText.text("pet.armor.gui.craft-title", "Крафт кольчуги питомца", "Pet chainmail crafting"), List.of(
-            GameText.text("pet.armor.gui.craft.1", "&7Сердце моря ставится в центр.", "&7Heart of the sea goes in the center."),
-            GameText.text("pet.armor.gui.craft.2", "&7Вокруг него 8 блоков материала.", "&7Place 8 material blocks around it."),
-            GameText.text("pet.armor.gui.craft.3", "&7На выходе: кастомная броня наутилуса.", "&7Output: custom nautilus armor.")
-        )));
-        int[] slots = {20, 21, 22, 23, 24};
-        dev.li2fox.vibepetcore.pet.armor.PetArmorTier[] tiers = dev.li2fox.vibepetcore.pet.armor.PetArmorTier.values();
-        for (int index = 0; index < slots.length && index < tiers.length; index++) {
-            inventory.setItem(slots[index], petArmorService.createArmor(tiers[index]));
-        }
-        inventory.setItem(31, item(Material.ENCHANTED_BOOK, "&d" + GameText.text("pet.armor.gui.enchant-title", "Зачарование", "Enchanting"), List.of(
-            GameText.text("pet.armor.gui.enchant.1", "&7Кольчугу можно усилить на наковальне.", "&7The chainmail can be upgraded on an anvil."),
-            GameText.text("pet.armor.gui.enchant.2", "&7Подходят защитные книги для нагрудника.", "&7Chestplate protection books are supported."),
-            GameText.text("pet.armor.gui.enchant.3", "&7Лимит: &fдо 4 &7защитных чар.", "&7Limit: &fup to 4 &7protection enchants."),
-            GameText.text("pet.armor.gui.enchant.4", "&7Эффект чар на питомце делится на 2.", "&7Enchant effects on the pet are halved.")
-        )));
-        inventory.setItem(40, item(Material.CHEST, "&e" + GameText.text("pet.armor.gui.activate-title", "Активация", "Activation"), List.of(
-            GameText.text("pet.armor.gui.activate.1", "&7Положите кольчугу в рюкзак питомца.", "&7Place the chainmail in the pet vault."),
-            GameText.text("pet.armor.gui.activate.2", "&7Одновременно работает только одна.", "&7Only one works at the same time."),
-            GameText.text("pet.armor.gui.activate.3", "&7Если качество выше эволюции, предмет вернётся игроку.", "&7If the tier is too high, it is returned to the player.")
-        )));
-        inventory.setItem(49, back());
-        playMenuOpen(player, Sound.UI_BUTTON_CLICK, 0.6F, 1.1F);
-        player.openInventory(inventory);
+    void openPetArmorHelp(Player player, String source) {
+        petArmorHelpPage.open(player, source);
     }
 
     private void handlePetInfoClick(Player player, String menuId, int slot) {
@@ -668,7 +612,7 @@ public final class PetGuiService implements Listener {
         return petTypeBySlot(slot, new int[]{10, 11, 12, 13, 14, 15, 16, 19, 28});
     }
 
-    private PetType petTypeByHelpSlot(int slot) {
+    PetType petTypeByHelpSlot(int slot) {
         return petTypeBySlot(slot, petHelpSlots());
     }
 
@@ -699,6 +643,14 @@ public final class PetGuiService implements Listener {
 
     private List<String> petInfoLore(PetType type, Optional<OwnedPetData> petData) {
         return infoGuiSupport.petInfoLore(type, petData);
+    }
+
+    List<String> helpCardLore(PetType type) {
+        return helpGuiSupport.helpCardLore(type);
+    }
+
+    ItemStack createPetArmor(dev.li2fox.vibepetcore.pet.armor.PetArmorTier tier) {
+        return petArmorService.createArmor(tier);
     }
 
     List<String> legendaryLore(PetType type) {

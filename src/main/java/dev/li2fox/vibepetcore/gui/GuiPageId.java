@@ -9,6 +9,8 @@ enum GuiPageId {
     SOURCE_BOX("box", Set.of("box"), true),
     SOURCE_FORGE("forge", Set.of("forge"), true),
     SOURCE_LEGENDARY("legendary", Set.of("legendary"), true),
+    SOURCE_HELP("help", Set.of("help"), true),
+    PET_ARMOR_HELP("petarmor", Set.of("petarmor"), true),
     PET_OVERVIEW("pet", Set.of("pet"), false);
 
     private final String menuId;
