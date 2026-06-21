@@ -1,0 +1,11 @@
+VibePetCore 2.6.12
+
+What changed:
+- Active pet recall now saves the inactive state before changing the player's visible core item.
+- Recall/drop/quit/creative-spectator/death paths no longer rewrite a core if PlayerData save fails.
+- Death flow still queues protected pet cores for return and despawns the runtime pet if the active-clear save fails.
+
+Admin notes:
+- No config migration is required.
+- Watch console/runtime-notes.log for throttled "Could not save active pet clear" warnings after deploy.
+- Smoke check: summon pet, recall by right-clicking the empty core, drop the empty active core, relog with active pet, die with active pet, then confirm no empty/lost core.

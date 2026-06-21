@@ -413,9 +413,10 @@ public final class PetEggController implements CoreModule, Listener {
             return;
         }
         OwnedPetData freshPet = activePet.get();
+        if (!clearActivePetForCoreChange(player, "recall")) {
+            return;
+        }
         setItemInHand(player, hand, eggService.writeEgg(item, freshPet));
-        petEngineManager.clearActivePet(player);
-        petEngineManager.flushPetData(player);
         cancelSummonCharge(player, false);
         player.playSound(player.getLocation(), Sound.ENTITY_ITEM_PICKUP, 0.45F, 0.85F);
         player.sendActionBar(Component.text(msg(
@@ -476,6 +477,36 @@ public final class PetEggController implements CoreModule, Listener {
         }
     }
 
+    private boolean clearActivePetForCoreChange(Player player, String action) {
+        if (petEngineManager.clearActivePet(player)) {
+            return true;
+        }
+        debugLogger.warnRateLimited(
+            "egg:clear-save:" + player.getUniqueId() + ":" + action,
+            "pet-egg",
+            "Could not save active pet clear for " + player.getName() + " during " + action + "; core state was left unchanged.",
+            10_000L
+        );
+        player.sendActionBar(Component.text(msg(
+            "pet-egg.save-failed",
+            "Could not save pet data. Try again in a moment."
+        )));
+        return false;
+    }
+
+    private void clearActivePetAfterDeath(Player player) {
+        if (petEngineManager.clearActivePet(player)) {
+            return;
+        }
+        debugLogger.warnRateLimited(
+            "egg:clear-save:" + player.getUniqueId() + ":death",
+            "pet-egg",
+            "Could not save active pet clear for " + player.getName() + " during death; runtime pet was despawned and data kept dirty.",
+            10_000L
+        );
+        petEngineManager.despawnPet(player);
+    }
+
     private void restoreButtonsOutsideOffhand(Player player) {
         ItemStack offhand = player.getInventory().getItemInOffHand();
         for (int slot = 0; slot < player.getInventory().getSize(); slot++) {
@@ -531,6 +562,9 @@ public final class PetEggController implements CoreModule, Listener {
             .or(() -> eggService.readEgg(player.getInventory().getItemInOffHand()));
         if (pet.isPresent()) {
             OwnedPetData freshPet = pet.get();
+            if (!clearActivePetForCoreChange(player, "restricted-mode")) {
+                return;
+            }
             UUID petId = freshPet.petId();
             for (int slot = 0; slot < player.getInventory().getSize(); slot++) {
                 ItemStack item = player.getInventory().getItem(slot);
@@ -539,8 +573,9 @@ public final class PetEggController implements CoreModule, Listener {
                     player.getInventory().setItem(slot, eggService.writeEgg(item, freshPet));
                 }
             }
+        } else {
+            petEngineManager.clearActivePet(player);
         }
-        petEngineManager.clearActivePet(player);
         sanitizePetInventory(player);
         if (notify) {
             player.sendActionBar(Component.text(msg(
@@ -559,14 +594,15 @@ public final class PetEggController implements CoreModule, Listener {
         }
         OwnedPetData pet = activePet.get();
         int slot = findPetSlot(player, pet.petId());
+        if (!clearActivePetForCoreChange(player, "return-inventory")) {
+            return;
+        }
         if (slot >= 0) {
             ItemStack item = player.getInventory().getItem(slot);
             if (eggService.isPetEgg(item)) {
                 player.getInventory().setItem(slot, eggService.writeEgg(item, pet));
             }
         }
-        petEngineManager.clearActivePet(player);
-        petEngineManager.flushPetData(player);
     }
 
     private int findPetSlot(Player player, UUID petId) {
@@ -746,8 +782,12 @@ public final class PetEggController implements CoreModule, Listener {
         if (eggService.isEmptyEgg(dropped)) {
             Optional<OwnedPetData> activePet = petEngineManager.activePetData(player);
             if (activePet.isPresent() && canEmptyCoreReceiveActivePet(dropped, activePet.get())) {
+                if (!clearActivePetForCoreChange(player, "drop")) {
+                    event.setCancelled(true);
+                    scheduleSync(player);
+                    return;
+                }
                 event.getItemDrop().setItemStack(eggService.writeEgg(dropped, activePet.get()));
-                petEngineManager.clearActivePet(player);
                 player.sendActionBar(Component.text(msg(
                     "pet-egg.recalled",
                     "The pet was put back into the core."
@@ -807,14 +847,14 @@ public final class PetEggController implements CoreModule, Listener {
         int slot = findPetSlot(player, pet.petId());
         if (slot < 0) {
             queueDeathReturns(player, protectedPetEggs);
-            petEngineManager.clearActivePet(player);
+            clearActivePetAfterDeath(player);
             return;
         }
 
         ItemStack item = player.getInventory().getItem(slot);
         if (item == null) {
             queueDeathReturns(player, protectedPetEggs);
-            petEngineManager.clearActivePet(player);
+            clearActivePetAfterDeath(player);
             return;
         }
 
@@ -840,7 +880,7 @@ public final class PetEggController implements CoreModule, Listener {
         keep.addAll(protectedPetEggs);
         keep.addAll(keptEquippedItems(player, pet.evolutionStage(), event.getDrops()));
         queueDeathReturns(player, keep);
-        petEngineManager.clearActivePet(player);
+        clearActivePetAfterDeath(player);
     }
 
     @EventHandler(priority = EventPriority.MONITOR)

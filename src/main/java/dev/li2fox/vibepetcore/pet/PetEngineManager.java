@@ -320,10 +320,21 @@ public final class PetEngineManager implements CoreModule {
         ).replace("{name}", name));
     }
 
-    public void clearActivePet(Player player) {
-        playerDataManager.getOrLoad(player.getUniqueId()).setActivePetId(null);
+    public boolean clearActivePet(Player player) {
+        UUID playerId = player.getUniqueId();
+        PlayerData playerData = playerDataManager.getOrLoad(playerId);
+        Optional<UUID> previousActivePetId = playerData.activePetId();
+        if (previousActivePetId.isEmpty()) {
+            despawnPet(player);
+            return true;
+        }
+        playerData.setActivePetId(null);
+        if (!playerDataManager.save(playerId)) {
+            playerData.setActivePetId(previousActivePetId.get());
+            return false;
+        }
         despawnPet(player);
-        playerDataManager.save(player.getUniqueId());
+        return true;
     }
 
     public void replaceActivePetData(Player player, OwnedPetData petData) {
