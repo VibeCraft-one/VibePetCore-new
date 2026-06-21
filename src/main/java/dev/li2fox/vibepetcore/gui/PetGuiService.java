@@ -108,7 +108,7 @@ public final class PetGuiService implements Listener {
                 case "box" -> openBox(player, "master");
                 case "forge" -> openRarityForge(player, "master");
                 case "pet" -> openPetOverview(player);
-                case "help" -> openHelpOverview(player, "master");
+                case "help" -> openHelpOverview(player, "pet");
                 default -> openMain(player);
             }
         } catch (RuntimeException exception) {
@@ -308,7 +308,7 @@ public final class PetGuiService implements Listener {
         inventory.setItem(49, petCoreUsageInfo(summoned));
         inventory.setItem(51, renamePetButton(runtimePet, offhandPet));
         inventory.setItem(52, exitButton());
-        inventory.setItem(53, item(Material.ENDER_PEARL, msg("gui.pet.master.title", "&dTo the Pet Master"), List.of(
+        inventory.setItem(53, item(Material.ENDER_PEARL, msg("gui.pet.master.title", "&dTo the Pet Source"), List.of(
             msg("gui.pet.master.line.one", "&7Teleport to the Pet Source."),
             msg("gui.pet.master.line.two", "&7Preparation: 5 seconds.")
         )));
@@ -887,7 +887,7 @@ public final class PetGuiService implements Listener {
         if (quests > 0) {
             return msg(
                 "gui.pet.requirements.summary-quests",
-                "&7Required: &fLv. {level} &8| &7Bond &f{bond}/10 &8| &7Quests &f{quests}/{quests}",
+                "&7Required: &fLv. {level} &8| &7Bond &f{bond}/10 &8| &7Stage quests: &f{quests}",
                 "level", level,
                 "bond", bond,
                 "quests", quests

@@ -4,6 +4,7 @@ import dev.li2fox.vibepetcore.config.BalanceConfig;
 import dev.li2fox.vibepetcore.core.YamlUtf8IO;
 import dev.li2fox.vibepetcore.pet.RuntimePet;
 import dev.li2fox.vibepetcore.pet.armor.PetArmorService;
+import dev.li2fox.vibepetcore.pet.armor.PetArmorTier;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
@@ -113,12 +114,13 @@ public final class PetVaultService implements Listener {
 
     public Optional<ItemStack> equippedArmor(RuntimePet pet) {
         Inventory inventory = load(pet);
+        ItemStack bestArmor = null;
         for (ItemStack item : inventory.getContents()) {
             if (petArmorService.isPetArmor(item) && petArmorService.allowedForEvolution(item, pet.data().evolutionStage())) {
-                return Optional.of(item);
+                bestArmor = strongerArmor(bestArmor, item);
             }
         }
-        return Optional.empty();
+        return Optional.ofNullable(bestArmor);
     }
 
     private Inventory load(RuntimePet pet) {
@@ -202,7 +204,7 @@ public final class PetVaultService implements Listener {
 
     private ItemStack[] sanitizeContents(UUID petId, ItemStack[] contents, int evolution, HumanEntity viewer) {
         ItemStack[] sanitized = contents.clone();
-        boolean armorKept = false;
+        int bestArmorSlot = bestAllowedArmorSlot(sanitized, evolution);
         boolean returnedAny = false;
         boolean returnedPetCore = false;
         for (int slot = 0; slot < sanitized.length; slot++) {
@@ -217,8 +219,7 @@ public final class PetVaultService implements Listener {
             if (!petArmorService.isPetArmor(item)) {
                 continue;
             }
-            if (!armorKept && petArmorService.allowedForEvolution(item, evolution)) {
-                armorKept = true;
+            if (slot == bestArmorSlot) {
                 continue;
             }
             sanitized[slot] = null;
@@ -231,6 +232,45 @@ public final class PetVaultService implements Listener {
                 : config.message("pet.armor.vault-returned", "§eЛишняя или слишком тяжёлая броня питомца возвращена в инвентарь."));
         }
         return sanitized;
+    }
+
+    private int bestAllowedArmorSlot(ItemStack[] contents, int evolution) {
+        int bestSlot = -1;
+        ItemStack bestArmor = null;
+        for (int slot = 0; slot < contents.length; slot++) {
+            ItemStack item = contents[slot];
+            if (!petArmorService.isPetArmor(item) || !petArmorService.allowedForEvolution(item, evolution)) {
+                continue;
+            }
+            ItemStack stronger = strongerArmor(bestArmor, item);
+            if (stronger == item) {
+                bestArmor = item;
+                bestSlot = slot;
+            }
+        }
+        return bestSlot;
+    }
+
+    private ItemStack strongerArmor(ItemStack current, ItemStack candidate) {
+        if (candidate == null || candidate.getType().isAir()) {
+            return current;
+        }
+        if (current == null || current.getType().isAir()) {
+            return candidate;
+        }
+        PetArmorTier currentTier = petArmorService.tier(current).orElse(null);
+        PetArmorTier candidateTier = petArmorService.tier(candidate).orElse(null);
+        if (candidateTier == null) {
+            return current;
+        }
+        if (currentTier == null) {
+            return candidate;
+        }
+        int byProtection = Double.compare(candidateTier.petArmorPoints(), currentTier.petArmorPoints());
+        if (byProtection != 0) {
+            return byProtection > 0 ? candidate : current;
+        }
+        return candidateTier.minEvolution() > currentTier.minEvolution() ? candidate : current;
     }
 
     private boolean isPetCore(ItemStack item) {

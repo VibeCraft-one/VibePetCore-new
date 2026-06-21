@@ -14,7 +14,6 @@ import java.util.Optional;
 import java.util.UUID;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Color;
 import org.bukkit.Location;
@@ -32,6 +31,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -255,24 +255,35 @@ public final class LootBoxManager implements CoreModule, Listener {
         return result;
     }
 
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = false)
     public void onInteractEntity(PlayerInteractEntityEvent event) {
-        handleInteraction(event.getPlayer(), event.getRightClicked());
+        if (event.getHand() != EquipmentSlot.HAND) {
+            return;
+        }
+        if (handleInteraction(event.getPlayer(), event.getRightClicked())) {
+            event.setCancelled(true);
+        }
     }
 
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = false)
     public void onInteractAtEntity(PlayerInteractAtEntityEvent event) {
-        handleInteraction(event.getPlayer(), event.getRightClicked());
+        if (event.getHand() != EquipmentSlot.HAND) {
+            return;
+        }
+        if (handleInteraction(event.getPlayer(), event.getRightClicked())) {
+            event.setCancelled(true);
+        }
     }
 
-    private void handleInteraction(Player player, Entity entity) {
+    private boolean handleInteraction(Player player, Entity entity) {
         BoxPoint box = boxByInteraction(entity.getUniqueId()).orElse(null);
         if (box == null) {
-            return;
+            return false;
         }
         BoxOpenResult result = boxManager.openBasic(player);
         player.sendMessage(result.message());
         playBoxEffect(player, box, result.success());
+        return true;
     }
 
     private void playBoxEffect(Player player, BoxPoint box, boolean success) {

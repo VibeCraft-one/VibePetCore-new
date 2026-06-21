@@ -587,7 +587,7 @@ quests:
   explore_clay:
     title: "Мир: глина"
     category: explore
-    description: "Найди глину у воды и принеси кусочки мастеру."
+    description: "Найди глину у воды и принеси кусочки Источнику."
     type: PICKUP_ITEM
     target: CLAY_BALL
     amount: 48

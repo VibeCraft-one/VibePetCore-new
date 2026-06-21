@@ -1,0 +1,18 @@
+VibePetCore 2.6.9
+
+Scope: release-audit hotfix for Pet Source GUI, /pet context, and pet armor.
+
+Player-visible changes:
+- Legacy Source altar/entity clicks open the Source even when a pet core is held.
+- /pet help now returns back to the personal pet screen instead of the Source hub.
+- Pet armor progression is now monotonic:
+  copper E1, iron E2, gold E3, diamond E4, netherite E5.
+- Pet vault uses the strongest armor the pet is allowed to wear.
+- Extra or too-high armor pieces are returned when the vault closes.
+- Remaining visible "Pet Master" style wording in Source-facing text was replaced with "Source".
+
+Admin notes:
+- No Maven migration.
+- No PetMaster data deletion.
+- Existing player data is kept.
+- After deploy, smoke-test Source opening, /pet, pet vault armor, quests, evolution, relog, and restart.

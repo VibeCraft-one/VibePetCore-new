@@ -4,10 +4,10 @@ import org.bukkit.Material;
 
 public enum PetArmorTier {
     COPPER("copper", "Медная кольчуга питомца", Material.COPPER_NAUTILUS_ARMOR, Material.COPPER_BLOCK, 1, 3.0D),
-    IRON("iron", "Железная кольчуга питомца", Material.IRON_NAUTILUS_ARMOR, Material.IRON_BLOCK, 2, 6.0D),
-    GOLD("gold", "Золотая кольчуга питомца", Material.GOLDEN_NAUTILUS_ARMOR, Material.GOLD_BLOCK, 2, 5.0D),
+    IRON("iron", "Железная кольчуга питомца", Material.IRON_NAUTILUS_ARMOR, Material.IRON_BLOCK, 2, 5.0D),
+    GOLD("gold", "Золотая кольчуга питомца", Material.GOLDEN_NAUTILUS_ARMOR, Material.GOLD_BLOCK, 3, 6.0D),
     DIAMOND("diamond", "Алмазная кольчуга питомца", Material.DIAMOND_NAUTILUS_ARMOR, Material.DIAMOND_BLOCK, 4, 8.0D),
-    NETHERITE("netherite", "Незеритовая кольчуга питомца", Material.NETHERITE_NAUTILUS_ARMOR, Material.NETHERITE_BLOCK, 5, 8.0D);
+    NETHERITE("netherite", "Незеритовая кольчуга питомца", Material.NETHERITE_NAUTILUS_ARMOR, Material.NETHERITE_BLOCK, 5, 9.0D);
 
     private final String id;
     private final String displayName;

@@ -335,7 +335,7 @@ public final class QuestManager implements CoreModule {
                 int before = progress.progress();
                 progress.addProgress(1, quest.amount());
                 if (player != null && before < quest.amount() && progress.progress() >= quest.amount()) {
-                    player.sendMessage(msg("quest.ready-message", "Quest is ready. Return to the Pet Master to turn it in."));
+                    player.sendMessage(msg("quest.ready-message", "Quest is ready. Return to the Pet Source to turn it in."));
                 }
             }
         }
