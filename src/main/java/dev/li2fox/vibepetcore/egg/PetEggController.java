@@ -198,7 +198,7 @@ public final class PetEggController implements CoreModule, Listener {
         }
         ItemStack item = player.getInventory().getItem(inventorySlot);
         if (item != null && !eggService.isEmptyEgg(item)) {
-            player.getInventory().setItem(inventorySlot, eggService.writeEmptyEgg(item, pet));
+            player.getInventory().setItem(inventorySlot, writeActivePetCoreItem(inventorySlot, item, pet));
         }
     }
 
@@ -357,7 +357,9 @@ public final class PetEggController implements CoreModule, Listener {
                 )));
                 return;
             }
-            setItemInHand(player, hand, eggService.writeEmptyEgg(heldItem, activeData));
+            setItemInHand(player, hand, hand == EquipmentSlot.OFF_HAND
+                ? eggService.writeActiveButton(heldItem, activeData)
+                : eggService.writeEmptyEgg(heldItem, activeData));
             syncPlayer(player);
             petEngineManager.showActionBar(player, 2_500L);
             if (!firstSummon) {
@@ -589,10 +591,13 @@ public final class PetEggController implements CoreModule, Listener {
         if (!eggService.isPetEgg(item)) {
             return;
         }
-        ItemStack updated = eggService.isEmptyEgg(item)
-            ? eggService.writeEmptyEgg(item, pet)
-            : eggService.writeEgg(item, pet);
-        player.getInventory().setItem(slot, updated);
+        player.getInventory().setItem(slot, writeActivePetCoreItem(slot, item, pet));
+    }
+
+    private ItemStack writeActivePetCoreItem(int slot, ItemStack item, OwnedPetData pet) {
+        return slot == 40
+            ? eggService.writeActiveButton(item, pet)
+            : eggService.writeEmptyEgg(item, pet);
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
@@ -661,6 +666,7 @@ public final class PetEggController implements CoreModule, Listener {
                     SMITHING_TABLE,
                     STONECUTTER,
                     BEACON,
+                    CONDUIT,
                     LECTERN,
                     BELL,
                     LEVER,

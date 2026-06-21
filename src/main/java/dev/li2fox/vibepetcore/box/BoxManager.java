@@ -8,15 +8,20 @@ import dev.li2fox.vibepetcore.pet.PetRarity;
 import dev.li2fox.vibepetcore.pet.PetType;
 import dev.li2fox.vibepetcore.player.PlayerData;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import org.bukkit.entity.Player;
 
 public final class BoxManager {
     private static final String BASIC_BOX = "basic";
+    private static final long BASIC_OPEN_GUARD_MILLIS = 750L;
 
     private final BalanceConfig config;
     private final EconomyManager economyManager;
     private final PetEggService petEggService;
+    private final Map<UUID, Long> basicOpenGuardUntil = new HashMap<>();
 
     public BoxManager(BalanceConfig config, EconomyManager economyManager, PetEggService petEggService) {
         this.config = config;
@@ -25,12 +30,19 @@ public final class BoxManager {
     }
 
     public BoxOpenResult openBasic(Player player) {
+        long now = System.currentTimeMillis();
+        if (isBasicOpenGuarded(player.getUniqueId(), now)) {
+            return new BoxOpenResult(false, config.message(
+                "box.open.in-progress",
+                "Source is already opening. Try again in a moment."
+            ), null, null, false);
+        }
+
         if (player.getInventory().firstEmpty() < 0) {
             return new BoxOpenResult(false, config.message("box.open.inventory-full", "Free one inventory slot before opening a box."), null, null, false);
         }
 
         PlayerData data = economyManager.data(player.getUniqueId());
-        long now = System.currentTimeMillis();
         if (data.freeBoxNextAtMillis() <= now) {
             data.setFreeBoxNextAtMillis(now + config.boxFreeCooldownMillis(BASIC_BOX));
         } else if (!economyManager.take(player.getUniqueId(), Math.max(1L, config.boxCost(BASIC_BOX))) && !data.takeExtraBoxAttempt()) {
@@ -60,6 +72,16 @@ public final class BoxManager {
             "rarity", GameText.rarityName(rarity),
             "pet", GameText.petTypeName(petType)
         ), petType, rarity, pity);
+    }
+
+    private boolean isBasicOpenGuarded(UUID playerId, long now) {
+        Long guardedUntil = basicOpenGuardUntil.get(playerId);
+        if (guardedUntil != null && guardedUntil > now) {
+            return true;
+        }
+        basicOpenGuardUntil.put(playerId, now + BASIC_OPEN_GUARD_MILLIS);
+        basicOpenGuardUntil.entrySet().removeIf(entry -> entry.getValue() <= now);
+        return false;
     }
 
     private PetRarity rollRarity() {

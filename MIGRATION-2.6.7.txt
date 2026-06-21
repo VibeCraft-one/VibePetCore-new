@@ -1,0 +1,13 @@
+VibePetCore 2.6.7
+
+Purpose:
+- Release-blocker fix for pet core activation/source clicks and duplicate source openings.
+
+Server actions:
+- No config or database migration is required.
+- Replace the plugin jar and restart the server.
+
+Smoke checks:
+- Summon a pet from an offhand core and confirm the core becomes the active button.
+- Right-click the Pet Source while holding a pet core and confirm only the Source GUI opens.
+- Double-click the Source or lootbox altar quickly and confirm only one egg is granted.
