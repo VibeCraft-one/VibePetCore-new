@@ -391,37 +391,8 @@ public final class PetGuiService implements Listener {
         return lore;
     }
 
-    private List<String> detailedEvolutionLore(Player player, OwnedPetData pet) {
-        return infoGuiSupport.detailedEvolutionLore(player, pet);
-    }
-
     List<String> evolutionStageLore(Player player, PetType type, int currentStage, Optional<OwnedPetData> petData) {
         return evolutionPreviewGuiSupport.evolutionStageLore(player, type, currentStage, petData);
-    }
-
-    private String stageTitle(int stage) {
-        return "&d" + GameText.evolutionStageName(stage);
-    }
-
-    private String shortStageRequirement(int nextStage) {
-        int level = balanceConfig.evolutionRequiredLevel(nextStage);
-        int bond = balanceConfig.evolutionRequiredBond(nextStage);
-        int quests = balanceConfig.evolutionRequiredQuests(nextStage);
-        if (quests > 0) {
-            return msg(
-                "gui.pet.requirements.summary-quests",
-                "&7Required: &fLv. {level} &8| &7Bond &f{bond}/10 &8| &7Stage quests: &f{quests}",
-                "level", level,
-                "bond", bond,
-                "quests", quests
-            );
-        }
-        return msg(
-            "gui.pet.requirements.summary",
-            "&7Required: &fLv. {level} &8| &7Bond &f{bond}/10",
-            "level", level,
-            "bond", bond
-        );
     }
 
     private String evolutionStageName(OwnedPetData pet) {
@@ -432,10 +403,6 @@ public final class PetGuiService implements Listener {
         return evolutionPreviewGuiSupport.copyPetData(source);
     }
 
-    private String stageName(int stage) {
-        return evolutionPreviewGuiSupport.stageName(stage);
-    }
-
     private String defenseChanceText(PetType type) {
         return PetGuiText.defenseChanceText(type);
     }
@@ -444,41 +411,6 @@ public final class PetGuiService implements Listener {
         return GameText.petInfoAttackRating(balanceConfig.petAttackRating(type), balanceConfig.petAttackMultiplier(type));
     }
 
-    private String formatDecimal(double value) {
-        return String.format(java.util.Locale.US, "%.2f", value);
-    }
-
-    private String usefulEffectsText(PetType type) {
-        return PetGuiText.usefulEffectsText(type);
-    }
-
-    ItemStack autolootToggle(Player player) {
-        Optional<dev.li2fox.vibepetcore.pet.RuntimePet> runtimePet = petEngineManager.getPet(player);
-        if (runtimePet.isEmpty()) {
-            return item(Material.HOPPER, "&e" + GameText.petOverviewAutoLoot(false), List.of(
-                GameText.petOverviewNeedCoreHint(),
-                GameText.guiUnavailable()
-            ));
-        }
-        if (!balanceConfig.petAutoLootEnabled(runtimePet.get().type())) {
-            return item(Material.HOPPER, "&e" + GameText.petOverviewAutoLoot(false), List.of(
-                GameText.petOverviewAutoLootHint(),
-                GameText.guiUnavailable()
-            ));
-        }
-        boolean enabled = runtimePet.get().data().autoLootEnabled();
-        return item(Material.HOPPER, "&e" + GameText.petOverviewAutoLoot(enabled), List.of(GameText.petOverviewAutoLootHint()));
-    }
-    private ItemStack defenseToggle(Optional<dev.li2fox.vibepetcore.pet.RuntimePet> runtimePet) {
-        if (runtimePet.isEmpty()) {
-            return item(Material.SHIELD, "&e" + GameText.petOverviewDefense(false), List.of(
-                GameText.petOverviewNeedCoreHint(),
-                GameText.guiUnavailable()
-            ));
-        }
-        boolean enabled = runtimePet.get().data().defenseEnabled();
-        return item(Material.SHIELD, "&e" + GameText.petOverviewDefense(enabled), List.of(GameText.petOverviewDefenseHint()));
-    }
     void syncOffhandEgg(Player player) {
         petEngineManager.getPet(player).ifPresent(pet -> {
             heldPetCore(player)
@@ -550,12 +482,6 @@ public final class PetGuiService implements Listener {
     private record HeldPetCore(ItemStack item, boolean mainHand, OwnedPetData data) {
     }
 
-    private String shortFoodList(PetType type) {
-        if (balanceConfig.petFoodMaterials(type).isEmpty()) {
-            return "pets/" + type.name().toLowerCase(Locale.ROOT) + ".yml";
-        }
-        return GameText.materialList(balanceConfig.petFoodMaterials(type), 4);
-    }
     String sourceFromMenu(String menuId) {
         String[] parts = menuId.split(":");
         if (parts.length >= 3 && "petinfo".equalsIgnoreCase(parts[0])) {
@@ -609,159 +535,6 @@ public final class PetGuiService implements Listener {
         return item(Material.BARRIER, GameText.petOverviewExitTitle(), List.of(GameText.petOverviewExitHint()));
     }
 
-    private ItemStack controllerTitleCard(Optional<dev.li2fox.vibepetcore.pet.RuntimePet> runtimePet, Optional<OwnedPetData> offhandPet) {
-        Optional<OwnedPetData> petData = runtimePet.map(dev.li2fox.vibepetcore.pet.RuntimePet::data).or(() -> offhandPet);
-        List<String> lore = new ArrayList<>();
-        lore.add(GameText.petOverviewControllerHint());
-        petData.ifPresentOrElse(pet -> {
-            lore.add("");
-            lore.add(GameText.petOverviewControllerCurrent(positionLabel(pet.followPosition()), pet.followDistanceTitle()));
-        }, () -> lore.add(GameText.petOverviewNeedCoreHint()));
-        return item(Material.MAP, GameText.petOverviewControllerTitle(), lore);
-    }
-
-    ItemStack followControllerCenter(Optional<dev.li2fox.vibepetcore.pet.RuntimePet> runtimePet, Optional<OwnedPetData> offhandPet) {
-        Optional<OwnedPetData> petData = runtimePet.map(dev.li2fox.vibepetcore.pet.RuntimePet::data).or(() -> offhandPet);
-        if (petData.isEmpty()) {
-            return item(Material.COMPASS, "&b" + GameText.petOverviewControllerTitle(), List.of(
-                GameText.petOverviewNeedCoreHint(),
-                GameText.guiUnavailable()
-            ));
-        }
-        OwnedPetData pet = petData.get();
-        List<String> lore = new ArrayList<>();
-        lore.add(GameText.petOverviewControllerCurrent(positionLabel(pet.followPosition()), pet.followDistanceTitle()));
-        lore.add(GameText.petOverviewFollowDistanceHint());
-        return item(Material.COMPASS, "&b" + GameText.petOverviewControllerTitle(), lore);
-    }
-
-    ItemStack followPositionButton(
-        Optional<dev.li2fox.vibepetcore.pet.RuntimePet> runtimePet,
-        Optional<OwnedPetData> offhandPet,
-        int position
-    ) {
-        Optional<OwnedPetData> petData = runtimePet.map(dev.li2fox.vibepetcore.pet.RuntimePet::data).or(() -> offhandPet);
-        if (petData.isEmpty()) {
-            return item(Material.RED_STAINED_GLASS_PANE, msg("gui.pet.position.title", "&7Position"), List.of(GameText.petOverviewNeedCoreHint()));
-        }
-        OwnedPetData pet = petData.get();
-        String label = positionLabel(position);
-        boolean active = pet.followPosition() == position;
-        String title = active ? "&a" + label : "&c" + label;
-        List<String> lore = new ArrayList<>();
-        lore.add(GameText.petOverviewControllerCurrent(label, pet.followDistanceTitle()));
-        lore.add(GameText.petOverviewFollowDistanceHint());
-        return item(active ? Material.LIME_STAINED_GLASS_PANE : Material.RED_STAINED_GLASS_PANE, title, lore);
-    }
-    ItemStack followDistanceCard(Optional<dev.li2fox.vibepetcore.pet.RuntimePet> runtimePet, Optional<OwnedPetData> offhandPet) {
-        Optional<OwnedPetData> petData = runtimePet.map(dev.li2fox.vibepetcore.pet.RuntimePet::data).or(() -> offhandPet);
-        if (petData.isEmpty()) {
-            return item(Material.LEAD, msg("gui.pet.distance.title", "&dDistance"), List.of(GameText.petOverviewNeedCoreHint()));
-        }
-        OwnedPetData pet = petData.get();
-        return item(Material.LEAD, msg("gui.pet.distance.current.title", "&dDistance &f") + pet.followDistanceTitle(), List.of(
-            GameText.petOverviewFollowDistanceHint(),
-            msg("gui.pet.distance.current.line", "&7Current level: &f") + pet.followDistanceTitle()
-        ));
-    }
-
-    ItemStack followDistanceDownButton(Optional<dev.li2fox.vibepetcore.pet.RuntimePet> runtimePet) {
-        boolean enabled = runtimePet.isPresent();
-        return item(
-            Material.REDSTONE_TORCH,
-            GameText.petOverviewFollowBackTitle(),
-            enabled ? List.of(msg("gui.pet.follow.closer", "&7Make the pet follow closer."), GameText.petOverviewFollowDistanceHint()) : List.of(GameText.petOverviewNeedCoreHint())
-        );
-    }
-
-    ItemStack followDistanceUpButton(Optional<dev.li2fox.vibepetcore.pet.RuntimePet> runtimePet) {
-        boolean enabled = runtimePet.isPresent();
-        return item(
-            Material.SOUL_TORCH,
-            GameText.petOverviewFollowForwardTitle(),
-            enabled ? List.of(msg("gui.pet.follow.further", "&7Make the pet follow farther."), GameText.petOverviewFollowDistanceHint()) : List.of(GameText.petOverviewNeedCoreHint())
-        );
-    }
-
-    ItemStack evolutionEntryButton(Player player, Optional<dev.li2fox.vibepetcore.pet.RuntimePet> runtimePet, Optional<OwnedPetData> offhandPet) {
-        Optional<OwnedPetData> petData = runtimePet.map(dev.li2fox.vibepetcore.pet.RuntimePet::data).or(() -> offhandPet);
-        List<String> lore = new ArrayList<>();
-        lore.add(GameText.petOverviewInfoLineOne());
-        lore.add(GameText.petOverviewInfoLineTwo());
-        petData.ifPresentOrElse(pet -> {
-            lore.add("");
-            lore.add(GameText.petInfoEvolutionLine(GameText.evolutionStageName(pet.evolutionStage()), pet.evolutionStage()));
-            if (pet.evolutionStage() >= 5) {
-                lore.add(GameText.petEvolutionPreviewMaxStage(GameText.evolutionStageName(5)));
-            } else {
-                lore.add(shortStageRequirement(pet.evolutionStage() + 1));
-            }
-            lore.add("");
-            lore.add(msg("gui.pet.overview.info.click", "&eClick: open evolution, quests, and materials."));
-        }, () -> lore.add(GameText.petOverviewNeedCoreHint()));
-        return item(Material.CALIBRATED_SCULK_SENSOR, "&d" + GameText.petOverviewInfoTitle(), lore);
-    }
-
-    ItemStack repairCoreButton(Player player, Optional<dev.li2fox.vibepetcore.pet.RuntimePet> runtimePet, Optional<OwnedPetData> offhandPet) {
-        Optional<OwnedPetData> petData = runtimePet.map(dev.li2fox.vibepetcore.pet.RuntimePet::data).or(() -> offhandPet);
-        if (petData.isEmpty()) {
-            return item(Material.BARRIER, "&c" + GameText.petOverviewRepairCore(), List.of(
-                GameText.petOverviewNeedCoreHint(),
-                GameText.coreRepairMissing()
-            ));
-        }
-
-        OwnedPetData pet = petData.get();
-        int maxDurability = balanceConfig.eggMaxDurability();
-        int durability = pet.durability();
-        int totems = countMaterial(player, Material.TOTEM_OF_UNDYING);
-        boolean damaged = durability < maxDurability;
-        List<String> lore = new ArrayList<>();
-        lore.add(msg("gui.pet.durability", "&7Durability: &f{current}&8/&f{max}")
-            .replace("{current}", String.valueOf(durability))
-            .replace("{max}", String.valueOf(maxDurability)));
-        if (!damaged) {
-            lore.add("&a" + GameText.coreRepairAlreadyFull());
-            lore.add(msg("gui.pet.repair.no-cost", "&7Totems are not consumed."));
-        } else {
-            lore.add(msg("gui.pet.repair.totems", "&7Totems in inventory: &f{count}", "count", totems));
-            lore.add(totems > 0
-                ? msg("gui.pet.repair.consume", "&7Click consumes 1 totem and restores 1 durability.")
-                : "&c" + GameText.coreRepairNoTotems());
-        }
-        String title = damaged ? "&e" + GameText.petOverviewRepairCore() : "&a" + GameText.coreRepairAlreadyFull();
-        return item(damaged ? Material.ANVIL : Material.ENCHANTED_BOOK, title, lore);
-    }
-
-    ItemStack passiveEffectButton(
-        Optional<dev.li2fox.vibepetcore.pet.RuntimePet> runtimePet,
-        Optional<OwnedPetData> offhandPet,
-        PotionEffectType effectType,
-        Material material
-    ) {
-        Optional<OwnedPetData> petData = runtimePet.map(dev.li2fox.vibepetcore.pet.RuntimePet::data).or(() -> offhandPet);
-        String effectKey = effectType.getKey().getKey().toLowerCase(Locale.ROOT);
-        String effectName = GameText.effectName(effectKey);
-        if (petData.isEmpty()) {
-            return item(Material.GRAY_DYE, msg("gui.pet.buff-toggle.title", "&7Auto-buff: {effect}", "effect", effectName), List.of(
-                GameText.petOverviewNeedCoreHint(),
-                GameText.guiUnavailable()
-            ));
-        }
-        boolean enabled = petData.get().passiveEffectEnabled(effectKey);
-        List<String> lore = new ArrayList<>();
-        lore.add(enabled
-            ? msg("gui.pet.buff-toggle.enabled", "&aEnabled")
-            : msg("gui.pet.buff-toggle.disabled", "&cDisabled"));
-        lore.add(msg("gui.pet.buff-toggle.hint", "&7Click to toggle this automatic pet buff."));
-        lore.add(msg("gui.pet.buff-toggle.scope", "&8Affects only passive pet casts."));
-        return item(
-            enabled ? material : Material.GRAY_DYE,
-            (enabled ? "&a" : "&c") + msg("gui.pet.buff-toggle.title", "Auto-buff: {effect}", "effect", effectName),
-            lore
-        );
-    }
-
     void togglePassiveEffect(Player player, PotionEffectType effectType) {
         if (petEngineManager.togglePassiveEffect(player, effectType)) {
             syncOffhandEgg(player);
@@ -769,121 +542,11 @@ public final class PetGuiService implements Listener {
         }
     }
 
-    ItemStack petCoreUsageInfo(boolean summoned) {
-        return item(Material.BELL, msg("gui.pet.summon.title", "&ePet core"), List.of(
-            msg("gui.pet.summon.line.one", "&7Summon: hold the filled core and right-click."),
-            msg("gui.pet.summon.line.two", "&7Return: hold the empty matching core and right-click."),
-            msg("gui.pet.summon.line.three", "&7The core can be in either hand."),
-            summoned ? msg("gui.pet.summon.active", "&aPet is active now.") : msg("gui.pet.summon.prompt", "&8Information card")
-        ));
-    }
-
-    ItemStack renamePetButton(Optional<dev.li2fox.vibepetcore.pet.RuntimePet> runtimePet, Optional<OwnedPetData> heldPet) {
-        Optional<OwnedPetData> pet = runtimePet.map(dev.li2fox.vibepetcore.pet.RuntimePet::data).or(() -> heldPet);
-        if (pet.isEmpty()) {
-            return item(Material.NAME_TAG, GameText.text("gui.pet.rename.button", "&eИмя питомца", "&ePet name"), List.of(
-                GameText.text("gui.pet.rename.need-core", "&7Сначала выберите активное ядро.", "&7Select an active core first.")
-            ));
-        }
-        return item(Material.NAME_TAG, GameText.text("gui.pet.rename.button", "&eИмя питомца", "&ePet name"), List.of(
-            GameText.text("gui.pet.rename.current", "&7Сейчас: &f{name}", "&7Current: &f{name}").replace("{name}", pet.get().petName()),
-            GameText.text("gui.pet.rename.hint", "&7Напишите команду: &f/pet name имя", "&7Use: &f/pet name name"),
-            GameText.text("gui.pet.rename.cooldown-hint", "&8Переименование: раз в час.", "&8Rename: once per hour.")
-        ));
-    }
-
     void selectFollowPosition(Player player, int position) {
         petEngineManager.setFollowPosition(player, position);
         syncOffhandEgg(player);
         openPetOverview(player);
     }
-    ItemStack aggressiveStyleButton(Optional<dev.li2fox.vibepetcore.pet.RuntimePet> runtimePet) {
-        if (runtimePet.isEmpty()) {
-            return item(Material.SHIELD, GameText.petOverviewAggressiveTitle(), List.of(
-                GameText.petOverviewNeedCoreHint(),
-                GameText.guiUnavailable()
-            ));
-        }
-        boolean enabled = runtimePet.get().data().defenseEnabled();
-        return item(enabled ? Material.IRON_SWORD : Material.SHIELD, GameText.petOverviewAggressiveTitle(), List.of(
-            GameText.petOverviewAggressiveHint(enabled)
-        ));
-    }
-
-    private String positionLabel(int position) {
-        return switch (Math.floorMod(position, 8)) {
-            case 0 -> GameText.text("gui.pet.position.front", "спереди", "front");
-            case 1 -> GameText.text("gui.pet.position.front-right", "спереди справа", "front-right");
-            case 2 -> GameText.text("gui.pet.position.right", "справа", "right");
-            case 3 -> GameText.text("gui.pet.position.back-right", "сзади справа", "back-right");
-            case 4 -> GameText.text("gui.pet.position.back", "сзади", "back");
-            case 5 -> GameText.text("gui.pet.position.back-left", "сзади слева", "back-left");
-            case 6 -> GameText.text("gui.pet.position.left", "слева", "left");
-            case 7 -> GameText.text("gui.pet.position.front-left", "спереди слева", "front-left");
-            default -> GameText.text("gui.pet.position.front", "спереди", "front");
-        };
-    }
-
-    private ItemStack currentPetItem(OwnedPetData pet, String fallbackName) {
-        PetType type = PetType.parse(pet.petType()).orElse(PetType.WOLF);
-        List<String> lore = new ArrayList<>();
-        lore.add(GameText.petInfoNameLine(GameText.petTypeName(type)));
-        lore.add(GameText.petInfoRarityLine(GameText.rarityName(pet.rarity())));
-        lore.add(GameText.petInfoEvolutionLine(evolutionStageName(pet), pet.evolutionStage()));
-        lore.add(GameText.petInfoStatusLine(formatState(pet.state())));
-        lore.add(attackRatingLine(type));
-        lore.add(GameText.petInfoDefenseLine(defenseChanceText(type)));
-        return item(eggMaterial(type), "&e" + (fallbackName == null || fallbackName.isBlank() ? GameText.petOverviewCurrentCore() : fallbackName), lore);
-    }
-
-    private ItemStack coreButton(Player player, Optional<dev.li2fox.vibepetcore.pet.RuntimePet> runtimePet, Optional<OwnedPetData> offhandPet, boolean activeButton) {
-        Optional<OwnedPetData> petData = runtimePet.map(dev.li2fox.vibepetcore.pet.RuntimePet::data).or(() -> offhandPet);
-        if (petData.isEmpty()) {
-            return item(Material.BARRIER, "&c" + GameText.petOverviewNoCore(), List.of(GameText.petOverviewNeedCoreHint()));
-        }
-        PetType type = PetType.parse(petData.get().petType()).orElse(PetType.WOLF);
-        List<String> lore = new ArrayList<>();
-        lore.add(GameText.petInfoRarityLine(GameText.rarityName(petData.get().rarity())));
-        lore.add(GameText.petInfoEvolutionLine(evolutionStageName(petData.get()), petData.get().evolutionStage()));
-        lore.add(GameText.petInfoStatusLine(runtimePet.map(pet -> formatState(pet.state())).orElse(formatState(petData.get().state()))));
-        lore.add(GameText.petInfoDurabilityLine(petData.get().durability(), balanceConfig.eggMaxDurability()));
-        lore.add(GameText.petInfoSatietyLine((int) Math.round(petData.get().satiety()), balanceConfig.eggMaxSatiety()));
-        lore.add(GameText.petInfoLevelLine(petData.get().level()));
-        lore.add(GameText.petInfoBondLine(petEngineManager.evolutionBond(petData.get()), balanceConfig.bondMax()));
-        lore.add("");
-        lore.add(msg("gui.pet.core.needs.header", "&7Needs:"));
-        lore.add(msg("gui.pet.core.needs.health", "&8- &fHP: &7{current}/{max}", "current", Math.round(petData.get().health()), "max", Math.round(petData.get().maxHealth())));
-        lore.add(msg("gui.pet.core.needs.food", "&8- &fFood: &7{current}/{max}", "current", Math.round(petData.get().satiety()), "max", balanceConfig.eggMaxSatiety()));
-        lore.add(msg("gui.pet.core.food-types", "&7Food: &f{foods}", "foods", GameText.materialList(balanceConfig.petFoodMaterials(type), 6)));
-        lore.add("");
-        lore.addAll(coreEvolutionNeeds(player, petData.get()));
-        lore.add(activeButton ? GameText.petOverviewCoreActiveLabel() : GameText.petOverviewCoreOffhandLabel());
-        return item(activeButton ? balanceConfig.activeButtonMaterial() : eggMaterial(type), "&e" + GameText.petOverviewCurrentCore(), lore);
-    }
-
-    private List<String> coreEvolutionNeeds(Player player, OwnedPetData pet) {
-        List<String> lore = new ArrayList<>();
-        if (pet.evolutionStage() >= 5) {
-            lore.add(GameText.petInfoMaxEvolution());
-            return lore;
-        }
-        var requirement = petEngineManager.evolutionRequirement(pet);
-        int bond = petEngineManager.evolutionBond(pet);
-        int completedQuests = petEngineManager.completedEvolutionQuestCompletions(player, pet);
-        lore.add(msg("gui.pet.core.evolution.header", "&7Next evolution:"));
-        lore.add(GameText.petEvolutionPreviewLevelLine(pet.level(), requirement.requiredLevel()));
-        lore.add(GameText.petEvolutionPreviewBondLine(bond, requirement.requiredBond()));
-        lore.add(GameText.petEvolutionPreviewQuestLine(completedQuests, requirement.requiredQuests()));
-        if (!requirement.materials().isEmpty()) {
-            Map<Material, Integer> counts = petEngineManager.evolutionMaterialCounts(player, pet);
-            for (Map.Entry<Material, Integer> entry : requirement.materials().entrySet()) {
-                int current = counts.getOrDefault(entry.getKey(), 0);
-                lore.add(GameText.petEvolutionPreviewMaterialLine(GameText.materialName(entry.getKey()), current, entry.getValue()));
-            }
-        }
-        return lore;
-    }
-
     private String formatState(String rawState) {
         if (rawState == null || rawState.isBlank()) {
             return GameText.stateName(PetState.FOLLOW);
@@ -957,39 +620,6 @@ public final class PetGuiService implements Listener {
         lore.add(GameText.petInfoDurabilityLine(pet.durability(), balanceConfig.eggMaxDurability()));
         lore.add(GameText.petInfoSatietyLine((int) Math.round(pet.satiety()), balanceConfig.eggMaxSatiety()));
         return item(Material.HEART_OF_THE_SEA, "&e" + GameText.petOverviewStatusTitle(), lore);
-    }
-
-    private ItemStack movementModeToggle(Optional<dev.li2fox.vibepetcore.pet.RuntimePet> runtimePet) {
-        boolean waiting = runtimePet.map(pet -> pet.state() != PetState.IDLE).orElse(false);
-        return item(
-            waiting ? Material.REDSTONE_TORCH : Material.SOUL_TORCH,
-            "&e" + GameText.petOverviewMovementMode(waiting),
-            List.of(GameText.petOverviewMovementHint(waiting))
-        );
-    }
-
-    private ItemStack followPositionToggle(Optional<dev.li2fox.vibepetcore.pet.RuntimePet> runtimePet) {
-        String positionTitle = runtimePet.map(dev.li2fox.vibepetcore.pet.RuntimePet::data)
-            .map(OwnedPetData::followPositionTitle)
-            .orElse("\u0441\u0442\u0430\u043d\u0434\u0430\u0440\u0442");
-        return item(
-            Material.COMPASS,
-            "&e" + GameText.petOverviewFollowPosition(),
-            List.of(GameText.petOverviewFollowPositionValue(positionTitle))
-        );
-    }
-
-    private List<String> evolutionLore(Player player, Optional<dev.li2fox.vibepetcore.pet.RuntimePet> runtimePet, Optional<OwnedPetData> offhandPet) {
-        Optional<OwnedPetData> petData = runtimePet.map(dev.li2fox.vibepetcore.pet.RuntimePet::data).or(() -> offhandPet);
-        if (petData.isEmpty()) {
-            return List.of(GameText.petOverviewNeedCoreHint());
-        }
-        OwnedPetData pet = petData.get();
-        List<String> lore = new ArrayList<>();
-        lore.add(GameText.petInfoEvolutionLine(evolutionStageName(pet), pet.evolutionStage()));
-        lore.add(shortStageRequirement(Math.min(5, pet.evolutionStage() + 1)));
-        lore.addAll(detailedEvolutionLore(player, pet));
-        return lore;
     }
 
     List<PetType> playablePetTypes() {
