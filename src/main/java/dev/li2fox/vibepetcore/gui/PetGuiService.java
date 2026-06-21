@@ -10,7 +10,6 @@ import dev.li2fox.vibepetcore.master.PetMasterManager;
 import dev.li2fox.vibepetcore.player.OwnedPetData;
 import dev.li2fox.vibepetcore.player.PlayerData;
 import dev.li2fox.vibepetcore.player.PlayerDataManager;
-import dev.li2fox.vibepetcore.player.QuestProgressData;
 import dev.li2fox.vibepetcore.pet.PetEngineManager;
 import dev.li2fox.vibepetcore.pet.PetRarity;
 import dev.li2fox.vibepetcore.pet.PetState;
@@ -28,7 +27,6 @@ import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -46,7 +44,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffectType;
 
 public final class PetGuiService implements Listener {
-    private static final int[] QUEST_SLOTS = {10, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24, 25, 28, 29, 30, 31, 32, 33, 34, 37, 38, 39, 40, 41, 42, 43};
     private final PlayerDataManager playerDataManager;
     private final PetEngineManager petEngineManager;
     private final QuestManager questManager;
@@ -62,6 +59,7 @@ public final class PetGuiService implements Listener {
     private final PetInfoGuiSupport infoGuiSupport;
     private final PetEvolutionPreviewGuiSupport evolutionPreviewGuiSupport;
     private final PetGuiRouter guiRouter;
+    private final SourceQuestPage sourceQuestPage;
     private final SourceBoxPage sourceBoxPage;
     private final SourceForgePage sourceForgePage;
     private final SourceLegendaryPage sourceLegendaryPage;
@@ -90,6 +88,8 @@ public final class PetGuiService implements Listener {
         this.evolutionPreviewGuiSupport = new PetEvolutionPreviewGuiSupport(petEngineManager);
         this.guiRouter = new PetGuiRouter();
         this.guiRouter.register(new SourceMainPage(this));
+        this.sourceQuestPage = new SourceQuestPage(this);
+        this.guiRouter.register(sourceQuestPage);
         this.sourceBoxPage = new SourceBoxPage(this);
         this.guiRouter.register(sourceBoxPage);
         this.sourceForgePage = new SourceForgePage(this);
@@ -120,7 +120,7 @@ public final class PetGuiService implements Listener {
         try {
             String normalizedMenuId = menuId.toLowerCase(Locale.ROOT);
             if (normalizedMenuId.startsWith("quests")) {
-                openQuests(player, questCategoryFromMenu(menuId), sourceFromMenu(menuId));
+                sourceQuestPage.openFromMenu(player, menuId);
                 return;
             }
             if (normalizedMenuId.startsWith("petinfo:")) {
@@ -154,56 +154,8 @@ public final class PetGuiService implements Listener {
         guiRouter.open(GuiPageId.SOURCE_MAIN, player);
     }
 
-    private void openQuests(Player player, String category) {
-        openQuests(player, category, "master", 0);
-    }
-
     void openQuests(Player player, String category, String source) {
-        openQuests(player, category, source, 0);
-    }
-
-    private void openQuests(Player player, String category, String source, int page) {
-        String normalizedCategory = normalizeCategory(category);
-        String normalizedSource = normalizeSource(source);
-        List<QuestDefinition> quests = visibleQuests(player, normalizedCategory);
-        int maxPage = Math.max(0, (quests.size() - 1) / QUEST_SLOTS.length);
-        int safePage = Math.max(0, Math.min(page, maxPage));
-        Inventory inventory = Bukkit.createInventory(new PetGuiHolder("quests:" + normalizedSource + ":" + normalizedCategory + ":" + safePage), 54, title(questGuiSupport.menuTitle()));
-        fillFrame(inventory);
-
-        inventory.setItem(1, categoryItem("all", normalizedCategory, Material.NETHER_STAR, GameText.questCategoryName("all")));
-        inventory.setItem(2, categoryItem("daily", normalizedCategory, Material.CLOCK, GameText.questCategoryName("daily")));
-        inventory.setItem(3, categoryItem("weekly", normalizedCategory, Material.BOOK, GameText.questCategoryName("weekly")));
-        inventory.setItem(4, categoryItem("evolution", normalizedCategory, Material.AMETHYST_SHARD, GameText.questCategoryName("evolution")));
-        inventory.setItem(5, categoryItem("gather", normalizedCategory, Material.HOPPER, GameText.questCategoryName("gather")));
-        inventory.setItem(6, categoryItem("combat", normalizedCategory, Material.IRON_SWORD, GameText.questCategoryName("combat")));
-        inventory.setItem(7, categoryItem("explore", normalizedCategory, Material.COMPASS, GameText.questCategoryName("explore")));
-
-        int startIndex = safePage * QUEST_SLOTS.length;
-        for (int index = 0; index < QUEST_SLOTS.length && startIndex + index < quests.size(); index++) {
-            int questIndex = startIndex + index;
-            QuestDefinition quest = quests.get(questIndex);
-            QuestProgressData progress = questManager.progress(player.getUniqueId(), quest.id());
-            int visibleProgress = questManager.displayProgress(player, quest, selectedQuestPetId(player).orElse(null));
-            inventory.setItem(
-                QUEST_SLOTS[index],
-                item(quest.icon(), questGuiSupport.questName(player, quest, progress), questGuiSupport.questLore(player, quest, progress, visibleProgress))
-            );
-        }
-
-        if (quests.isEmpty()) {
-            inventory.setItem(22, item(Material.BARRIER, GameText.questEmptyTitle(), List.of(GameText.questEmptyHint(questGuiSupport.categoryLabel(normalizedCategory)))));
-        }
-
-        if (safePage > 0) {
-            inventory.setItem(45, questPageItem(Material.SPECTRAL_ARROW, safePage, maxPage, -1));
-        }
-        if (safePage < maxPage) {
-            inventory.setItem(53, questPageItem(Material.SPECTRAL_ARROW, safePage, maxPage, 1));
-        }
-        inventory.setItem(49, back());
-        playMenuOpen(player, Sound.BLOCK_CHISELED_BOOKSHELF_INSERT_ENCHANTED, 0.7F, 1.15F);
-        player.openInventory(inventory);
+        sourceQuestPage.open(player, category, source, 0);
     }
 
     private void openBox(Player player) {
@@ -263,9 +215,6 @@ public final class PetGuiService implements Listener {
                 default -> {
                     if (guiRouter.handleClick(holder.menuId(), player, event.getSlot())) {
                         return;
-                    }
-                    if (holder.menuId().startsWith("quests")) {
-                        handleQuestClick(player, holder.menuId(), event.getSlot());
                     }
                 }
             }
@@ -351,73 +300,11 @@ public final class PetGuiService implements Listener {
         }
     }
 
-    private void handleQuestClick(Player player, String menuId, int slot) {
-        String category = questCategoryFromMenu(menuId);
-        String source = sourceFromMenu(menuId);
-        int page = questPageFromMenu(menuId);
-        if (slot == 49) {
-            openSourceRoot(player, source);
-            return;
-        }
-        if (slot == 45 && page > 0) {
-            openQuests(player, category, source, page - 1);
-            return;
-        }
-        if (slot == 53) {
-            List<QuestDefinition> quests = visibleQuests(player, category);
-            int maxPage = Math.max(0, (quests.size() - 1) / QUEST_SLOTS.length);
-            if (page < maxPage) {
-                openQuests(player, category, source, page + 1);
-            }
-            return;
-        }
-        if (slot >= 1 && slot <= 7) {
-            openQuests(player, categoryBySlot(slot), source);
-            return;
-        }
-        List<QuestDefinition> quests = visibleQuests(player, category);
-        int index = slotToQuestIndex(slot);
-        if (index >= 0) {
-            index += page * QUEST_SLOTS.length;
-        }
-        if (index < 0 || index >= quests.size()) {
-            return;
-        }
-        QuestDefinition quest = quests.get(index);
-        QuestProgressData progress = questManager.progress(player.getUniqueId(), quest.id());
-        if (progress.completed()) {
-            QuestManager.AcceptResult acceptedAgain = questManager.accept(player.getUniqueId(), quest.id(), selectedQuestPetId(player).orElse(null));
-            player.sendMessage(questGuiSupport.acceptedAgainMessage(acceptedAgain));
-            if (acceptedAgain.accepted()) {
-                playQuestFeedback(player, true, false);
-            }
-            openQuests(player, category, source, page);
-            return;
-        }
-        if (!progress.accepted()) {
-            Optional<String> blockReason = questGuiSupport.acceptanceBlockReason(player, quest);
-            if (blockReason.isPresent()) {
-                player.sendMessage(questGuiSupport.blockedMessage(blockReason.get()));
-                playQuestFeedback(player, false, false);
-                openQuests(player, category, source, page);
-                return;
-            }
-            QuestManager.AcceptResult accepted = questManager.accept(player.getUniqueId(), quest.id(), selectedQuestPetId(player).orElse(null));
-            player.sendMessage(questGuiSupport.acceptedMessage(accepted));
-            playQuestFeedback(player, accepted.accepted(), false);
-            openQuests(player, category, source, page);
-            return;
-        }
-        boolean turnedIn = questManager.turnIn(player, quest.id(), selectedQuestPetId(player).orElse(null));
-        player.sendMessage(questGuiSupport.turnedInMessage(turnedIn));
-        playQuestFeedback(player, turnedIn, turnedIn);
-        openQuests(player, category, source, page);
-    }
     void playMenuOpen(Player player, Sound sound, float volume, float pitch) {
         player.playSound(player.getLocation(), sound, volume, pitch);
     }
 
-    private void playQuestFeedback(Player player, boolean success, boolean completed) {
+    void playQuestFeedback(Player player, boolean success, boolean completed) {
         if (!success) {
             player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 0.7F, 0.75F);
             return;
@@ -431,7 +318,7 @@ public final class PetGuiService implements Listener {
         player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.65F, 1.2F);
     }
 
-    private List<QuestDefinition> visibleQuests(Player player, String category) {
+    List<QuestDefinition> visibleQuests(Player player, String category) {
         String normalizedCategory = normalizeCategory(category);
         if (!"evolution".equals(normalizedCategory)) {
             return questManager.visibleQuests(player.getUniqueId(), normalizedCategory);
@@ -443,15 +330,6 @@ public final class PetGuiService implements Listener {
             return List.of();
         }
         return questManager.evolutionQuestsForStage(currentStage).stream().toList();
-    }
-
-    private int slotToQuestIndex(int slot) {
-        for (int i = 0; i < QUEST_SLOTS.length; i++) {
-            if (QUEST_SLOTS[i] == slot) {
-                return i;
-            }
-        }
-        return -1;
     }
 
     private PetType petTypeByOverviewSlot(int slot) {
@@ -640,10 +518,18 @@ public final class PetGuiService implements Listener {
         return playerDataManager.getOrLoad(player.getUniqueId()).points();
     }
 
-    private Optional<UUID> selectedQuestPetId(Player player) {
+    Optional<UUID> selectedQuestPetId(Player player) {
         return petEngineManager.getPet(player)
             .map(pet -> pet.data().petId())
             .or(() -> heldPetData(player).map(OwnedPetData::petId));
+    }
+
+    QuestManager questManager() {
+        return questManager;
+    }
+
+    PetQuestGuiSupport questGuiSupport() {
+        return questGuiSupport;
     }
 
     private void setHeldPetCore(Player player, HeldPetCore core, ItemStack item) {
@@ -670,37 +556,6 @@ public final class PetGuiService implements Listener {
         }
         return GameText.materialList(balanceConfig.petFoodMaterials(type), 4);
     }
-    private ItemStack categoryItem(String category, String activeCategory, Material material, String title) {
-        boolean active = normalizeCategory(activeCategory).equals(normalizeCategory(category));
-        return item(material, (active ? "&a" : "&e") + title, List.of(
-            GameText.questCategoryTabLine(title),
-            active ? GameText.questCategoryActiveHint() : GameText.questCategoryOpenHint()
-        ));
-    }
-
-    private ItemStack questPageItem(Material material, int page, int maxPage, int direction) {
-        boolean next = direction > 0;
-        String title = next
-            ? msg("gui.quest.page.next", "&eNext page")
-            : msg("gui.quest.page.previous", "&ePrevious page");
-        return item(material, title, List.of(
-            msg(
-                "gui.quest.page.current",
-                "&7Page {page}/{pages}",
-                "page", page + 1,
-                "pages", maxPage + 1
-            )
-        ));
-    }
-
-    private String questCategoryFromMenu(String menuId) {
-        String[] parts = menuId.split(":");
-        if (parts.length >= 3) {
-            return normalizeCategory(parts[2]);
-        }
-        return parts.length >= 2 ? normalizeCategory(parts[1]) : "daily";
-    }
-
     String sourceFromMenu(String menuId) {
         String[] parts = menuId.split(":");
         if (parts.length >= 3 && "petinfo".equalsIgnoreCase(parts[0])) {
@@ -715,24 +570,12 @@ public final class PetGuiService implements Listener {
         return "pet".equalsIgnoreCase(menuId) ? "pet" : "master";
     }
 
-    private int questPageFromMenu(String menuId) {
-        String[] parts = menuId.split(":");
-        if (parts.length < 4 || !"quests".equalsIgnoreCase(parts[0])) {
-            return 0;
-        }
-        try {
-            return Math.max(0, Integer.parseInt(parts[3]));
-        } catch (NumberFormatException exception) {
-            return 0;
-        }
-    }
-
     String normalizeSource(String source) {
         String normalized = source == null ? "master" : source.toLowerCase(Locale.ROOT);
         return "pet".equals(normalized) ? "pet" : "master";
     }
 
-    private void openSourceRoot(Player player, String source) {
+    void openSourceRoot(Player player, String source) {
         if ("pet".equals(normalizeSource(source))) {
             openPetOverview(player);
             return;
@@ -740,20 +583,7 @@ public final class PetGuiService implements Listener {
         openMain(player);
     }
 
-    private String categoryBySlot(int slot) {
-        return switch (slot) {
-            case 1 -> "all";
-            case 2 -> "daily";
-            case 3 -> "weekly";
-            case 4 -> "evolution";
-            case 5 -> "gather";
-            case 6 -> "combat";
-            case 7 -> "explore";
-            default -> "daily";
-        };
-    }
-
-    private String normalizeCategory(String category) {
+    String normalizeCategory(String category) {
         String normalized = category == null ? "daily" : category.toLowerCase(Locale.ROOT);
         return switch (normalized) {
             case "all", "daily", "weekly", "evolution", "gather", "combat", "explore" -> normalized;

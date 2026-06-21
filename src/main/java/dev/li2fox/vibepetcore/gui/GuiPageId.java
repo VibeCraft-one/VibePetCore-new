@@ -6,6 +6,7 @@ import java.util.Set;
 
 enum GuiPageId {
     SOURCE_MAIN("master", Set.of("main", "master"), false),
+    SOURCE_QUESTS("quests", Set.of("quests"), true),
     SOURCE_BOX("box", Set.of("box"), true),
     SOURCE_FORGE("forge", Set.of("forge"), true),
     SOURCE_LEGENDARY("legendary", Set.of("legendary"), true),

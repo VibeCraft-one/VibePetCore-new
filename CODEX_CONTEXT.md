@@ -51,8 +51,9 @@
 ## GUI refactor
 - Текущий безопасный курс: одна самостоятельная GUI-страница = отдельный `*Page` класс.
 - `PetGuiService` пока остаётся listener/facade, чтобы не ломать команды, события и cooldown guards.
-- Уже вынесены: `SourceMainPage`, `SourceBoxPage`, `SourceForgePage`, `SourceLegendaryPage`, `SourceHelpPage`, `PetArmorHelpPage`, `GrowthMissingPage`, `PetInfoPage`, `PetOverviewPage`.
+- Уже вынесены: `SourceMainPage`, `SourceQuestPage`, `SourceBoxPage`, `SourceForgePage`, `SourceLegendaryPage`, `SourceHelpPage`, `PetArmorHelpPage`, `GrowthMissingPage`, `PetInfoPage`, `PetOverviewPage`.
 - `PetOverviewPage` уже содержит render и click-handler личного `/pet` экрана.
+- `SourceQuestPage` содержит render/click-handler квестов Источника, категории и пагинацию; `quests:*` маршрутизируется через `PetGuiRouter`.
 - `PetGuiRouter` и `GuiPageId` должны постепенно забирать новые страницы и клики.
 - Не переносить все страницы одним большим патчем; после каждой страницы запускать `compileJava test`.
 

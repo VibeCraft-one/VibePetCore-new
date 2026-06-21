@@ -10,6 +10,7 @@ final class GuiPageIdTest {
     void resolvesStaticPageIds() {
         assertEquals(GuiPageId.SOURCE_MAIN, GuiPageId.fromMenuId("master").orElseThrow());
         assertEquals(GuiPageId.SOURCE_MAIN, GuiPageId.fromMenuId("main").orElseThrow());
+        assertEquals(GuiPageId.SOURCE_QUESTS, GuiPageId.fromMenuId("quests").orElseThrow());
         assertEquals(GuiPageId.PET_OVERVIEW, GuiPageId.fromMenuId("pet").orElseThrow());
     }
 
@@ -17,6 +18,8 @@ final class GuiPageIdTest {
     void resolvesPrefixPageIds() {
         assertEquals(GuiPageId.SOURCE_BOX, GuiPageId.fromMenuId("box:master").orElseThrow());
         assertEquals(GuiPageId.SOURCE_BOX, GuiPageId.fromMenuId("box:pet").orElseThrow());
+        assertEquals(GuiPageId.SOURCE_QUESTS, GuiPageId.fromMenuId("quests:master:daily:0").orElseThrow());
+        assertEquals(GuiPageId.SOURCE_QUESTS, GuiPageId.fromMenuId("quests:pet:evolution:2").orElseThrow());
         assertEquals(GuiPageId.SOURCE_FORGE, GuiPageId.fromMenuId("forge:master").orElseThrow());
         assertEquals(GuiPageId.SOURCE_FORGE, GuiPageId.fromMenuId("forge:pet").orElseThrow());
         assertEquals(GuiPageId.SOURCE_LEGENDARY, GuiPageId.fromMenuId("legendary:master").orElseThrow());
@@ -33,6 +36,6 @@ final class GuiPageIdTest {
 
     @Test
     void ignoresUnknownMenus() {
-        assertTrue(GuiPageId.fromMenuId("quests:master:daily:0").isEmpty());
+        assertTrue(GuiPageId.fromMenuId("unknown:master:daily:0").isEmpty());
     }
 }
