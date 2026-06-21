@@ -1,0 +1,7 @@
+VibePetCore 0.1.80
+
+- Taking a new quest now automatically drops the currently active unfinished quest.
+- Players get a clear chat message when a quest replacement happens.
+- Players get a chat reminder to return to the Pet Master when an active quest reaches its goal.
+- Completed quests still require returning to the Pet Master GUI for turn-in.
+- No config or data migration is required.

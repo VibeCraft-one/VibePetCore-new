@@ -1,0 +1,26 @@
+{
+  "model": {
+    "type": "minecraft:range_dispatch",
+    "property": "minecraft:custom_model_data",
+    "fallback": {
+      "type": "minecraft:model",
+      "model": "minecraft:item/allay_spawn_egg"
+    },
+    "entries": [
+      {
+        "threshold": 200114,
+        "model": {
+          "type": "minecraft:model",
+          "model": "vibepetcore:item/egg/allay"
+        }
+      },
+      {
+        "threshold": 200214,
+        "model": {
+          "type": "minecraft:model",
+          "model": "vibepetcore:item/empty/allay"
+        }
+      }
+    ]
+  }
+}

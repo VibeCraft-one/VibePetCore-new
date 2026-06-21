@@ -1,0 +1,5 @@
+VibePetCore 0.1.70
+
+- Removed the non-action "follow controller" center button from the pet menu compass.
+- Follow direction, distance, vault, summon, core, exit, and Pet Master buttons keep their existing slots and behavior.
+- No config or data migration is required.

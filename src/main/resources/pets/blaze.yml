@@ -1,0 +1,30 @@
+# Настройки блейза. Блейз - огненная защита и короткие боевые реакции.
+enabled: true
+personality: BURST
+combat:
+  attack-rating: 2.00
+  attack-tempo: 1.06
+behavior:
+  roam-radius: 6.5
+  manual-roam-radius: 7.5
+  ambient-speed-multiplier: 0.58
+  max-stay-seconds: 75
+  spawn-retry-seconds: 3
+emotion:
+  enabled: true
+  interval-min-ticks: 22
+  interval-max-ticks: 50
+food:
+  heal: [BLAZE_POWDER, MAGMA_CREAM]
+  satiety: [FIRE_CHARGE, NETHER_WART]
+auto-loot:
+  enabled: false
+  sample-mode: true
+  radius: 3.0
+  blacklist: [ROTTEN_FLESH, NETHERRACK]
+scale-by-evolution:
+  1: 0.46
+  2: 0.57
+  3: 0.68
+  4: 0.79
+  5: 0.90

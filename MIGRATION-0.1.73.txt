@@ -1,0 +1,6 @@
+VibePetCore 0.1.73
+
+- Redesigned the Pet Master main menu with one button per destination.
+- Removed duplicate guide, pet, and box entries from the main menu.
+- Changed the center status card icon so it no longer repeats the guide icon.
+- No config or data migration is required.

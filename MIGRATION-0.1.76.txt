@@ -1,0 +1,5 @@
+VibePetCore 0.1.76
+
+- Aligned evolution GUI requirement text with the actual evolution checks.
+- Removed the obsolete "sublevel 10" requirement from pet info/evolution lore.
+- No config or data migration is required.

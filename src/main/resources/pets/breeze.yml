@@ -1,0 +1,30 @@
+# Настройки бриза. Воздушный мобильный боец: манёвренность и короткие серии.
+enabled: true
+personality: BURST
+combat:
+  attack-rating: 1.94
+  attack-tempo: 1.12
+behavior:
+  roam-radius: 7.0
+  manual-roam-radius: 8.0
+  ambient-speed-multiplier: 0.66
+  max-stay-seconds: 80
+  spawn-retry-seconds: 3
+emotion:
+  enabled: true
+  interval-min-ticks: 20
+  interval-max-ticks: 48
+food:
+  heal: [BREEZE_ROD, FEATHER]
+  satiety: [AMETHYST_SHARD, GLOW_BERRIES]
+auto-loot:
+  enabled: false
+  sample-mode: true
+  radius: 3.0
+  blacklist: [ROTTEN_FLESH, NETHERRACK]
+scale-by-evolution:
+  1: 0.44
+  2: 0.56
+  3: 0.70
+  4: 0.84
+  5: 0.98

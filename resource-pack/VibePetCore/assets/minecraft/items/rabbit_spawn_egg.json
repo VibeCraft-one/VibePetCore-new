@@ -1,0 +1,26 @@
+{
+  "model": {
+    "type": "minecraft:range_dispatch",
+    "property": "minecraft:custom_model_data",
+    "fallback": {
+      "type": "minecraft:model",
+      "model": "minecraft:item/rabbit_spawn_egg"
+    },
+    "entries": [
+      {
+        "threshold": 200113,
+        "model": {
+          "type": "minecraft:model",
+          "model": "vibepetcore:item/egg/rabbit"
+        }
+      },
+      {
+        "threshold": 200213,
+        "model": {
+          "type": "minecraft:model",
+          "model": "vibepetcore:item/empty/rabbit"
+        }
+      }
+    ]
+  }
+}

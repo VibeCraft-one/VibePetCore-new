@@ -1,0 +1,30 @@
+# Настройки летучей мыши. Мышь - маленький scout, растёт очень умеренно.
+enabled: true
+personality: SCOUT
+combat:
+  attack-rating: 1.50
+  attack-tempo: 1.16
+behavior:
+  roam-radius: 8.0
+  manual-roam-radius: 9.0
+  ambient-speed-multiplier: 0.60
+  max-stay-seconds: 90
+  spawn-retry-seconds: 3
+emotion:
+  enabled: true
+  interval-min-ticks: 32
+  interval-max-ticks: 72
+food:
+  heal: [GLOW_BERRIES, SPIDER_EYE]
+  satiety: [FERMENTED_SPIDER_EYE, SWEET_BERRIES]
+auto-loot:
+  enabled: true
+  sample-mode: true
+  radius: 3.0
+  blacklist: [ROTTEN_FLESH, NETHERRACK]
+scale-by-evolution:
+  1: 0.41
+  2: 0.53
+  3: 0.66
+  4: 0.78
+  5: 0.90

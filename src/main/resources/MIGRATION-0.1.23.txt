@@ -1,0 +1,15 @@
+VibePetCore 0.1.23
+
+- Player help changed to GUI-first:
+  - /pet help opens the in-game help menu
+  - player command descriptions are shown as GUI cards
+
+- Admin help changed to chat-first:
+  - /vpc help lists admin command groups
+  - /vpc help admin explains admin subcommands
+  - /vpc help npc explains NPC and lootbox bindings
+  - /vpc help danger explains DANGER-DELETE
+  - /vpc help debug explains debug commands
+  - /vpc help storage explains storage/save basics
+
+- Version bumped because command/help behavior changed.

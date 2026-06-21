@@ -1,0 +1,6 @@
+VibePetCore 0.1.74
+
+- Reworked the pet growth screen layout.
+- The center button now attempts evolution and shows the missing requirements.
+- The five evolution stage previews are shown in a centered row below it.
+- No config or data migration is required.

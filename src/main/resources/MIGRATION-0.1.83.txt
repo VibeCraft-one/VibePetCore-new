@@ -1,0 +1,6 @@
+0.1.83
+
+- Pet-Master now supports `visual-mode`.
+- `visual-mode: external_npc` keeps the master logic/location but stops spawning the internal armor-stand visual.
+- Added `/vpc master mode <armor_stand|external_npc>`.
+- This is intended for setups where the visible master is provided by an external skin-based NPC plugin such as FancyNpcs.

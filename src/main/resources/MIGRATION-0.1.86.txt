@@ -1,0 +1,2 @@
+0.1.86
+- Replaced broken Pet-Master command notifications with clean readable messages for set/remove/style/mode/respawn/info flows.

@@ -1,0 +1,4 @@
+VibePetCore 0.1.68
+
+- Fixed the pet menu follow-position compass layout: the bottom row is aligned with the top and middle rows again.
+- No config or data migration is required.

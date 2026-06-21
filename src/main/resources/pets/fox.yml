@@ -1,0 +1,30 @@
+# Настройки лисы. Лиса - быстрый сборщик: интересуется лутом и помогает фарму.
+enabled: true
+personality: UTILITY
+combat:
+  attack-rating: 1.72
+  attack-tempo: 1.04
+behavior:
+  roam-radius: 7.5
+  manual-roam-radius: 8.5
+  ambient-speed-multiplier: 0.72
+  max-stay-seconds: 80
+  spawn-retry-seconds: 3
+emotion:
+  enabled: true
+  interval-min-ticks: 30
+  interval-max-ticks: 66
+food:
+  heal: [CHICKEN, COOKED_CHICKEN, RABBIT, COOKED_RABBIT]
+  satiety: [SWEET_BERRIES, GLOW_BERRIES]
+auto-loot:
+  enabled: true
+  sample-mode: true
+  radius: 4.5
+  blacklist: [ROTTEN_FLESH, NETHERRACK, COBBLESTONE]
+scale-by-evolution:
+  1: 0.68
+  2: 0.90
+  3: 1.11
+  4: 1.33
+  5: 1.54

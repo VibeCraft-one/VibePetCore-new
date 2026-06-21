@@ -1,0 +1,5 @@
+VibePetCore 0.1.71
+
+- Centered the bottom pair of Pet Master main-menu buttons for a symmetrical layout.
+- Quests, guide, pet, growth, boxes, and forge actions keep the same behavior.
+- No config or data migration is required.

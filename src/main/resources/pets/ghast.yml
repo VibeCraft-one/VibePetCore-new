@@ -1,0 +1,30 @@
+# Настройки мини-гаста. Воздушный burst-спутник: давление в бою без огромной модели.
+enabled: true
+personality: BURST
+combat:
+  attack-rating: 2.04
+  attack-tempo: 1.08
+behavior:
+  roam-radius: 7.5
+  manual-roam-radius: 8.5
+  ambient-speed-multiplier: 0.56
+  max-stay-seconds: 75
+  spawn-retry-seconds: 3
+emotion:
+  enabled: true
+  interval-min-ticks: 22
+  interval-max-ticks: 48
+food:
+  heal: [GHAST_TEAR, MAGMA_CREAM]
+  satiety: [FIRE_CHARGE, NETHER_WART]
+auto-loot:
+  enabled: false
+  sample-mode: true
+  radius: 3.0
+  blacklist: [ROTTEN_FLESH, NETHERRACK]
+scale-by-evolution:
+  1: 0.15
+  2: 0.19
+  3: 0.24
+  4: 0.31
+  5: 0.39

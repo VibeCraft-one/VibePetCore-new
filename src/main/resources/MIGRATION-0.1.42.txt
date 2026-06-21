@@ -1,0 +1,6 @@
+VibePetCore 0.1.42
+
+- Лутбокс переведён на собственный встроенный altar-runtime модуль.
+- Команда `/vpc lootbox set <arcane|nature|royal>` ставит готовый алтарь по точке админа, без выбора блока.
+- Команды `/vpc lootbox style`, `/vpc lootbox remove`, `/vpc lootbox respawn`, `/vpc lootbox info`, `/vpc lootbox list` работают с собственными алтарями.
+- Лутбокс теперь открывается кликом по самому altar-объекту и имеет собственные стили сцены.

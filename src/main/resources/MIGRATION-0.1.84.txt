@@ -1,0 +1,4 @@
+0.1.84
+- Fixed admin evolution update corrupting active pet ownerId and breaking pet task loops.
+- Added runtime safeguards for orphan pets so malformed owner data no longer crashes pet-update or activity-xp tasks.
+- Clarified the admin pet-core update message after setevolution/setlevel/setrarity/setsatiety.

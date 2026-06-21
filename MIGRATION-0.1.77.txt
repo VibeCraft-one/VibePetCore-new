@@ -1,0 +1,7 @@
+VibePetCore 0.1.77
+
+- Split GUI back-navigation into master and pet sources.
+- Screens opened from the Pet Master now return to the Pet Master menu.
+- Screens opened from the pet controller now return to the pet controller.
+- Existing "main" GUI bindings remain compatible and open the Pet Master menu.
+- No config or data migration is required.

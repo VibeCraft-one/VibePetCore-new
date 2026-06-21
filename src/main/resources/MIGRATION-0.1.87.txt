@@ -1,0 +1,2 @@
+0.1.87
+- Added temporary pet combat diagnostics for owner attack/owner damaged/auto-aggro flow to pinpoint why pets ignore combat in allowed worlds.

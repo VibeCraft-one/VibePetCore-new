@@ -1,0 +1,23 @@
+VibePetCore 0.1.22
+
+- Commands are now split more clearly:
+  - /pet for player actions and help
+  - /vpc for admin actions
+
+- Help was reworked into short onboarding topics:
+  - summon
+  - death
+  - growth
+  - backpack
+  - roles
+  - commands
+  - quests
+
+- Pet GUI now focuses on status:
+  - clear current summon state
+  - quick summon guidance
+  - more readable quick-action buttons
+  - help menu uses short teaching cards instead of a wall of text
+
+- Version reminder:
+  - behavior changed, so plugin version was bumped to 0.1.22

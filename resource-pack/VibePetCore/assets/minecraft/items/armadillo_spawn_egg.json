@@ -1,0 +1,26 @@
+{
+  "model": {
+    "type": "minecraft:range_dispatch",
+    "property": "minecraft:custom_model_data",
+    "fallback": {
+      "type": "minecraft:model",
+      "model": "minecraft:item/armadillo_spawn_egg"
+    },
+    "entries": [
+      {
+        "threshold": 200115,
+        "model": {
+          "type": "minecraft:model",
+          "model": "vibepetcore:item/egg/armadillo"
+        }
+      },
+      {
+        "threshold": 200215,
+        "model": {
+          "type": "minecraft:model",
+          "model": "vibepetcore:item/empty/armadillo"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "model": {
+    "type": "minecraft:range_dispatch",
+    "property": "minecraft:custom_model_data",
+    "fallback": {
+      "type": "minecraft:model",
+      "model": "minecraft:item/panda_spawn_egg"
+    },
+    "entries": [
+      {
+        "threshold": 200110,
+        "model": {
+          "type": "minecraft:model",
+          "model": "vibepetcore:item/egg/panda"
+        }
+      },
+      {
+        "threshold": 200210,
+        "model": {
+          "type": "minecraft:model",
+          "model": "vibepetcore:item/empty/panda"
+        }
+      }
+    ]
+  }
+}

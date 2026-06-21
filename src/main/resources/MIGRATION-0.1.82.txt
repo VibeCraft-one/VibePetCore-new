@@ -1,0 +1,5 @@
+0.1.82
+
+- Removed the floating lootbox focus item and idle animation.
+- Lootbox spawn now tags its entities and cleans up nearby legacy lootbox visuals.
+- Pet-Master armor stand equipment is locked and armor-stand manipulation clicks open the master GUI without giving items.

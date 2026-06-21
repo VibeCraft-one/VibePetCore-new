@@ -1,0 +1,26 @@
+{
+  "model": {
+    "type": "minecraft:range_dispatch",
+    "property": "minecraft:custom_model_data",
+    "fallback": {
+      "type": "minecraft:model",
+      "model": "minecraft:item/phantom_spawn_egg"
+    },
+    "entries": [
+      {
+        "threshold": 200112,
+        "model": {
+          "type": "minecraft:model",
+          "model": "vibepetcore:item/egg/phantom"
+        }
+      },
+      {
+        "threshold": 200212,
+        "model": {
+          "type": "minecraft:model",
+          "model": "vibepetcore:item/empty/phantom"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,35 @@
+# Настройки эллея. Эллей - лутер: интересуется предметами и складывает образцы в PetVault.
+enabled: true
+personality: UTILITY
+combat:
+  attack-rating: 1.52
+  attack-tempo: 1.14
+behavior:
+  roam-radius: 8.0
+  manual-roam-radius: 9.0
+  ambient-speed-multiplier: 0.60
+  max-stay-seconds: 90
+  spawn-retry-seconds: 3
+emotion:
+  enabled: true
+  interval-min-ticks: 24
+  interval-max-ticks: 52
+food:
+  heal: [AMETHYST_SHARD, HONEY_BOTTLE, COOKIE]
+  satiety: [GLOW_BERRIES, HONEY_BOTTLE]
+auto-loot:
+  enabled: true
+  sample-mode: true
+  radius: 5.0
+  blacklist: [ROTTEN_FLESH, NETHERRACK]
+legendary-trait:
+  id: VEX_STRIKE
+  chance: 0.50
+  duration-seconds: 10
+  cooldown-seconds: 300
+scale-by-evolution:
+  1: 0.51
+  2: 0.66
+  3: 0.82
+  4: 0.98
+  5: 1.13

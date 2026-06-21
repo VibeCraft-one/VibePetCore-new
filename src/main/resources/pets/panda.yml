@@ -1,0 +1,30 @@
+# Настройки панды. Тёплая поддержка: выживание, реген и мягкая защита.
+enabled: true
+personality: SUPPORT
+combat:
+  attack-rating: 1.68
+  attack-tempo: 0.98
+behavior:
+  roam-radius: 6.0
+  manual-roam-radius: 7.0
+  ambient-speed-multiplier: 0.46
+  max-stay-seconds: 95
+  spawn-retry-seconds: 3
+emotion:
+  enabled: true
+  interval-min-ticks: 30
+  interval-max-ticks: 70
+food:
+  heal: [BAMBOO, SWEET_BERRIES]
+  satiety: [BAMBOO, APPLE]
+auto-loot:
+  enabled: false
+  sample-mode: true
+  radius: 3.0
+  blacklist: [ROTTEN_FLESH, NETHERRACK]
+scale-by-evolution:
+  1: 0.58
+  2: 0.84
+  3: 1.09
+  4: 1.35
+  5: 1.60

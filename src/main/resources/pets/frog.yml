@@ -1,0 +1,30 @@
+# Настройки жабы. Болотный прыгун: мобильность, контроль и спокойная поддержка.
+enabled: true
+personality: MOBILITY
+combat:
+  attack-rating: 1.62
+  attack-tempo: 1.06
+behavior:
+  roam-radius: 7.0
+  manual-roam-radius: 8.5
+  ambient-speed-multiplier: 0.58
+  max-stay-seconds: 85
+  spawn-retry-seconds: 3
+emotion:
+  enabled: true
+  interval-min-ticks: 24
+  interval-max-ticks: 54
+food:
+  heal: [SLIME_BALL, SPIDER_EYE]
+  satiety: [SEAGRASS, SLIME_BALL]
+auto-loot:
+  enabled: false
+  sample-mode: true
+  radius: 3.5
+  blacklist: [ROTTEN_FLESH, NETHERRACK]
+scale-by-evolution:
+  1: 0.57
+  2: 0.72
+  3: 0.86
+  4: 1.01
+  5: 1.15

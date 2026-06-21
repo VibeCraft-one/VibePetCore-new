@@ -1,0 +1,727 @@
+# Задания VibePetCore.
+# Простыми словами:
+# id задания можно назвать как угодно латиницей.
+# category:
+#   daily     - задания на день, заметно длиннее разовой пробежки.
+#   weekly    - долгие задания на неделю.
+#   evolution - задания под развитие конкретного питомца.
+#   gather    - принести предметы через GUI Источника.
+#   combat    - боевые цели.
+#   explore   - мир, прогулки и необычные находки.
+# type:
+#   KILL_MOB    - убить моба, target = тип моба, например ZOMBIE.
+#   BREAK_BLOCK - сломать блок, target = блок, например STONE.
+#   PICKUP_ITEM - принести предмет, target = предмет, например RAW_IRON. В GUI предметы спишутся.
+# amount - сколько нужно.
+# reward-points - сколько Pet Points дать. Очки нужны для платных открытий Источника.
+# repeat-cooldown-minutes: 1440 = раз в день, 10080 = раз в неделю, -1 = одноразовое.
+quests:
+  daily_zombies:
+    title: "Ежедневно: зомби"
+    category: daily
+    description: "Нормальная ночная охота рядом с базой, а не пять минут на бегу."
+    type: KILL_MOB
+    target: ZOMBIE
+    amount: 30
+    reward-points: 45
+    repeat-cooldown-minutes: 1440
+    icon: ROTTEN_FLESH
+  daily_skeletons:
+    title: "Ежедневно: скелеты"
+    category: daily
+    description: "Убери стрелков и дай питомцу поработать в бою."
+    type: KILL_MOB
+    target: SKELETON
+    amount: 25
+    reward-points: 45
+    repeat-cooldown-minutes: 1440
+    icon: BONE
+  daily_creepers:
+    title: "Ежедневно: криперы"
+    category: daily
+    description: "Опасная охота, где питомец должен быть рядом и прикрывать."
+    type: KILL_MOB
+    target: CREEPER
+    amount: 15
+    reward-points: 55
+    repeat-cooldown-minutes: 1440
+    icon: GUNPOWDER
+  daily_spiders:
+    title: "Ежедневно: пауки"
+    category: daily
+    description: "Пещеры и ночные поля быстро покажут, насколько питомец держит темп."
+    type: KILL_MOB
+    target: SPIDER
+    amount: 24
+    reward-points: 45
+    repeat-cooldown-minutes: 1440
+    icon: STRING
+  daily_logs:
+    title: "Ежедневно: древесина"
+    category: daily
+    description: "Заготовка дерева на строительство и кормовую базу."
+    type: BREAK_BLOCK
+    target: OAK_LOG
+    amount: 72
+    reward-points: 40
+    repeat-cooldown-minutes: 1440
+    icon: OAK_LOG
+  daily_stone:
+    title: "Ежедневно: камень"
+    category: daily
+    description: "Шахтёрская разминка, которую уже надо делать осознанно."
+    type: BREAK_BLOCK
+    target: STONE
+    amount: 160
+    reward-points: 40
+    repeat-cooldown-minutes: 1440
+    icon: STONE
+  daily_food:
+    title: "Ежедневно: припасы"
+    category: gather
+    description: "Принеси запас еды. GUI спишет предметы при сдаче."
+    type: PICKUP_ITEM
+    target: BREAD
+    amount: 40
+    reward-points: 45
+    repeat-cooldown-minutes: 1440
+    icon: BREAD
+  daily_fish:
+    title: "Ежедневно: улов"
+    category: gather
+    description: "Рыба пригодится питомцам поддержки и не добывается совсем на автомате."
+    type: PICKUP_ITEM
+    target: SALMON
+    amount: 24
+    reward-points: 45
+    repeat-cooldown-minutes: 1440
+    icon: SALMON
+
+  gather_iron:
+    title: "Принести: сырое железо"
+    category: gather
+    description: "Сдаётся прямо в GUI. Ранняя, но уже заметная шахтёрская цель."
+    type: PICKUP_ITEM
+    target: RAW_IRON
+    amount: 40
+    reward-points: 60
+    repeat-cooldown-minutes: 1440
+    icon: RAW_IRON
+  gather_amethyst:
+    title: "Принести: аметист"
+    category: gather
+    description: "Красивый ресурс для магической части питомцев."
+    type: PICKUP_ITEM
+    target: AMETHYST_SHARD
+    amount: 32
+    reward-points: 70
+    repeat-cooldown-minutes: 1440
+    icon: AMETHYST_SHARD
+  gather_honey:
+    title: "Принести: мёд"
+    category: gather
+    description: "Полезно для пчелы, эллея и мягкого RPG-вайба."
+    type: PICKUP_ITEM
+    target: HONEY_BOTTLE
+    amount: 18
+    reward-points: 65
+    repeat-cooldown-minutes: 1440
+    icon: HONEY_BOTTLE
+  gather_coal:
+    title: "Принести: уголь"
+    category: gather
+    description: "Простая, но уже не символическая шахтёрская сдача."
+    type: PICKUP_ITEM
+    target: COAL
+    amount: 96
+    reward-points: 55
+    repeat-cooldown-minutes: 1440
+    icon: COAL
+  gather_copper:
+    title: "Принести: сырая медь"
+    category: gather
+    description: "Доступная шахтёрская цель для раннего этапа и декора."
+    type: PICKUP_ITEM
+    target: RAW_COPPER
+    amount: 64
+    reward-points: 60
+    repeat-cooldown-minutes: 1440
+    icon: RAW_COPPER
+  gather_redstone:
+    title: "Принести: редстоун"
+    category: gather
+    description: "Шахтёрская сдача для игроков, которые уже спустились глубже."
+    type: PICKUP_ITEM
+    target: REDSTONE
+    amount: 96
+    reward-points: 70
+    repeat-cooldown-minutes: 1440
+    icon: REDSTONE
+  gather_lapis:
+    title: "Принести: лазурит"
+    category: gather
+    description: "Нужен для чар и хорошо вписывается в развитие ядра."
+    type: PICKUP_ITEM
+    target: LAPIS_LAZULI
+    amount: 48
+    reward-points: 75
+    repeat-cooldown-minutes: 1440
+    icon: LAPIS_LAZULI
+  gather_diamond:
+    title: "Принести: алмазы"
+    category: gather
+    description: "Редкая сдача для игроков, которые уже освоились."
+    type: PICKUP_ITEM
+    target: DIAMOND
+    amount: 10
+    reward-points: 130
+    repeat-cooldown-minutes: 10080
+    icon: DIAMOND
+
+  combat_spiders:
+    title: "Бой: пауки"
+    category: combat
+    description: "Проверка реакции питомца в бою без слишком редкой цели."
+    type: KILL_MOB
+    target: SPIDER
+    amount: 22
+    reward-points: 55
+    repeat-cooldown-minutes: 1440
+    icon: STRING
+  combat_cave_spiders:
+    title: "Бой: пещерные пауки"
+    category: combat
+    description: "Шахтная цель с ядом и тесными проходами."
+    type: KILL_MOB
+    target: CAVE_SPIDER
+    amount: 15
+    reward-points: 75
+    repeat-cooldown-minutes: 1440
+    icon: SPIDER_EYE
+  combat_witches:
+    title: "Бой: ведьмы"
+    category: combat
+    description: "Редкая и неприятная цель, хорошо проверяет выживаемость."
+    type: KILL_MOB
+    target: WITCH
+    amount: 15
+    reward-points: 110
+    repeat-cooldown-minutes: 10080
+    icon: POTION
+  combat_endermen:
+    title: "Бой: эндермены"
+    category: combat
+    description: "Опасная цель для игроков с нормальной экипировкой."
+    type: KILL_MOB
+    target: ENDERMAN
+    amount: 16
+    reward-points: 135
+    repeat-cooldown-minutes: 10080
+    icon: ENDER_PEARL
+  combat_blazes:
+    title: "Бой: ифриты"
+    category: combat
+    description: "Недельная цель для похода в Незер."
+    type: KILL_MOB
+    target: BLAZE
+    amount: 28
+    reward-points: 150
+    repeat-cooldown-minutes: 10080
+    icon: BLAZE_ROD
+  combat_ghasts:
+    title: "Бой: гасты"
+    category: combat
+    description: "Охота в Незере, где дистанция и укрытия действительно важны."
+    type: KILL_MOB
+    target: GHAST
+    amount: 12
+    reward-points: 160
+    repeat-cooldown-minutes: 10080
+    icon: GHAST_TEAR
+  combat_wither_skeletons:
+    title: "Бой: визер-скелеты"
+    category: combat
+    description: "Крепость Незера, риск иссушения и серьёзная награда."
+    type: KILL_MOB
+    target: WITHER_SKELETON
+    amount: 18
+    reward-points: 180
+    repeat-cooldown-minutes: 10080
+    icon: WITHER_SKELETON_SKULL
+  combat_piglin_brutes:
+    title: "Бой: брутальные пиглины"
+    category: combat
+    description: "Опасная цель бастионов для хорошо подготовленных игроков."
+    type: KILL_MOB
+    target: PIGLIN_BRUTE
+    amount: 8
+    reward-points: 190
+    repeat-cooldown-minutes: 10080
+    icon: GOLDEN_AXE
+  combat_guardians:
+    title: "Бой: хранители"
+    category: combat
+    description: "Морская вылазка для игроков, которые готовы драться под водой."
+    type: KILL_MOB
+    target: GUARDIAN
+    amount: 24
+    reward-points: 150
+    repeat-cooldown-minutes: 10080
+    icon: PRISMARINE_SHARD
+  combat_elder_guardian:
+    title: "Бой: древний страж"
+    category: combat
+    description: "Серьёзная недельная цель океанского монумента."
+    type: KILL_MOB
+    target: ELDER_GUARDIAN
+    amount: 1
+    reward-points: 220
+    repeat-cooldown-minutes: 10080
+    icon: PRISMARINE_CRYSTALS
+  combat_breeze:
+    title: "Бой: бризы"
+    category: combat
+    description: "Испытательные комнаты и мобильная цель для сильного питомца."
+    type: KILL_MOB
+    target: BREEZE
+    amount: 12
+    reward-points: 160
+    repeat-cooldown-minutes: 10080
+    icon: BREEZE_ROD
+  combat_magma_cubes:
+    title: "Бой: магмовые кубы"
+    category: combat
+    description: "Незерская зачистка с большим числом маленьких целей."
+    type: KILL_MOB
+    target: MAGMA_CUBE
+    amount: 24
+    reward-points: 120
+    repeat-cooldown-minutes: 10080
+    icon: MAGMA_CREAM
+
+  weekly_miner:
+    title: "Недельное: шахтёр"
+    category: weekly
+    description: "Большая шахтёрская цель на несколько заходов."
+    type: BREAK_BLOCK
+    target: DEEPSLATE
+    amount: 800
+    reward-points: 240
+    repeat-cooldown-minutes: 10080
+    icon: DEEPSLATE
+  weekly_hunter:
+    title: "Недельное: охотник"
+    category: weekly
+    description: "Длинная охота для активных игроков."
+    type: KILL_MOB
+    target: ZOMBIE
+    amount: 180
+    reward-points: 230
+    repeat-cooldown-minutes: 10080
+    icon: IRON_SWORD
+  weekly_nether_patrol:
+    title: "Недельное: патруль Незера"
+    category: weekly
+    description: "Смешанная опасная охота в аду через ифритов."
+    type: KILL_MOB
+    target: BLAZE
+    amount: 40
+    reward-points: 260
+    repeat-cooldown-minutes: 10080
+    icon: BLAZE_POWDER
+  weekly_ocean_raid:
+    title: "Недельное: монумент"
+    category: weekly
+    description: "Длинная морская цель для игрока с водой, бронёй и терпением."
+    type: KILL_MOB
+    target: GUARDIAN
+    amount: 50
+    reward-points: 280
+    repeat-cooldown-minutes: 10080
+    icon: SEA_LANTERN
+  weekly_builder:
+    title: "Недельное: строитель"
+    category: gather
+    description: "Сдача строительного ресурса. Предметы спишутся в GUI."
+    type: PICKUP_ITEM
+    target: STONE_BRICKS
+    amount: 320
+    reward-points: 220
+    repeat-cooldown-minutes: 10080
+    icon: STONE_BRICKS
+
+  evolution_2_hunt:
+    title: "Эволюция II: первая охота"
+    category: evolution
+    description: "Подготовка к переходу на 2 стадию через охоту."
+    type: KILL_MOB
+    target: SPIDER
+    amount: 14
+    reward-points: 70
+    repeat-cooldown-minutes: -1
+    icon: SPIDER_EYE
+  evolution_2_camp:
+    title: "Эволюция II: обжитый лагерь"
+    category: evolution
+    description: "Покажи питомцу спокойный быт и первые припасы."
+    type: PICKUP_ITEM
+    target: BREAD
+    amount: 24
+    reward-points: 65
+    repeat-cooldown-minutes: -1
+    icon: BREAD
+  evolution_2_mine:
+    title: "Эволюция II: первые ресурсы"
+    category: evolution
+    description: "Питомец осваивается рядом с игроком и учится шахте."
+    type: PICKUP_ITEM
+    target: RAW_IRON
+    amount: 24
+    reward-points: 70
+    repeat-cooldown-minutes: -1
+    icon: RAW_IRON
+  evolution_2_stone:
+    title: "Эволюция II: каменный путь"
+    category: evolution
+    description: "Спокойная работа рядом с хозяином укрепляет связь."
+    type: BREAK_BLOCK
+    target: STONE
+    amount: 160
+    reward-points: 65
+    repeat-cooldown-minutes: -1
+    icon: STONE
+  evolution_2_patrol:
+    title: "Эволюция II: ночной дозор"
+    category: evolution
+    description: "Небольшая проверка смелости перед ростом."
+    type: KILL_MOB
+    target: ZOMBIE
+    amount: 24
+    reward-points: 75
+    repeat-cooldown-minutes: -1
+    icon: ROTTEN_FLESH
+
+  evolution_3_depths:
+    title: "Эволюция III: глубинная шахта"
+    category: evolution
+    description: "Питомец крепнет через долгое путешествие в шахту."
+    type: BREAK_BLOCK
+    target: DEEPSLATE
+    amount: 240
+    reward-points: 100
+    repeat-cooldown-minutes: -1
+    icon: DEEPSLATE
+  evolution_3_support:
+    title: "Эволюция III: походные запасы"
+    category: evolution
+    description: "Питомцу нужны серьёзные ресурсы для следующей формы."
+    type: PICKUP_ITEM
+    target: SALMON
+    amount: 32
+    reward-points: 95
+    repeat-cooldown-minutes: -1
+    icon: SALMON
+  evolution_3_gems:
+    title: "Эволюция III: блеск кристаллов"
+    category: evolution
+    description: "Кристаллы и красота помогают пробудить характер питомца."
+    type: PICKUP_ITEM
+    target: AMETHYST_SHARD
+    amount: 48
+    reward-points: 105
+    repeat-cooldown-minutes: -1
+    icon: AMETHYST_SHARD
+  evolution_3_swarm:
+    title: "Эволюция III: зачистка пещер"
+    category: evolution
+    description: "Боевой выход для питомца, который уже перестал быть малышом."
+    type: KILL_MOB
+    target: SLIME
+    amount: 36
+    reward-points: 100
+    repeat-cooldown-minutes: -1
+    icon: SLIME_BALL
+  evolution_3_path:
+    title: "Эволюция III: тропа разведки"
+    category: evolution
+    description: "Питомец учится уверенно идти за хозяином в долгом пути."
+    type: BREAK_BLOCK
+    target: OAK_LOG
+    amount: 160
+    reward-points: 90
+    repeat-cooldown-minutes: -1
+    icon: OAK_LOG
+
+  evolution_4_end:
+    title: "Эволюция IV: эндермены"
+    category: evolution
+    description: "Серьёзная проверка перед поздней стадией."
+    type: KILL_MOB
+    target: ENDERMAN
+    amount: 14
+    reward-points: 150
+    repeat-cooldown-minutes: -1
+    icon: ENDER_EYE
+  evolution_4_echo:
+    title: "Эволюция IV: эхо глубин"
+    category: evolution
+    description: "Глубокий поход за редкими следами древнего мира."
+    type: PICKUP_ITEM
+    target: ECHO_SHARD
+    amount: 4
+    reward-points: 170
+    repeat-cooldown-minutes: -1
+    icon: ECHO_SHARD
+  evolution_4_nether:
+    title: "Эволюция IV: незерская закалка"
+    category: evolution
+    description: "Питомец проходит жаркую проверку в опасном мире."
+    type: KILL_MOB
+    target: BLAZE
+    amount: 24
+    reward-points: 165
+    repeat-cooldown-minutes: -1
+    icon: BLAZE_ROD
+  evolution_4_diamonds:
+    title: "Эволюция IV: драгоценный запас"
+    category: evolution
+    description: "Без серьёзных ресурсов поздняя стадия не даётся."
+    type: PICKUP_ITEM
+    target: DIAMOND
+    amount: 12
+    reward-points: 160
+    repeat-cooldown-minutes: -1
+    icon: DIAMOND
+  evolution_4_guard:
+    title: "Эволюция IV: железная верность"
+    category: evolution
+    description: "Долгий путь рядом с хозяином превращает питомца в опору."
+    type: KILL_MOB
+    target: SKELETON
+    amount: 40
+    reward-points: 155
+    repeat-cooldown-minutes: -1
+    icon: BONE
+
+  evolution_5_wither:
+    title: "Эволюция V: визер"
+    category: evolution
+    description: "Финальный рубеж. После него питомец считается MAX."
+    type: KILL_MOB
+    target: WITHER
+    amount: 1
+    reward-points: 300
+    repeat-cooldown-minutes: -1
+    icon: NETHER_STAR
+  evolution_5_relic:
+    title: "Эволюция V: древняя реликвия"
+    category: evolution
+    description: "Только самые редкие следы мира подходят для идеальной формы."
+    type: PICKUP_ITEM
+    target: ECHO_SHARD
+    amount: 6
+    reward-points: 260
+    repeat-cooldown-minutes: -1
+    icon: ECHO_SHARD
+  evolution_5_flame:
+    title: "Эволюция V: пламя Незера"
+    category: evolution
+    description: "Жаркая проверка для игроков, которые уже вышли в позднюю игру."
+    type: KILL_MOB
+    target: BLAZE
+    amount: 36
+    reward-points: 250
+    repeat-cooldown-minutes: -1
+    icon: BLAZE_ROD
+  evolution_5_treasury:
+    title: "Эволюция V: сокровищница"
+    category: evolution
+    description: "Финальная форма требует действительно дорогих ресурсов."
+    type: PICKUP_ITEM
+    target: EMERALD
+    amount: 48
+    reward-points: 240
+    repeat-cooldown-minutes: -1
+    icon: EMERALD
+  evolution_5_trials:
+    title: "Эволюция V: испытание стража"
+    category: evolution
+    description: "Максимальная форма достаётся только тем, кто прошёл поздние опасности."
+    type: KILL_MOB
+    target: ENDERMAN
+    amount: 28
+    reward-points: 245
+    repeat-cooldown-minutes: -1
+    icon: ENDER_PEARL
+
+  explore_warmup:
+    title: "Мир: разминка"
+    category: explore
+    description: "Лёгкая прогулка с базовой работой руками."
+    type: BREAK_BLOCK
+    target: DIRT
+    amount: 96
+    reward-points: 35
+    repeat-cooldown-minutes: 1440
+    icon: COMPASS
+  explore_flowers:
+    title: "Мир: полевые цветы"
+    category: explore
+    description: "Собери цветы для корма, красителей и спокойного маршрута."
+    type: PICKUP_ITEM
+    target: POPPY
+    amount: 18
+    reward-points: 40
+    repeat-cooldown-minutes: 1440
+    icon: POPPY
+  explore_sand:
+    title: "Мир: берег"
+    category: explore
+    description: "Набери песка у воды или в пустыне."
+    type: BREAK_BLOCK
+    target: SAND
+    amount: 96
+    reward-points: 45
+    repeat-cooldown-minutes: 1440
+    icon: SAND
+  explore_clay:
+    title: "Мир: глина"
+    category: explore
+    description: "Найди глину у воды и принеси кусочки мастеру."
+    type: PICKUP_ITEM
+    target: CLAY_BALL
+    amount: 48
+    reward-points: 55
+    repeat-cooldown-minutes: 1440
+    icon: CLAY_BALL
+  explore_tropical_bucket:
+    title: "Мир: тропическая рыбка"
+    category: explore
+    description: "Поймай тропическую рыбку в ведро. Это уже маленькое путешествие."
+    type: PICKUP_ITEM
+    target: TROPICAL_FISH_BUCKET
+    amount: 1
+    reward-points: 90
+    repeat-cooldown-minutes: 10080
+    icon: TROPICAL_FISH_BUCKET
+  explore_pale_oak:
+    title: "Мир: росток бледного дуба"
+    category: explore
+    description: "Принеси росток из бледного сада для редкой природной коллекции."
+    type: PICKUP_ITEM
+    target: PALE_OAK_SAPLING
+    amount: 4
+    reward-points: 110
+    repeat-cooldown-minutes: 10080
+    icon: PALE_OAK_SAPLING
+  explore_resin:
+    title: "Мир: смоляные следы"
+    category: explore
+    description: "Собери смолу из бледного сада. Питомцу нравится запах странных мест."
+    type: PICKUP_ITEM
+    target: RESIN_CLUMP
+    amount: 12
+    reward-points: 115
+    repeat-cooldown-minutes: 10080
+    icon: RESIN_CLUMP
+  explore_glow_berries:
+    title: "Мир: светящиеся ягоды"
+    category: explore
+    description: "Спустись в пышные пещеры и принеси мягкий свет."
+    type: PICKUP_ITEM
+    target: GLOW_BERRIES
+    amount: 24
+    reward-points: 70
+    repeat-cooldown-minutes: 1440
+    icon: GLOW_BERRIES
+  explore_goat_horn:
+    title: "Мир: козий рог"
+    category: explore
+    description: "Горная находка, которая требует терпения и удачи."
+    type: PICKUP_ITEM
+    target: GOAT_HORN
+    amount: 1
+    reward-points: 120
+    repeat-cooldown-minutes: 10080
+    icon: GOAT_HORN
+  explore_turtle_scute:
+    title: "Мир: черепаший щиток"
+    category: explore
+    description: "Береговая цель для тех, кто умеет ждать и беречь животных."
+    type: PICKUP_ITEM
+    target: TURTLE_SCUTE
+    amount: 2
+    reward-points: 120
+    repeat-cooldown-minutes: 10080
+    icon: TURTLE_SCUTE
+  explore_armadillo_scute:
+    title: "Мир: щитки броненосца"
+    category: explore
+    description: "Саванна, щётка и немного терпения."
+    type: PICKUP_ITEM
+    target: ARMADILLO_SCUTE
+    amount: 8
+    reward-points: 95
+    repeat-cooldown-minutes: 10080
+    icon: ARMADILLO_SCUTE
+  explore_pitcher:
+    title: "Мир: кувшинник"
+    category: explore
+    description: "Археологическая природная цель через нюхача и древние семена."
+    type: PICKUP_ITEM
+    target: PITCHER_PLANT
+    amount: 2
+    reward-points: 120
+    repeat-cooldown-minutes: 10080
+    icon: PITCHER_PLANT
+  explore_torchflower:
+    title: "Мир: факельник"
+    category: explore
+    description: "Редкий цветок для коллекции Источника."
+    type: PICKUP_ITEM
+    target: TORCHFLOWER
+    amount: 3
+    reward-points: 110
+    repeat-cooldown-minutes: 10080
+    icon: TORCHFLOWER
+  explore_sea_pickle:
+    title: "Мир: морские огурцы"
+    category: explore
+    description: "Тёплый океан, кораллы и немного подводного света."
+    type: PICKUP_ITEM
+    target: SEA_PICKLE
+    amount: 12
+    reward-points: 80
+    repeat-cooldown-minutes: 1440
+    icon: SEA_PICKLE
+  explore_prismarine:
+    title: "Мир: призмарин"
+    category: explore
+    description: "Морская добыча из опасных мест."
+    type: PICKUP_ITEM
+    target: PRISMARINE_SHARD
+    amount: 24
+    reward-points: 120
+    repeat-cooldown-minutes: 10080
+    icon: PRISMARINE_SHARD
+
+generator-pools:
+  daily:
+    kill: [ZOMBIE, SKELETON, SPIDER, CREEPER]
+    collect: [COAL, RAW_IRON, WHEAT, OAK_LOG]
+  weekly:
+    kill: [ZOMBIE, SKELETON, ENDERMAN, BLAZE, WITCH, GHAST, WITHER_SKELETON, GUARDIAN]
+    collect: [DIAMOND, LAPIS_LAZULI, REDSTONE, AMETHYST_SHARD, TROPICAL_FISH_BUCKET, GOAT_HORN]
+  evolution:
+    tier-2:
+      mobs: [ZOMBIE, SKELETON]
+      items: [IRON_INGOT, HONEY_BOTTLE]
+    tier-3:
+      mobs: [ENDERMAN, CAVE_SPIDER]
+      items: [GOLD_INGOT, AMETHYST_SHARD]
+    tier-4:
+      mobs: [BLAZE, WITHER_SKELETON]
+      items: [DIAMOND, QUARTZ]
+    tier-5:
+      mobs: [WITHER, ENDER_DRAGON]
+      items: [NETHERITE_SCRAP, ECHO_SHARD]

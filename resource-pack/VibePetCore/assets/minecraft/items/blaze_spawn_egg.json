@@ -1,0 +1,26 @@
+{
+  "model": {
+    "type": "minecraft:range_dispatch",
+    "property": "minecraft:custom_model_data",
+    "fallback": {
+      "type": "minecraft:model",
+      "model": "minecraft:item/blaze_spawn_egg"
+    },
+    "entries": [
+      {
+        "threshold": 200104,
+        "model": {
+          "type": "minecraft:model",
+          "model": "vibepetcore:item/egg/blaze"
+        }
+      },
+      {
+        "threshold": 200204,
+        "model": {
+          "type": "minecraft:model",
+          "model": "vibepetcore:item/empty/blaze"
+        }
+      }
+    ]
+  }
+}

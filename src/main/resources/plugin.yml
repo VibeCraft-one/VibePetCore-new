@@ -1,0 +1,24 @@
+name: VibePetCore
+version: ${version}
+main: dev.li2fox.vibepetcore.core.VibePetCorePlugin
+api-version: '1.21'
+author: Li2Fox
+description: Core infrastructure for the VibePet RPG pet system.
+softdepend: [PlaceholderAPI]
+commands:
+  vibepetcore:
+    description: VibePetCore administration command.
+    usage: /vibepetcore <status|reload|save|spawn|remove|debugpet|source|tppoint|leaderboard|admin|danger-delete>
+    aliases: [vpc]
+    permission: vibepetcore.admin
+  pet:
+    description: Player-facing VibePet command.
+    usage: /pet <menu|call|stay|follow|vault|autoloot|defense|position|evolve|info|points|quest|box|help>
+    permission: vibepetcore.use
+permissions:
+  vibepetcore.admin:
+    description: Allows managing VibePetCore.
+    default: op
+  vibepetcore.use:
+    description: Allows using player-facing pet features.
+    default: true

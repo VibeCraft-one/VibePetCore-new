@@ -1,0 +1,5 @@
+VibePetCore 0.1.72
+
+- Restored the compass center button in the pet menu.
+- Removed the top map title button from the pet menu instead.
+- No config or data migration is required.

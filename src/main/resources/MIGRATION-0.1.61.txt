@@ -1,0 +1,5 @@
+VibePet 0.1.61
+
+- Technical recovery build: current project state is captured before targeted cleanup.
+- No gameplay behavior changes are intended in this build.
+- Known cleanup targets: large command handler and damaged visible text encoding in Java files.

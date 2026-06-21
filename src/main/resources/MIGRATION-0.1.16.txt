@@ -1,0 +1,8 @@
+VibePetCore 0.1.16 - SQLite и новые задания
+
+1. storage.backend по умолчанию sqlite. База создаётся в plugins/VibePetCore/players.db.
+2. Старые JSON-файлы из players/<uuid>.json не удаляются. При входе игрока они читаются и сохраняются в SQLite.
+3. Если SQLite не поднимется, плагин сам вернётся на json и напишет предупреждение в консоль.
+4. quests.yml теперь поддерживает category, description, icon и repeat-cooldown-minutes.
+5. В GUI заданий появились вкладки: все, ежедневные, недельные, эволюция, сбор, бой, мир.
+6. PICKUP_ITEM задания списывают предметы при сдаче через GUI или /pet quest turnin <id>.

@@ -1,0 +1,30 @@
+# Служебная форма Vex. Отдельным яйцом не выдаётся: используется для легендарного Allay.
+enabled: true
+personality: BURST
+combat:
+  attack-rating: 1.96
+  attack-tempo: 1.10
+behavior:
+  roam-radius: 6.5
+  manual-roam-radius: 7.5
+  ambient-speed-multiplier: 0.58
+  max-stay-seconds: 60
+  spawn-retry-seconds: 3
+emotion:
+  enabled: true
+  interval-min-ticks: 20
+  interval-max-ticks: 45
+food:
+  heal: [AMETHYST_SHARD, PHANTOM_MEMBRANE]
+  satiety: [ECHO_SHARD, GLOW_BERRIES]
+auto-loot:
+  enabled: false
+  sample-mode: true
+  radius: 3.0
+  blacklist: [ROTTEN_FLESH, NETHERRACK]
+scale-by-evolution:
+  1: 0.60
+  2: 0.72
+  3: 0.84
+  4: 0.96
+  5: 1.08

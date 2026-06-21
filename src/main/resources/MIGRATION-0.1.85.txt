@@ -1,0 +1,4 @@
+0.1.85
+- Made pet aggression reliable when the combat toggle is enabled: pets now consistently answer when their owner attacks or is attacked.
+- Added a real ranged combat pattern for Blaze, Breeze, and Ghast with visible projectile-like effects and ranged spacing logic.
+- Rebalanced combat pattern selection so every pet type keeps an aggressive combat identity while ranged pets no longer behave like pure melee followers.

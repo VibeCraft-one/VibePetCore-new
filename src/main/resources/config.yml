@@ -1,0 +1,461 @@
+config-version: "${version}"
+
+language: ru
+# ru - Russian messages from messages/ru.yml.
+# en / eng - English messages from messages/en.yml.
+
+resource-pack:
+  # Выключено: VibePetCore не отправляет и не раздаёт ресурс-пак.
+  enabled: false
+  url: ""
+  sha1: ""
+  required: false
+  prompt: "Для миниатюр питомцев нужен ресурс-пак VibePetCore."
+  auto-host:
+    enabled: false
+    bind-host: "0.0.0.0"
+    port: 25512
+    # Если server-ip пустой, локальный fallback будет 127.0.0.1.
+    # Для игроков извне лучше указать IP/домен сервера, например: "play.example.ru"
+    public-host: ""
+    # Если нужен полный адрес вручную, он перекрывает public-host/port.
+    public-url: ""
+
+debug:
+  # Включайте на тестах. Пишет важные события питомцев в консоль и debug.log.
+  enabled: false
+  file: true
+  pet:
+    # Логи, когда питомец застрял и начинает recovery.
+    stuck: false
+    # Логи по входящему урону питомца.
+    damage: false
+    # Логи по состояниям, спавну и обновлению runtime-питомца.
+    runtime: false
+
+storage:
+  # sqlite - один файл players.db, лучше для локального теста.
+  # json - старое поведение: отдельный players/<uuid>.json на каждого игрока.
+  # mysql - хранение в общей MySQL базе; при первом чтении подтягивает старые данные из players.db/json.
+  backend: mysql
+  sqlite:
+    file: players.db
+  mysql:
+    # Если jdbc-url заполнен, host/port/database/use-ssl ниже не используются.
+    jdbc-url: ""
+    host: "127.0.0.1"
+    port: 3306
+    database: "vibepetcore"
+    username: "vibepetcore"
+    # Никогда не храните реальный пароль в репозитории.
+    password: "change_me"
+    table: "vibepet_player_data"
+    use-ssl: false
+    allow-public-key-retrieval: true
+    connection-parameters: "serverTimezone=UTC&characterEncoding=utf8&useUnicode=true&createDatabaseIfNotExist=true"
+  migration:
+    # При MySQL: один раз переносит всех найденных игроков из players.db/json, а не ждёт входа каждого игрока.
+    migrate-all-on-enable: true
+    # После полностью успешного переноса локальные файлы не удаляются навсегда, а уезжают в архив.
+    archive-local-after-success: true
+    archive-folder: "migrated-local-storage"
+
+worlds:
+  default:
+    # В обычных мирах питомцы работают полностью.
+    pets-enabled: true
+    attacks-enabled: true
+    buffs-enabled: true
+    autoloot-enabled: true
+    decorative-only: false
+  rules:
+    # На спавне питомцы работают полностью, кроме автолута.
+    spawn:
+      pets-enabled: true
+      attacks-enabled: true
+      buffs-enabled: true
+      autoloot-enabled: false
+      decorative-only: false
+
+tasks:
+  pet-update-interval-ticks: 4
+  trigger-check-interval-ticks: 100
+  save-interval-ticks: 6000
+
+pet-engine:
+  follow-min-radius: 1.0
+  follow-max-radius: 3.0
+  return-distance: 10.0
+  teleport-distance: 36.0
+  base-speed: 0.26
+  sprint-speed: 0.42
+  attack-range: 2.2
+  attack-cooldown-ticks: 30
+  aggro-radius: 8.0
+  incoming-damage-multiplier-by-evolution:
+    1: 0.30
+    2: 0.24
+    3: 0.18
+    4: 0.15
+    5: 0.12
+
+abilities:
+  combat:
+    base-damage: 1.35
+    damage-per-level: 0.32
+    damage-per-sub-level: 0.05
+    damage-per-evolution: 0.65
+    # Глобальная тонкая балансировка урона по стадиям эволюции.
+    # Админ может ослабить или усилить все формы Э1-Э5 без правки pet yml и jar.
+    evolution-multiplier:
+      1: 0.82
+      2: 0.94
+      3: 1.02
+      4: 1.10
+      5: 1.18
+    # Базовая точка для pet combat.attack-rating. Если у пета attack-rating 1.80,
+    # то он даст x1.00 к типовой части урона. Более сильные виды будут выше, слабые ниже.
+    attack-rating-baseline: 1.80
+    # Тонкая ручная подстройка поверх attack-rating.
+    # Обычно держим 1.0 и живём от цифры в pets/<type>.yml.
+    type-multiplier:
+      wolf: 1.0
+      blaze: 1.0
+      vex: 1.0
+      bee: 1.0
+      fox: 1.0
+      rabbit: 1.0
+      cat: 1.0
+      parrot: 1.0
+      bat: 1.0
+      allay: 1.0
+      axolotl: 1.0
+      breeze: 1.0
+      frog: 1.0
+      ghast: 1.0
+      panda: 1.0
+      phantom: 1.0
+      armadillo: 1.0
+    rarity-multiplier:
+      common: 1.0
+      rare: 1.18
+      epic: 1.30
+      legendary: 1.42
+  defense:
+    damage-reduction-percent: 0.05
+    reduction-per-level: 0.006
+    reaction-cooldown-ticks: 180
+    rescue-health-percent: 0.35
+    rescue-cooldown-ticks: 1200
+    rescue-shield-duration-ticks: 100
+    rescue-regeneration-duration-ticks: 80
+  passive:
+    # Э1-Э3 кастуют короткими окнами с паузой.
+    # Э4-Э5 уже могут держать основные эффекты почти постоянно.
+    duration-ticks-by-evolution:
+      1: 100
+      2: 120
+      3: 140
+      4: 260
+      5: 320
+    cast-cooldown-ticks-by-evolution:
+      1: 200
+      2: 200
+      3: 180
+      4: 120
+      5: 100
+    max-effects-by-evolution:
+      1: 1
+      2: 2
+      3: 2
+      4: 3
+      5: 3
+    # До финальной формы держим эффекты без усиленных уровней.
+    # В Minecraft нет "половинного" amplifier, поэтому ранние стадии слабее через uptime и cap.
+    amplifier-cap-by-evolution:
+      1: 0
+      2: 0
+      3: 0
+      4: 0
+      5: 1
+    amplifier-per-levels: 6
+  utility:
+    auto-pickup-radius: 5.0
+    auto-pickup-blacklist:
+      - ROTTEN_FLESH
+      - NETHERRACK
+    fox-extra-loot-chance: 0.05
+    fox-extra-loot-cooldown-ticks: 220
+    mining-proc-chance: 0.07
+    mining-proc-cooldown-ticks: 120
+
+rarity:
+  chances:
+    common: 0.82
+    rare: 0.18
+    epic: 0.0
+    legendary: 0.0
+
+pets:
+  defaults:
+    damage: 2.0
+    speed: 0.24
+    radius: 8.0
+
+progression:
+  base-xp: 100
+  xp-multiplier: 1.35
+  max-level: 10
+  max-sub-level: 10
+  activity-xp: 1
+  combat-xp: 3
+  nearby-time-xp: 1
+  bond:
+    max: 10
+    nearby-gain: 1
+    nearby-cooldown-seconds: 600
+    food-gain: 1
+    food-cooldown-seconds: 300
+    rare-food-gain: 1
+    rare-food-cooldown-seconds: 600
+    combat-gain: 1
+    combat-cooldown-seconds: 180
+    kill-gain: 1
+    kill-cooldown-seconds: 300
+    death-loss: 1
+  rarity-xp-multiplier:
+    common: 1.0
+    rare: 1.35
+    epic: 1.55
+    legendary: 1.8
+  evolution:
+    # Старые поля оставлены как общий fallback для внешних интеграций.
+    # Реальный путь роста ниже задаётся отдельно для каждого перехода.
+    required-level: 10
+    required-sub-level: 10
+    stages:
+      2:
+        # Э1 -> Э2: первый осознанный шаг, быстро проверяет базовую связь.
+        required-level: 3
+        required-bond: 4
+        required-quests: 1
+      3:
+        # Э2 -> Э3: питомец уже должен поучаствовать в развитии стадии.
+        required-level: 5
+        required-bond: 6
+        required-quests: 1
+      4:
+        # Э3 -> Э4: поздняя форма, нужен более серьёзный прогресс.
+        required-level: 7
+        required-bond: 8
+        required-quests: 2
+      5:
+        # Э4 -> Э5: финальная форма и максимальная проверка.
+        required-level: 10
+        required-bond: 10
+        required-quests: 3
+    # Legacy fallback for external API calls only. Active pet evolution uses the Pet Source:
+    # 100% within 10 blocks, 25% away from it.
+    chance:
+      common: 0.45
+      rare: 0.65
+      epic: 0.75
+      legendary: 0.85
+  feeding:
+    xp-cooldown-seconds: 300
+    xp-feeds-per-reward: 5
+    xp-reward-percent: 1.0
+    growth-boost-duration-ticks: 1200
+    growth-boost-multiplier: 1.5
+    common-foods:
+      - WHEAT
+      - APPLE
+      - CARROT
+      - COOKED_BEEF
+      - COOKED_CHICKEN
+      - COD
+      - SALMON
+      - SWEET_BERRIES
+      - GLOW_BERRIES
+    rare-resources:
+      - EMERALD
+      - AMETHYST_SHARD
+      - GOLDEN_CARROT
+      - HONEY_BOTTLE
+    evolution-items:
+      - NETHER_STAR
+      - ECHO_SHARD
+      - DIAMOND
+
+rewards:
+  quest-complete-points: 25
+  activity-points: 5
+  kill-points: 2
+
+economy:
+  minute-point-cap: 140
+  repeated-action-window-ticks: 1200
+  repeated-action-soft-limit: 10
+  repeated-action-multiplier: 0.35
+  afk-distance-threshold: 7.5
+  activity-reward-interval-ticks: 1200
+  exploration-points: 4
+  kill-points:
+    default: 2
+    boss: 90
+  boxes:
+    basic:
+      cost: 100
+      free-cooldown-minutes: 120
+      pity-threshold: 7
+      guarantee-rare-only: true
+      rarity:
+        common: 0.82
+        rare: 0.18
+  quests:
+    daily_zombies:
+      title: "Ежедневно: зомби"
+      type: KILL_MOB
+      target: ZOMBIE
+      amount: 12
+      reward-points: 35
+    daily_skeletons:
+      title: "Ежедневно: скелеты"
+      type: KILL_MOB
+      target: SKELETON
+      amount: 10
+      reward-points: 35
+    daily_logs:
+      title: "Ежедневно: древесина"
+      type: BREAK_BLOCK
+      target: OAK_LOG
+      amount: 24
+      reward-points: 30
+    daily_stone:
+      title: "Ежедневно: камень"
+      type: BREAK_BLOCK
+      target: STONE
+      amount: 64
+      reward-points: 30
+    gather_iron:
+      title: "Сбор: железо"
+      type: PICKUP_ITEM
+      target: RAW_IRON
+      amount: 16
+      reward-points: 45
+    gather_amethyst:
+      title: "Сбор: аметист"
+      type: PICKUP_ITEM
+      target: AMETHYST_SHARD
+      amount: 12
+      reward-points: 55
+    evolution_2:
+      title: "Эволюция II: охота"
+      type: KILL_MOB
+      target: SPIDER
+      amount: 8
+      reward-points: 60
+    evolution_3:
+      title: "Эволюция III: шахта"
+      type: BREAK_BLOCK
+      target: DEEPSLATE
+      amount: 96
+      reward-points: 80
+    evolution_4:
+      title: "Эволюция IV: эндермены"
+      type: KILL_MOB
+      target: ENDERMAN
+      amount: 6
+      reward-points: 120
+    evolution_5:
+      title: "Эволюция V: визер"
+      type: KILL_MOB
+      target: WITHER
+      amount: 1
+      reward-points: 260
+
+egg-core:
+  active-button-material: WARPED_BUTTON
+  enchanted-glint: true
+  custom-model-data:
+    egg:
+      default: 0
+      axolotl: 200101
+      bat: 200102
+      bee: 200103
+      blaze: 200104
+      breeze: 200105
+      cat: 200106
+      fox: 200107
+      frog: 200108
+      ghast: 200109
+      panda: 200110
+      parrot: 200111
+      phantom: 200112
+      rabbit: 200113
+      allay: 200114
+      armadillo: 200115
+      vex: 200116
+      wolf: 200117
+    empty:
+      default: 0
+      axolotl: 200201
+      bat: 200202
+      bee: 200203
+      blaze: 200204
+      breeze: 200205
+      cat: 200206
+      fox: 200207
+      frog: 200208
+      ghast: 200209
+      panda: 200210
+      parrot: 200211
+      phantom: 200212
+      rabbit: 200213
+      allay: 200214
+      armadillo: 200215
+      vex: 200216
+      wolf: 200217
+    active-button:
+      default: 0
+  purge-epoch: 0
+  max-durability: 7
+  rarity-upgrade:
+    required-sacrifices: 2
+    chances:
+      common: 0.40
+      rare: 0.20
+      epic: 0.10
+  death-durability-loss-chance:
+    # Шанс потерять 1 прочность ядра при смерти с активным питомцем.
+    # Чем выше эволюция, тем ядро стабильнее, но штраф по времени дольше.
+    1: 0.30
+    2: 0.24
+    3: 0.18
+    4: 0.14
+    5: 0.10
+  max-satiety: 5
+  death-penalty-minutes:
+    1: 1
+    2: 2
+    3: 3
+    4: 4
+    5: 5
+  equipped-keep-chance:
+    # Это шанс СОХРАНИТЬ надетые вещи при смерти с активным питомцем.
+    # Пример: 0.75 значит примерно 25% шанс, что вещь всё-таки выпадет.
+    1: 0.75
+    2: 0.80
+    3: 0.84
+    4: 0.88
+    5: 0.90
+
+pet-vault:
+  title: "Рюкзак питомца"
+  size-by-evolution:
+    1: 9
+    2: 18
+    3: 18
+    4: 27
+    5: 36
+  allay-bonus-slots: 9

@@ -1,0 +1,4 @@
+VibePet 0.1.62
+
+- Fixed damaged Russian text in pet core lore and active pet button lore.
+- No GUI click behavior or pet movement behavior changes are intended in this build.

@@ -1,0 +1,4 @@
+VibePetCore 0.1.69
+
+- Filled the remaining empty glass-pane gaps in the pet menu around the vault and bottom action buttons.
+- No config or data migration is required.

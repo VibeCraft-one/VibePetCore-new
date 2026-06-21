@@ -1,0 +1,30 @@
+# Настройки попугая. Попугай - разведка, скорость и лёгкая поддержка.
+enabled: true
+personality: SCOUT
+combat:
+  attack-rating: 1.54
+  attack-tempo: 1.12
+behavior:
+  roam-radius: 8.0
+  manual-roam-radius: 9.0
+  ambient-speed-multiplier: 0.66
+  max-stay-seconds: 90
+  spawn-retry-seconds: 3
+emotion:
+  enabled: true
+  interval-min-ticks: 26
+  interval-max-ticks: 62
+food:
+  heal: [WHEAT_SEEDS, MELON_SEEDS, PUMPKIN_SEEDS, BEETROOT_SEEDS]
+  satiety: [APPLE, SWEET_BERRIES]
+auto-loot:
+  enabled: true
+  sample-mode: true
+  radius: 3.5
+  blacklist: [ROTTEN_FLESH, NETHERRACK]
+scale-by-evolution:
+  1: 0.58
+  2: 0.70
+  3: 0.82
+  4: 0.94
+  5: 1.06

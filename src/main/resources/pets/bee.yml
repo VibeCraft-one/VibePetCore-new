@@ -1,0 +1,30 @@
+# Настройки пчелы. Пчела - поддержка, регенерация и реакция на угрозы.
+enabled: true
+personality: SUPPORT
+combat:
+  attack-rating: 1.78
+  attack-tempo: 1.08
+behavior:
+  roam-radius: 8.0
+  manual-roam-radius: 9.0
+  ambient-speed-multiplier: 0.60
+  max-stay-seconds: 90
+  spawn-retry-seconds: 3
+emotion:
+  enabled: true
+  interval-min-ticks: 24
+  interval-max-ticks: 56
+food:
+  heal: [HONEY_BOTTLE]
+  satiety: [HONEYCOMB, DANDELION, POPPY, CORNFLOWER, SUNFLOWER]
+auto-loot:
+  enabled: true
+  sample-mode: true
+  radius: 3.5
+  blacklist: [ROTTEN_FLESH, NETHERRACK]
+scale-by-evolution:
+  1: 0.58
+  2: 0.78
+  3: 0.98
+  4: 1.18
+  5: 1.38

@@ -1,0 +1,30 @@
+# Настройки волка. Волк - боевой защитник: патрулирует рядом, быстрее реагирует на угрозы.
+enabled: true
+personality: AGGRESSIVE
+combat:
+  attack-rating: 2.10
+  attack-tempo: 1.00
+behavior:
+  roam-radius: 7.5
+  manual-roam-radius: 8.5
+  ambient-speed-multiplier: 0.78
+  max-stay-seconds: 75
+  spawn-retry-seconds: 3
+emotion:
+  enabled: true
+  interval-min-ticks: 28
+  interval-max-ticks: 58
+food:
+  heal: [BEEF, COOKED_BEEF, CHICKEN, COOKED_CHICKEN, MUTTON, COOKED_MUTTON, RABBIT, COOKED_RABBIT]
+  satiety: [BONE, COOKED_BEEF, COOKED_RABBIT]
+auto-loot:
+  enabled: false
+  sample-mode: true
+  radius: 4.0
+  blacklist: [ROTTEN_FLESH, NETHERRACK]
+scale-by-evolution:
+  1: 0.72
+  2: 0.95
+  3: 1.19
+  4: 1.42
+  5: 1.65

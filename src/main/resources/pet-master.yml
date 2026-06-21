@@ -1,0 +1,9 @@
+# Конфиг Источника питомцев.
+# /vpc source set - поставить Источник на текущую точку
+# /vpc source remove - убрать Источник
+# /vpc source info - показать текущую точку
+# /vpc tppoint set|clear|info - отдельная точка телепорта для игроков
+
+style: source
+
+location: {}

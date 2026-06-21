@@ -1,0 +1,22 @@
+VibePetCore 0.1.24
+
+- Evolution GUI was expanded:
+  - current pet menu now shows exact evolution requirements
+  - per-pet help pages show every evolution step
+  - player can click a pet card in GUI to open its detailed page
+  - GUI shows which requirements are ready and which are missing
+
+- Evolution items are now checked in two places:
+  - player inventory
+  - active pet backpack
+
+- Evolution consumes the item from player inventory first, then from the pet backpack.
+
+- Feeding XP is capped:
+  - one food/rare-resource feeding can add at most 20% of the current level progress
+  - the cap is applied after growth boost, so boosts cannot bypass it
+
+- Real evolution readiness now matches the UI:
+  - level requirement
+  - readiness 10/10
+  - one valid evolution item

@@ -1,0 +1,30 @@
+# Настройки кота. Кот - спокойный ночной спутник: держится ближе, отдыхает чаще, избегает лишнего боя.
+enabled: true
+personality: PASSIVE
+combat:
+  attack-rating: 1.56
+  attack-tempo: 1.04
+behavior:
+  roam-radius: 5.0
+  manual-roam-radius: 6.0
+  ambient-speed-multiplier: 0.42
+  max-stay-seconds: 90
+  spawn-retry-seconds: 3
+emotion:
+  enabled: true
+  interval-min-ticks: 35
+  interval-max-ticks: 75
+food:
+  heal: [COD, SALMON, TROPICAL_FISH]
+  satiety: [COOKED_COD, COOKED_SALMON]
+auto-loot:
+  enabled: false
+  sample-mode: true
+  radius: 3.0
+  blacklist: [ROTTEN_FLESH, NETHERRACK]
+scale-by-evolution:
+  1: 1.24
+  2: 1.44
+  3: 1.64
+  4: 1.84
+  5: 2.03

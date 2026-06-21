@@ -1,0 +1,5 @@
+VibePetCore 0.1.81
+
+- Evolution quest GUI now shows only quests relevant to the selected pet's next evolution.
+- Other quest categories keep showing their normal pools.
+- No config or data migration is required.

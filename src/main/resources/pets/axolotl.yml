@@ -1,0 +1,30 @@
+# Настройки аксолотля. Водоплавающий разведчик: лечит и бодро помогает в вылазках.
+enabled: true
+personality: SUPPORT
+combat:
+  attack-rating: 1.64
+  attack-tempo: 1.08
+behavior:
+  roam-radius: 8.0
+  manual-roam-radius: 9.0
+  ambient-speed-multiplier: 0.64
+  max-stay-seconds: 90
+  spawn-retry-seconds: 3
+emotion:
+  enabled: true
+  interval-min-ticks: 24
+  interval-max-ticks: 56
+food:
+  heal: [COD, SALMON, TROPICAL_FISH]
+  satiety: [SEAGRASS, KELP]
+auto-loot:
+  enabled: true
+  sample-mode: true
+  radius: 4.0
+  blacklist: [ROTTEN_FLESH, NETHERRACK]
+scale-by-evolution:
+  1: 0.58
+  2: 0.74
+  3: 0.91
+  4: 1.07
+  5: 1.23

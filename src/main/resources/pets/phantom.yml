@@ -1,0 +1,30 @@
+# Настройки фантома. Ночной преследователь: быстрые заходы и разведка.
+enabled: true
+personality: SCOUT
+combat:
+  attack-rating: 1.88
+  attack-tempo: 1.14
+behavior:
+  roam-radius: 8.0
+  manual-roam-radius: 9.0
+  ambient-speed-multiplier: 0.68
+  max-stay-seconds: 80
+  spawn-retry-seconds: 3
+emotion:
+  enabled: true
+  interval-min-ticks: 22
+  interval-max-ticks: 52
+food:
+  heal: [PHANTOM_MEMBRANE, CHICKEN]
+  satiety: [PHANTOM_MEMBRANE, GLOW_BERRIES]
+auto-loot:
+  enabled: true
+  sample-mode: true
+  radius: 3.5
+  blacklist: [ROTTEN_FLESH, NETHERRACK]
+scale-by-evolution:
+  1: 0.42
+  2: 0.54
+  3: 0.68
+  4: 0.82
+  5: 0.96

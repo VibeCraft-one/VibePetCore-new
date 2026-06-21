@@ -1,0 +1,12 @@
+Temporary rollback note for VibePetCore 0.1.69
+
+Previous server jar before this update:
+C:\Users\Li2Fox\IdeaProjects\VibePetCore\build\libs\VibePetCore-0.1.68.jar
+
+If 0.1.69 needs to be rolled back, stop the server, delete:
+C:\Users\Li2Fox\Desktop\SERVER\Survival\plugins\VibePetCore
+C:\Users\Li2Fox\Desktop\SERVER\Survival\plugins\VibePetCore*.jar
+
+Then copy VibePetCore-0.1.68.jar from build\libs into the plugins folder and start the server.
+
+Delete this file after the 0.1.69 server check is confirmed.

@@ -1,0 +1,2 @@
+0.1.88
+- Fixed pet combat suppression logic so WorldGuard PvP checks only block PvP scenarios and no longer suppress pet combat against mobs in allowed worlds.

@@ -1,0 +1,30 @@
+# Настройки броненосца. Наземный защитник: броня, выживание и ровный отклик.
+enabled: true
+personality: DEFENSIVE
+combat:
+  attack-rating: 1.72
+  attack-tempo: 1.00
+behavior:
+  roam-radius: 6.5
+  manual-roam-radius: 7.5
+  ambient-speed-multiplier: 0.62
+  max-stay-seconds: 85
+  spawn-retry-seconds: 3
+emotion:
+  enabled: true
+  interval-min-ticks: 28
+  interval-max-ticks: 60
+food:
+  heal: [SPIDER_EYE, FERMENTED_SPIDER_EYE]
+  satiety: [SHORT_GRASS, FERN]
+auto-loot:
+  enabled: false
+  sample-mode: true
+  radius: 3.0
+  blacklist: [ROTTEN_FLESH, NETHERRACK]
+scale-by-evolution:
+  1: 0.62
+  2: 0.78
+  3: 0.94
+  4: 1.10
+  5: 1.25

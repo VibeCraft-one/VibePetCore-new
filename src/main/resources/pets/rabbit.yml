@@ -1,0 +1,30 @@
+# Настройки кролика. Кролик - мобильность, прыжки и лёгкий бонус к копанию.
+enabled: true
+personality: MOBILITY
+combat:
+  attack-rating: 1.60
+  attack-tempo: 1.06
+behavior:
+  roam-radius: 5.0
+  manual-roam-radius: 6.5
+  ambient-speed-multiplier: 0.55
+  max-stay-seconds: 75
+  spawn-retry-seconds: 3
+emotion:
+  enabled: true
+  interval-min-ticks: 26
+  interval-max-ticks: 54
+food:
+  heal: [CARROT, POTATO, WHEAT]
+  satiety: [GOLDEN_CARROT, DANDELION]
+auto-loot:
+  enabled: false
+  sample-mode: true
+  radius: 3.5
+  blacklist: [ROTTEN_FLESH, NETHERRACK]
+scale-by-evolution:
+  1: 1.02
+  2: 1.19
+  3: 1.36
+  4: 1.53
+  5: 1.69

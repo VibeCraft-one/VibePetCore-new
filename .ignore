@@ -1,0 +1,8 @@
+build/
+.gradle/
+.idea/
+out/
+src/main/resources/MIGRATION-*.txt
+*.hprof
+hs_err_pid*.log
+replay_pid*.log

@@ -1,0 +1,7 @@
+VibePetCore 0.1.75
+
+- Reduced normal pet summon charge time by one second.
+- Made normal summon feedback quieter and reserved the bigger sounds for evolution.
+- Added a lightweight two-second evolution particle orbit and quick pet runtime refresh.
+- Admin evolution-stage changes now refresh the active pet runtime without requiring offhand re-equip.
+- No config or data migration is required.

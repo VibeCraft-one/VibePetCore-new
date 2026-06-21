@@ -1,0 +1,13 @@
+VibePetCore 0.1.15/0.1.16 - что проверить после обновления
+
+1. Старые ядра питомцев можно оставить. При первом обновлении в слоте второй руки они сами допишут новые поля.
+2. Если меняли config.yml или pets/*.yml вручную, сделайте копию и перенесите новые секции руками:
+   - worlds для правил миров;
+   - debug для мини-логгера;
+   - food/auto-loot/behavior в каждом pets/<pet>.yml.
+3. PetVault хранится по UUID питомца в pet-vaults/*.yml. При передаче ядра другому игроку PetVault остаётся с питомцем.
+4. NPC GUI привязывается командой /vpc npc bind <main|quests|box|pet|help>, когда админ смотрит на NPC.
+5. PlaceholderAPI, если установлен, получает плейсхолдеры vibepet_points, vibepet_pet_name, vibepet_pet_level и другие.
+6. В 0.1.16 появился storage.backend. По умолчанию sqlite создаёт plugins/VibePetCore/players.db.
+   Старые players/<uuid>.json читаются как fallback и переносятся в sqlite при входе игрока.
+7. quests.yml теперь основной файл заданий: category, description, icon и repeat-cooldown-minutes управляют GUI и повтором.

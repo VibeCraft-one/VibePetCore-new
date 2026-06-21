@@ -1,0 +1,26 @@
+{
+  "model": {
+    "type": "minecraft:range_dispatch",
+    "property": "minecraft:custom_model_data",
+    "fallback": {
+      "type": "minecraft:model",
+      "model": "minecraft:item/vex_spawn_egg"
+    },
+    "entries": [
+      {
+        "threshold": 200116,
+        "model": {
+          "type": "minecraft:model",
+          "model": "vibepetcore:item/egg/vex"
+        }
+      },
+      {
+        "threshold": 200216,
+        "model": {
+          "type": "minecraft:model",
+          "model": "vibepetcore:item/empty/vex"
+        }
+      }
+    ]
+  }
+}

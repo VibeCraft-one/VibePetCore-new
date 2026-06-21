@@ -1,0 +1,5 @@
+VibePetCore 0.1.78
+
+- The Pet Master "pet" button now opens the pet card/growth screen instead of the personal pet controller.
+- The personal pet controller remains available from /pet and the active pet core.
+- No config or data migration is required.

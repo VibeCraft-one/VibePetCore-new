@@ -1,0 +1,7 @@
+VibePetCore 0.1.79
+
+- Quest board now allows only one active quest per player.
+- Clicking an active unfinished quest cancels it.
+- Ready quests are still turned in by clicking them.
+- Quest lore now warns when another quest is already active.
+- No config or data migration is required.
