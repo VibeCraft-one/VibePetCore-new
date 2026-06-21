@@ -43,18 +43,18 @@ final class PetOverviewPage implements PetGuiPage {
         inventory.setItem(19, followControllerCenter(runtimePet, offhandPet));
         inventory.setItem(20, followPositionButton(runtimePet, offhandPet, 2));
         inventory.setItem(24, repairCoreButton(player, runtimePet, offhandPet));
-        inventory.setItem(26, aggressiveStyleButton(runtimePet));
+        inventory.setItem(26, aggressiveStyleButton(runtimePet, offhandPet));
         inventory.setItem(27, followPositionButton(runtimePet, offhandPet, 5));
         inventory.setItem(28, followPositionButton(runtimePet, offhandPet, 4));
         inventory.setItem(29, followPositionButton(runtimePet, offhandPet, 3));
-        inventory.setItem(31, gui.item(Material.CHEST, "&e" + GameText.petOverviewVault(), List.of(GameText.petOverviewVaultHint())));
+        inventory.setItem(31, vaultButton(runtimePet, offhandPet));
         inventory.setItem(32, passiveEffectButton(runtimePet, offhandPet, PotionEffectType.NIGHT_VISION, Material.ENDER_EYE));
         inventory.setItem(33, passiveEffectButton(runtimePet, offhandPet, PotionEffectType.SLOW_FALLING, Material.FEATHER));
         inventory.setItem(34, passiveEffectButton(runtimePet, offhandPet, PotionEffectType.INVISIBILITY, Material.GLASS));
-        inventory.setItem(35, autolootToggle(player));
-        inventory.setItem(36, followDistanceDownButton(runtimePet));
+        inventory.setItem(35, autolootToggle(player, offhandPet));
+        inventory.setItem(36, followDistanceDownButton(runtimePet, offhandPet));
         inventory.setItem(37, followDistanceCard(runtimePet, offhandPet));
-        inventory.setItem(38, followDistanceUpButton(runtimePet));
+        inventory.setItem(38, followDistanceUpButton(runtimePet, offhandPet));
         inventory.setItem(49, petCoreUsageInfo(summoned));
         inventory.setItem(51, renamePetButton(runtimePet, offhandPet));
         inventory.setItem(52, gui.exitButton());
@@ -161,14 +161,13 @@ final class PetOverviewPage implements PetGuiPage {
     }
 
     private ItemStack followControllerCenter(Optional<RuntimePet> runtimePet, Optional<OwnedPetData> offhandPet) {
-        Optional<OwnedPetData> petData = runtimePet.map(RuntimePet::data).or(() -> offhandPet);
-        if (petData.isEmpty()) {
+        if (runtimePet.isEmpty()) {
             return gui.item(Material.COMPASS, "&b" + GameText.petOverviewControllerTitle(), List.of(
-                GameText.petOverviewNeedCoreHint(),
+                activePetRequiredLine(offhandPet),
                 GameText.guiUnavailable()
             ));
         }
-        OwnedPetData pet = petData.get();
+        OwnedPetData pet = runtimePet.get().data();
         List<String> lore = new ArrayList<>();
         lore.add(GameText.petOverviewControllerCurrent(positionLabel(pet.followPosition()), pet.followDistanceTitle()));
         lore.add(GameText.petOverviewFollowDistanceHint());
@@ -176,11 +175,10 @@ final class PetOverviewPage implements PetGuiPage {
     }
 
     private ItemStack followPositionButton(Optional<RuntimePet> runtimePet, Optional<OwnedPetData> offhandPet, int position) {
-        Optional<OwnedPetData> petData = runtimePet.map(RuntimePet::data).or(() -> offhandPet);
-        if (petData.isEmpty()) {
-            return gui.item(Material.RED_STAINED_GLASS_PANE, gui.msg("gui.pet.position.title", "&7Position"), List.of(GameText.petOverviewNeedCoreHint()));
+        if (runtimePet.isEmpty()) {
+            return gui.item(Material.RED_STAINED_GLASS_PANE, gui.msg("gui.pet.position.title", "&7Position"), activePetRequiredLore(offhandPet));
         }
-        OwnedPetData pet = petData.get();
+        OwnedPetData pet = runtimePet.get().data();
         String label = positionLabel(position);
         boolean active = pet.followPosition() == position;
         String title = active ? "&a" + label : "&c" + label;
@@ -191,32 +189,31 @@ final class PetOverviewPage implements PetGuiPage {
     }
 
     private ItemStack followDistanceCard(Optional<RuntimePet> runtimePet, Optional<OwnedPetData> offhandPet) {
-        Optional<OwnedPetData> petData = runtimePet.map(RuntimePet::data).or(() -> offhandPet);
-        if (petData.isEmpty()) {
-            return gui.item(Material.LEAD, gui.msg("gui.pet.distance.title", "&dDistance"), List.of(GameText.petOverviewNeedCoreHint()));
+        if (runtimePet.isEmpty()) {
+            return gui.item(Material.LEAD, gui.msg("gui.pet.distance.title", "&dDistance"), activePetRequiredLore(offhandPet));
         }
-        OwnedPetData pet = petData.get();
+        OwnedPetData pet = runtimePet.get().data();
         return gui.item(Material.LEAD, gui.msg("gui.pet.distance.current.title", "&dDistance &f") + pet.followDistanceTitle(), List.of(
             GameText.petOverviewFollowDistanceHint(),
             gui.msg("gui.pet.distance.current.line", "&7Current level: &f") + pet.followDistanceTitle()
         ));
     }
 
-    private ItemStack followDistanceDownButton(Optional<RuntimePet> runtimePet) {
+    private ItemStack followDistanceDownButton(Optional<RuntimePet> runtimePet, Optional<OwnedPetData> offhandPet) {
         boolean enabled = runtimePet.isPresent();
         return gui.item(
             Material.REDSTONE_TORCH,
             GameText.petOverviewFollowBackTitle(),
-            enabled ? List.of(gui.msg("gui.pet.follow.closer", "&7Make the pet follow closer."), GameText.petOverviewFollowDistanceHint()) : List.of(GameText.petOverviewNeedCoreHint())
+            enabled ? List.of(gui.msg("gui.pet.follow.closer", "&7Make the pet follow closer."), GameText.petOverviewFollowDistanceHint()) : activePetRequiredLore(offhandPet)
         );
     }
 
-    private ItemStack followDistanceUpButton(Optional<RuntimePet> runtimePet) {
+    private ItemStack followDistanceUpButton(Optional<RuntimePet> runtimePet, Optional<OwnedPetData> offhandPet) {
         boolean enabled = runtimePet.isPresent();
         return gui.item(
             Material.SOUL_TORCH,
             GameText.petOverviewFollowForwardTitle(),
-            enabled ? List.of(gui.msg("gui.pet.follow.further", "&7Make the pet follow farther."), GameText.petOverviewFollowDistanceHint()) : List.of(GameText.petOverviewNeedCoreHint())
+            enabled ? List.of(gui.msg("gui.pet.follow.further", "&7Make the pet follow farther."), GameText.petOverviewFollowDistanceHint()) : activePetRequiredLore(offhandPet)
         );
     }
 
@@ -271,16 +268,15 @@ final class PetOverviewPage implements PetGuiPage {
     }
 
     private ItemStack passiveEffectButton(Optional<RuntimePet> runtimePet, Optional<OwnedPetData> offhandPet, PotionEffectType effectType, Material material) {
-        Optional<OwnedPetData> petData = runtimePet.map(RuntimePet::data).or(() -> offhandPet);
         String effectKey = effectType.getKey().getKey().toLowerCase(java.util.Locale.ROOT);
         String effectName = GameText.effectName(effectKey);
-        if (petData.isEmpty()) {
+        if (runtimePet.isEmpty()) {
             return gui.item(Material.GRAY_DYE, gui.msg("gui.pet.buff-toggle.title", "&7Auto-buff: {effect}", "effect", effectName), List.of(
-                GameText.petOverviewNeedCoreHint(),
+                activePetRequiredLine(offhandPet),
                 GameText.guiUnavailable()
             ));
         }
-        boolean enabled = petData.get().passiveEffectEnabled(effectKey);
+        boolean enabled = runtimePet.get().data().passiveEffectEnabled(effectKey);
         List<String> lore = new ArrayList<>();
         lore.add(enabled
             ? gui.msg("gui.pet.buff-toggle.enabled", "&aEnabled")
@@ -294,11 +290,11 @@ final class PetOverviewPage implements PetGuiPage {
         );
     }
 
-    private ItemStack autolootToggle(Player player) {
+    private ItemStack autolootToggle(Player player, Optional<OwnedPetData> offhandPet) {
         Optional<RuntimePet> runtimePet = gui.runtimePet(player);
         if (runtimePet.isEmpty()) {
             return gui.item(Material.HOPPER, "&e" + GameText.petOverviewAutoLoot(false), List.of(
-                GameText.petOverviewNeedCoreHint(),
+                activePetRequiredLine(offhandPet),
                 GameText.guiUnavailable()
             ));
         }
@@ -335,10 +331,17 @@ final class PetOverviewPage implements PetGuiPage {
         ));
     }
 
-    private ItemStack aggressiveStyleButton(Optional<RuntimePet> runtimePet) {
+    private ItemStack vaultButton(Optional<RuntimePet> runtimePet, Optional<OwnedPetData> offhandPet) {
+        if (runtimePet.isEmpty()) {
+            return gui.item(Material.CHEST, "&7" + GameText.petOverviewVault(), activePetRequiredLore(offhandPet));
+        }
+        return gui.item(Material.CHEST, "&e" + GameText.petOverviewVault(), List.of(GameText.petOverviewVaultHint()));
+    }
+
+    private ItemStack aggressiveStyleButton(Optional<RuntimePet> runtimePet, Optional<OwnedPetData> offhandPet) {
         if (runtimePet.isEmpty()) {
             return gui.item(Material.SHIELD, GameText.petOverviewAggressiveTitle(), List.of(
-                GameText.petOverviewNeedCoreHint(),
+                activePetRequiredLine(offhandPet),
                 GameText.guiUnavailable()
             ));
         }
@@ -381,6 +384,16 @@ final class PetOverviewPage implements PetGuiPage {
             case 7 -> GameText.text("gui.pet.position.front-left", "спереди слева", "front-left");
             default -> GameText.text("gui.pet.position.front", "спереди", "front");
         };
+    }
+
+    private List<String> activePetRequiredLore(Optional<OwnedPetData> offhandPet) {
+        return List.of(activePetRequiredLine(offhandPet), GameText.guiUnavailable());
+    }
+
+    private String activePetRequiredLine(Optional<OwnedPetData> offhandPet) {
+        return offhandPet.isPresent()
+            ? GameText.text("gui.pet.need-active-pet", "&7Сначала призовите питомца.", "&7Summon the pet first.")
+            : GameText.petOverviewNeedCoreHint();
     }
 
     private int countMaterial(Player player, Material material) {

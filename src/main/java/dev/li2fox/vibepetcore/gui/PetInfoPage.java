@@ -2,6 +2,7 @@ package dev.li2fox.vibepetcore.gui;
 
 import dev.li2fox.vibepetcore.core.GameText;
 import dev.li2fox.vibepetcore.player.OwnedPetData;
+import dev.li2fox.vibepetcore.pet.RuntimePet;
 import dev.li2fox.vibepetcore.pet.PetType;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,6 +35,7 @@ final class PetInfoPage implements PetGuiPage {
         PetType type = PetType.parse(rawType).orElse(PetType.WOLF);
         String normalizedSource = gui.normalizeSource(source);
         Optional<OwnedPetData> petData = gui.selectedPetForType(player, type);
+        boolean activePetForType = activePetForType(player, type);
         int currentStage = petData.map(OwnedPetData::evolutionStage).orElse(1);
 
         Inventory inventory = Bukkit.createInventory(
@@ -48,8 +50,8 @@ final class PetInfoPage implements PetGuiPage {
         if (petData.isPresent()) {
             List<String> evolveLore = new ArrayList<>(gui.evolutionStageLore(player, type, currentStage, petData));
             evolveLore.add("");
-            evolveLore.add(GameText.petInfoEvolutionActionHint());
-            inventory.setItem(22, gui.item(Material.SCULK_SHRIEKER, "&d" + GameText.petOverviewEvolution(), evolveLore));
+            evolveLore.add(activePetForType ? GameText.petInfoEvolutionActionHint() : needActiveViewedPetLine());
+            inventory.setItem(22, gui.item(activePetForType ? Material.SCULK_SHRIEKER : Material.BARRIER, (activePetForType ? "&d" : "&7") + GameText.petOverviewEvolution(), evolveLore));
         } else {
             inventory.setItem(22, gui.item(Material.BARRIER, "&c" + GameText.petOverviewEvolution(), List.of(
                 GameText.petInfoNeedCoreHint(),
@@ -72,10 +74,31 @@ final class PetInfoPage implements PetGuiPage {
     @Override
     public boolean handleClick(Player player, String menuId, int slot) {
         if (slot == 22 && gui.allowGuiAction(player)) {
+            PetType viewedType = PetType.parse(gui.petInfoTypeFromMenu(menuId)).orElse(PetType.WOLF);
+            if (!activePetForType(player, viewedType)) {
+                player.sendMessage(needActiveViewedPetLine());
+                open(player, gui.petInfoTypeFromMenu(menuId), gui.petInfoSourceFromMenu(menuId));
+                return true;
+            }
             gui.tryEvolveActivePet(player);
             gui.syncOffhandEgg(player);
             open(player, gui.petInfoTypeFromMenu(menuId), gui.petInfoSourceFromMenu(menuId));
         }
         return true;
+    }
+
+    private boolean activePetForType(Player player, PetType type) {
+        return gui.runtimePet(player)
+            .map(RuntimePet::type)
+            .filter(type::equals)
+            .isPresent();
+    }
+
+    private String needActiveViewedPetLine() {
+        return GameText.text(
+            "gui.pet.info.evolution.need-active-viewed",
+            "&7Сначала призовите именно этого питомца.",
+            "&7Summon this pet first."
+        );
     }
 }

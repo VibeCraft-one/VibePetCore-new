@@ -1,0 +1,14 @@
+VibePetCore 2.6.10
+
+Scope: GUI correctness hotfix for /pet active-only actions.
+
+Player-visible changes:
+- /pet movement, distance, vault, auto-loot, defense, and passive-effect buttons now clearly require a summoned active pet.
+- Held pet cores are still shown for information, but active-only actions no longer look fully available before summon.
+- Pet evolution click is guarded by viewed pet type: the button only acts when the active pet matches the pet shown on the evolution page.
+- Clicking the pet vault without an active pet now gives an explicit "No active pet" message instead of silently doing nothing.
+
+Admin notes:
+- No data migration is required.
+- Smoke-test /pet with: no core, held core only, active pet, active pet plus different held core.
+- Smoke-test evolution from /pet for held-only core and for active matching core.

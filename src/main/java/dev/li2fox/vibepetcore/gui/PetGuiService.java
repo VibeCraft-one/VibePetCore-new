@@ -770,7 +770,9 @@ public final class PetGuiService implements Listener {
     }
 
     void openActivePetVault(Player player) {
-        petEngineManager.openActivePetVault(player);
+        if (!petEngineManager.openActivePetVault(player)) {
+            player.sendMessage(GameText.text("pet.control.no-active", "Нет активного питомца.", "No active pet."));
+        }
     }
 
     void toggleDefense(Player player) {
