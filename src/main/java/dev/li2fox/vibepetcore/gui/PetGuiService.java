@@ -61,6 +61,9 @@ public final class PetGuiService implements Listener {
     private final PetHelpGuiSupport helpGuiSupport;
     private final PetInfoGuiSupport infoGuiSupport;
     private final PetEvolutionPreviewGuiSupport evolutionPreviewGuiSupport;
+    private final PetGuiRouter guiRouter;
+    private final SourceBoxPage sourceBoxPage;
+    private final PetOverviewPage petOverviewPage;
     private final Map<UUID, Long> petMenuClickCooldowns = new java.util.HashMap<>();
     private final Map<UUID, Long> guiActionCooldowns = new java.util.HashMap<>();
 
@@ -79,13 +82,19 @@ public final class PetGuiService implements Listener {
         this.helpGuiSupport = new PetHelpGuiSupport(balanceConfig);
         this.infoGuiSupport = new PetInfoGuiSupport(balanceConfig, petEngineManager);
         this.evolutionPreviewGuiSupport = new PetEvolutionPreviewGuiSupport(petEngineManager);
+        this.guiRouter = new PetGuiRouter();
+        this.guiRouter.register(new SourceMainPage(this));
+        this.sourceBoxPage = new SourceBoxPage(this);
+        this.guiRouter.register(sourceBoxPage);
+        this.petOverviewPage = new PetOverviewPage(this);
+        this.guiRouter.register(petOverviewPage);
     }
 
-    private String msg(String key, String fallback, Object... replacements) {
+    String msg(String key, String fallback, Object... replacements) {
         return this.balanceConfig.message(key, fallback, replacements);
     }
 
-    private Component title(String legacyTitle) {
+    Component title(String legacyTitle) {
         return LegacyComponentSerializer.legacyAmpersand().deserialize(legacyTitle.replace('§', '&'));
     }
 
@@ -124,33 +133,14 @@ public final class PetGuiService implements Listener {
     }
 
     private void openMain(Player player) {
-        Inventory inventory = Bukkit.createInventory(new PetGuiHolder("master"), 54, title(GameText.guiTitleMain()));
-        fillFrame(inventory);
-
-        Optional<dev.li2fox.vibepetcore.pet.RuntimePet> runtimePet = petEngineManager.getPet(player);
-        Optional<OwnedPetData> heldPet = heldPetData(player);
-
-        inventory.setItem(10, item(Material.COMPASS, GameText.mainMenuQuestsTitle(), List.of(GameText.mainMenuQuestsHint())));
-        inventory.setItem(13, item(Material.CHISELED_BOOKSHELF, GameText.mainMenuGuideTitle(), List.of(GameText.mainMenuGuideHint())));
-        inventory.setItem(16, item(Material.CHEST, GameText.mainMenuBoxesTitle(), List.of(GameText.mainMenuBoxesHint())));
-
-        inventory.setItem(22, petStatusCard(player, heldPet, runtimePet));
-
-        inventory.setItem(28, item(Material.CALIBRATED_SCULK_SENSOR, msg("gui.legendary.title", "&dLegendary traits"), List.of(
-            msg("gui.legendary.menu.line.one", "&7Special traits for legendary pets only."),
-            msg("gui.legendary.menu.line.two", "&7Combat style, triggers, and ultimate effects.")
-        )));
-        inventory.setItem(31, item(Material.AMETHYST_CLUSTER, GameText.mainMenuGrowthTitle(), List.of(GameText.mainMenuGrowthHint())));
-        inventory.setItem(34, item(Material.ANVIL, GameText.mainMenuForgeTitle(), List.of(GameText.mainMenuForgeHint())));
-
-        player.openInventory(inventory);
+        guiRouter.open(GuiPageId.SOURCE_MAIN, player);
     }
 
     private void openQuests(Player player, String category) {
         openQuests(player, category, "master", 0);
     }
 
-    private void openQuests(Player player, String category, String source) {
+    void openQuests(Player player, String category, String source) {
         openQuests(player, category, source, 0);
     }
 
@@ -202,47 +192,14 @@ public final class PetGuiService implements Listener {
         openBox(player, "master");
     }
 
-    private void openBox(Player player, String source) {
-        PlayerData data = playerDataManager.getOrLoad(player.getUniqueId());
-        long now = System.currentTimeMillis();
-        long minutes = data.freeBoxNextAtMillis() <= now ? 0L : Math.max(1L, (data.freeBoxNextAtMillis() - now) / 60_000L);
-        int pityThreshold = balanceConfig.boxPityThreshold("basic");
-        int pityProgress = Math.min(pityThreshold, Math.max(0, data.boxPity().getOrDefault("basic", 0)));
-
-        Inventory inventory = Bukkit.createInventory(new PetGuiHolder("box:" + normalizeSource(source)), 54, title(GameText.guiTitleBox()));
-        fillFrame(inventory);
-        inventory.setItem(20, item(Material.CLOCK, GameText.boxStatusTitle(), List.of(
-            minutes <= 0L ? GameText.boxStatusFreeReady() : GameText.boxStatusFreeCooldown(minutes)
-        )));
-        long boxCost = Math.max(1L, balanceConfig.boxCost("basic"));
-        long pointAttempts = Math.max(0L, economyPoints(player) / boxCost);
-        inventory.setItem(13, item(Material.NETHER_STAR, GameText.boxPointsTitle(), List.of(
-            GameText.boxPointsBalance(economyPoints(player)),
-            GameText.boxPointsCost(boxCost),
-            GameText.boxPointsAvailable(pointAttempts)
-        )));
-        inventory.setItem(22, item(Material.ENDER_CHEST, GameText.boxOpenBasicTitle(), List.of(
-            GameText.boxOpenBasicHint(),
-            GameText.boxOpenBasicAttemptsHint()
-        )));
-        inventory.setItem(24, item(Material.AMETHYST_SHARD, GameText.boxPityTitle(), List.of(
-            GameText.boxPityProgress(pityProgress, pityThreshold),
-            GameText.boxPityHint()
-        )));
-        inventory.setItem(31, item(Material.BOOK, GameText.boxInfoTitle(), List.of(
-            GameText.boxInfoLineOne(),
-            GameText.boxInfoLineTwo(),
-            GameText.boxInfoLineThree()
-        )));
-        inventory.setItem(49, back());
-        playMenuOpen(player, Sound.BLOCK_ENDER_CHEST_OPEN, 0.7F, 1.1F);
-        player.openInventory(inventory);
+    void openBox(Player player, String source) {
+        sourceBoxPage.open(player, source);
     }
     private void openRarityForge(Player player) {
         openRarityForge(player, "master");
     }
 
-    private void openRarityForge(Player player, String source) {
+    void openRarityForge(Player player, String source) {
         Inventory inventory = Bukkit.createInventory(new PetGuiHolder("forge:" + normalizeSource(source)), 54, title(GameText.guiTitleForge()));
         fillFrame(inventory);
 
@@ -277,45 +234,9 @@ public final class PetGuiService implements Listener {
         player.openInventory(inventory);
     }
     private void openPetOverview(Player player) {
-        Optional<dev.li2fox.vibepetcore.pet.RuntimePet> runtimePet = petEngineManager.getPet(player);
-        Optional<HeldPetCore> heldCore = heldPetCore(player);
-        Optional<OwnedPetData> offhandPet = heldCore.map(HeldPetCore::data);
-        boolean summoned = runtimePet.isPresent();
-
-        Inventory inventory = Bukkit.createInventory(new PetGuiHolder("pet"), 54, title(GameText.guiTitlePetOverview()));
-        fillFrame(inventory);
-        inventory.setItem(13, evolutionEntryButton(player, runtimePet, offhandPet));
-        inventory.setItem(17, item(Material.BOOK, "&e" + GameText.petOverviewHelpTitle(), List.of(GameText.petOverviewHelpHint())));
-        inventory.setItem(9, followPositionButton(runtimePet, offhandPet, 7));
-        inventory.setItem(10, followPositionButton(runtimePet, offhandPet, 0));
-        inventory.setItem(11, followPositionButton(runtimePet, offhandPet, 1));
-        inventory.setItem(18, followPositionButton(runtimePet, offhandPet, 6));
-        inventory.setItem(19, followControllerCenter(runtimePet, offhandPet));
-        inventory.setItem(20, followPositionButton(runtimePet, offhandPet, 2));
-        inventory.setItem(24, repairCoreButton(player, runtimePet, offhandPet));
-        inventory.setItem(26, aggressiveStyleButton(runtimePet));
-        inventory.setItem(27, followPositionButton(runtimePet, offhandPet, 5));
-        inventory.setItem(28, followPositionButton(runtimePet, offhandPet, 4));
-        inventory.setItem(29, followPositionButton(runtimePet, offhandPet, 3));
-        inventory.setItem(31, item(Material.CHEST, "&e" + GameText.petOverviewVault(), List.of(GameText.petOverviewVaultHint())));
-        inventory.setItem(32, passiveEffectButton(runtimePet, offhandPet, PotionEffectType.NIGHT_VISION, Material.ENDER_EYE));
-        inventory.setItem(33, passiveEffectButton(runtimePet, offhandPet, PotionEffectType.SLOW_FALLING, Material.FEATHER));
-        inventory.setItem(34, passiveEffectButton(runtimePet, offhandPet, PotionEffectType.INVISIBILITY, Material.GLASS));
-        inventory.setItem(35, autolootToggle(player));
-        inventory.setItem(36, followDistanceDownButton(runtimePet));
-        inventory.setItem(37, followDistanceCard(runtimePet, offhandPet));
-        inventory.setItem(38, followDistanceUpButton(runtimePet));
-        inventory.setItem(49, petCoreUsageInfo(summoned));
-        inventory.setItem(51, renamePetButton(runtimePet, offhandPet));
-        inventory.setItem(52, exitButton());
-        inventory.setItem(53, item(Material.ENDER_PEARL, msg("gui.pet.master.title", "&dTo the Pet Source"), List.of(
-            msg("gui.pet.master.line.one", "&7Teleport to the Pet Source."),
-            msg("gui.pet.master.line.two", "&7Preparation: 5 seconds.")
-        )));
-        playMenuOpen(player, Sound.UI_BUTTON_CLICK, 0.6F, 1.15F);
-        player.openInventory(inventory);
+        guiRouter.open(GuiPageId.PET_OVERVIEW, player);
     }
-    private void openHelpOverview(Player player, String source) {
+    void openHelpOverview(Player player, String source) {
         String normalizedSource = normalizeSource(source);
         Inventory inventory = Bukkit.createInventory(new PetGuiHolder("help:" + normalizedSource), 54, title(GameText.guiTitleHelpOverview()));
         fillFrame(inventory);
@@ -339,7 +260,7 @@ public final class PetGuiService implements Listener {
         player.openInventory(inventory);
     }
 
-    private void openLegendaryFeatures(Player player, String source) {
+    void openLegendaryFeatures(Player player, String source) {
         String normalizedSource = normalizeSource(source);
         Inventory inventory = Bukkit.createInventory(new PetGuiHolder("legendary:" + normalizedSource), 54, title(msg("gui.legendary.title", "&dLegendary traits")));
         fillFrame(inventory);
@@ -423,16 +344,13 @@ public final class PetGuiService implements Listener {
                 return;
             }
             switch (holder.menuId()) {
-                case "main", "master" -> handleMainClick(player, event.getSlot());
+                case "main", "master" -> guiRouter.handleClick(holder.menuId(), player, event.getSlot());
                 case "pet" -> handlePetClick(player, event.getSlot());
                 default -> {
-                    if (holder.menuId().startsWith("box")) {
-                        if (event.getSlot() == 22) {
-                            if (allowGuiAction(player)) {
-                                openBoxForPlayer(player, sourceFromMenu(holder.menuId()));
-                            }
-                        }
-                    } else if (holder.menuId().startsWith("forge")) {
+                    if (guiRouter.handleClick(holder.menuId(), player, event.getSlot())) {
+                        return;
+                    }
+                    if (holder.menuId().startsWith("forge")) {
                         if (event.getSlot() == 22) {
                             if (allowGuiAction(player)) {
                                 attemptRarityUpgrade(player, sourceFromMenu(holder.menuId()));
@@ -474,37 +392,11 @@ public final class PetGuiService implements Listener {
         guiActionCooldowns.remove(playerId);
     }
 
-    private void handleMainClick(Player player, int slot) {
-        if (slot == 10) {
-            openQuests(player, "all", "master");
-            return;
-        }
-        if (slot == 13) {
-            openHelpOverview(player, "master");
-            return;
-        }
-        if (slot == 16) {
-            openBox(player, "master");
-            return;
-        }
-        if (slot == 28) {
-            openLegendaryFeatures(player, "master");
-            return;
-        }
-        if (slot == 31) {
-            openCurrentPetGrowth(player, "master");
-            return;
-        }
-        if (slot == 34) {
-            openRarityForge(player, "master");
-        }
-    }
-
     private void openCurrentPetGrowth(Player player) {
         openCurrentPetGrowth(player, "pet");
     }
 
-    private void openCurrentPetGrowth(Player player, String source) {
+    void openCurrentPetGrowth(Player player, String source) {
         Optional<OwnedPetData> pet = petEngineManager.getPet(player).map(dev.li2fox.vibepetcore.pet.RuntimePet::data)
             .or(() -> heldPetData(player));
         if (pet.isPresent()) {
@@ -704,7 +596,7 @@ public final class PetGuiService implements Listener {
         return parts.length >= 3 ? parts[2] : menuId.substring(menuId.indexOf(':') + 1);
     }
 
-    private void openBoxForPlayer(Player player, String source) {
+    void openBoxForPlayer(Player player, String source) {
         player.closeInventory();
         var result = "master".equals(normalizeSource(source))
             ? lootBoxManager.openAtMaster(player)
@@ -780,7 +672,7 @@ public final class PetGuiService implements Listener {
         playQuestFeedback(player, turnedIn, turnedIn);
         openQuests(player, category, source, page);
     }
-    private void playMenuOpen(Player player, Sound sound, float volume, float pitch) {
+    void playMenuOpen(Player player, Sound sound, float volume, float pitch) {
         player.playSound(player.getLocation(), sound, volume, pitch);
     }
 
@@ -929,7 +821,7 @@ public final class PetGuiService implements Listener {
         return PetGuiText.usefulEffectsText(type);
     }
 
-    private ItemStack autolootToggle(Player player) {
+    ItemStack autolootToggle(Player player) {
         Optional<dev.li2fox.vibepetcore.pet.RuntimePet> runtimePet = petEngineManager.getPet(player);
         if (runtimePet.isEmpty()) {
             return item(Material.HOPPER, "&e" + GameText.petOverviewAutoLoot(false), List.of(
@@ -975,11 +867,23 @@ public final class PetGuiService implements Listener {
         return offhandPet.map(pet -> new HeldPetCore(offhand, false, pet));
     }
 
-    private Optional<OwnedPetData> heldPetData(Player player) {
+    Optional<dev.li2fox.vibepetcore.pet.RuntimePet> runtimePet(Player player) {
+        return petEngineManager.getPet(player);
+    }
+
+    Optional<OwnedPetData> heldPetData(Player player) {
         return heldPetCore(player).map(HeldPetCore::data);
     }
 
-    private long economyPoints(Player player) {
+    PlayerData playerData(Player player) {
+        return playerDataManager.getOrLoad(player.getUniqueId());
+    }
+
+    BalanceConfig balanceConfig() {
+        return balanceConfig;
+    }
+
+    long economyPoints(Player player) {
         return playerDataManager.getOrLoad(player.getUniqueId()).points();
     }
 
@@ -1044,7 +948,7 @@ public final class PetGuiService implements Listener {
         return parts.length >= 2 ? normalizeCategory(parts[1]) : "daily";
     }
 
-    private String sourceFromMenu(String menuId) {
+    String sourceFromMenu(String menuId) {
         String[] parts = menuId.split(":");
         if (parts.length >= 3 && "petinfo".equalsIgnoreCase(parts[0])) {
             return normalizeSource(parts[1]);
@@ -1070,7 +974,7 @@ public final class PetGuiService implements Listener {
         }
     }
 
-    private String normalizeSource(String source) {
+    String normalizeSource(String source) {
         String normalized = source == null ? "master" : source.toLowerCase(Locale.ROOT);
         return "pet".equals(normalized) ? "pet" : "master";
     }
@@ -1104,7 +1008,7 @@ public final class PetGuiService implements Listener {
         };
     }
 
-    private void fillFrame(Inventory inventory) {
+    void fillFrame(Inventory inventory) {
         ItemStack filler = item(Material.GRAY_STAINED_GLASS_PANE, " ", List.of());
         for (int slot = 0; slot < inventory.getSize(); slot++) {
             ItemStack current = inventory.getItem(slot);
@@ -1114,11 +1018,11 @@ public final class PetGuiService implements Listener {
         }
     }
 
-    private ItemStack back() {
+    ItemStack back() {
         return item(Material.ARROW, "&f" + GameText.guiBack(), List.of("&7\u2190"));
     }
 
-    private ItemStack exitButton() {
+    ItemStack exitButton() {
         return item(Material.BARRIER, GameText.petOverviewExitTitle(), List.of(GameText.petOverviewExitHint()));
     }
 
@@ -1133,7 +1037,7 @@ public final class PetGuiService implements Listener {
         return item(Material.MAP, GameText.petOverviewControllerTitle(), lore);
     }
 
-    private ItemStack followControllerCenter(Optional<dev.li2fox.vibepetcore.pet.RuntimePet> runtimePet, Optional<OwnedPetData> offhandPet) {
+    ItemStack followControllerCenter(Optional<dev.li2fox.vibepetcore.pet.RuntimePet> runtimePet, Optional<OwnedPetData> offhandPet) {
         Optional<OwnedPetData> petData = runtimePet.map(dev.li2fox.vibepetcore.pet.RuntimePet::data).or(() -> offhandPet);
         if (petData.isEmpty()) {
             return item(Material.COMPASS, "&b" + GameText.petOverviewControllerTitle(), List.of(
@@ -1148,7 +1052,7 @@ public final class PetGuiService implements Listener {
         return item(Material.COMPASS, "&b" + GameText.petOverviewControllerTitle(), lore);
     }
 
-    private ItemStack followPositionButton(
+    ItemStack followPositionButton(
         Optional<dev.li2fox.vibepetcore.pet.RuntimePet> runtimePet,
         Optional<OwnedPetData> offhandPet,
         int position
@@ -1166,7 +1070,7 @@ public final class PetGuiService implements Listener {
         lore.add(GameText.petOverviewFollowDistanceHint());
         return item(active ? Material.LIME_STAINED_GLASS_PANE : Material.RED_STAINED_GLASS_PANE, title, lore);
     }
-    private ItemStack followDistanceCard(Optional<dev.li2fox.vibepetcore.pet.RuntimePet> runtimePet, Optional<OwnedPetData> offhandPet) {
+    ItemStack followDistanceCard(Optional<dev.li2fox.vibepetcore.pet.RuntimePet> runtimePet, Optional<OwnedPetData> offhandPet) {
         Optional<OwnedPetData> petData = runtimePet.map(dev.li2fox.vibepetcore.pet.RuntimePet::data).or(() -> offhandPet);
         if (petData.isEmpty()) {
             return item(Material.LEAD, msg("gui.pet.distance.title", "&dDistance"), List.of(GameText.petOverviewNeedCoreHint()));
@@ -1178,7 +1082,7 @@ public final class PetGuiService implements Listener {
         ));
     }
 
-    private ItemStack followDistanceDownButton(Optional<dev.li2fox.vibepetcore.pet.RuntimePet> runtimePet) {
+    ItemStack followDistanceDownButton(Optional<dev.li2fox.vibepetcore.pet.RuntimePet> runtimePet) {
         boolean enabled = runtimePet.isPresent();
         return item(
             Material.REDSTONE_TORCH,
@@ -1187,7 +1091,7 @@ public final class PetGuiService implements Listener {
         );
     }
 
-    private ItemStack followDistanceUpButton(Optional<dev.li2fox.vibepetcore.pet.RuntimePet> runtimePet) {
+    ItemStack followDistanceUpButton(Optional<dev.li2fox.vibepetcore.pet.RuntimePet> runtimePet) {
         boolean enabled = runtimePet.isPresent();
         return item(
             Material.SOUL_TORCH,
@@ -1196,7 +1100,7 @@ public final class PetGuiService implements Listener {
         );
     }
 
-    private ItemStack evolutionEntryButton(Player player, Optional<dev.li2fox.vibepetcore.pet.RuntimePet> runtimePet, Optional<OwnedPetData> offhandPet) {
+    ItemStack evolutionEntryButton(Player player, Optional<dev.li2fox.vibepetcore.pet.RuntimePet> runtimePet, Optional<OwnedPetData> offhandPet) {
         Optional<OwnedPetData> petData = runtimePet.map(dev.li2fox.vibepetcore.pet.RuntimePet::data).or(() -> offhandPet);
         List<String> lore = new ArrayList<>();
         lore.add(GameText.petOverviewInfoLineOne());
@@ -1215,7 +1119,7 @@ public final class PetGuiService implements Listener {
         return item(Material.CALIBRATED_SCULK_SENSOR, "&d" + GameText.petOverviewInfoTitle(), lore);
     }
 
-    private ItemStack repairCoreButton(Player player, Optional<dev.li2fox.vibepetcore.pet.RuntimePet> runtimePet, Optional<OwnedPetData> offhandPet) {
+    ItemStack repairCoreButton(Player player, Optional<dev.li2fox.vibepetcore.pet.RuntimePet> runtimePet, Optional<OwnedPetData> offhandPet) {
         Optional<OwnedPetData> petData = runtimePet.map(dev.li2fox.vibepetcore.pet.RuntimePet::data).or(() -> offhandPet);
         if (petData.isEmpty()) {
             return item(Material.BARRIER, "&c" + GameText.petOverviewRepairCore(), List.of(
@@ -1246,7 +1150,7 @@ public final class PetGuiService implements Listener {
         return item(damaged ? Material.ANVIL : Material.ENCHANTED_BOOK, title, lore);
     }
 
-    private ItemStack passiveEffectButton(
+    ItemStack passiveEffectButton(
         Optional<dev.li2fox.vibepetcore.pet.RuntimePet> runtimePet,
         Optional<OwnedPetData> offhandPet,
         PotionEffectType effectType,
@@ -1282,7 +1186,7 @@ public final class PetGuiService implements Listener {
         }
     }
 
-    private ItemStack petCoreUsageInfo(boolean summoned) {
+    ItemStack petCoreUsageInfo(boolean summoned) {
         return item(Material.BELL, msg("gui.pet.summon.title", "&ePet core"), List.of(
             msg("gui.pet.summon.line.one", "&7Summon: hold the filled core and right-click."),
             msg("gui.pet.summon.line.two", "&7Return: hold the empty matching core and right-click."),
@@ -1291,7 +1195,7 @@ public final class PetGuiService implements Listener {
         ));
     }
 
-    private ItemStack renamePetButton(Optional<dev.li2fox.vibepetcore.pet.RuntimePet> runtimePet, Optional<OwnedPetData> heldPet) {
+    ItemStack renamePetButton(Optional<dev.li2fox.vibepetcore.pet.RuntimePet> runtimePet, Optional<OwnedPetData> heldPet) {
         Optional<OwnedPetData> pet = runtimePet.map(dev.li2fox.vibepetcore.pet.RuntimePet::data).or(() -> heldPet);
         if (pet.isEmpty()) {
             return item(Material.NAME_TAG, GameText.text("gui.pet.rename.button", "&eИмя питомца", "&ePet name"), List.of(
@@ -1310,7 +1214,7 @@ public final class PetGuiService implements Listener {
         syncOffhandEgg(player);
         openPetOverview(player);
     }
-    private ItemStack aggressiveStyleButton(Optional<dev.li2fox.vibepetcore.pet.RuntimePet> runtimePet) {
+    ItemStack aggressiveStyleButton(Optional<dev.li2fox.vibepetcore.pet.RuntimePet> runtimePet) {
         if (runtimePet.isEmpty()) {
             return item(Material.SHIELD, GameText.petOverviewAggressiveTitle(), List.of(
                 GameText.petOverviewNeedCoreHint(),
@@ -1453,7 +1357,7 @@ public final class PetGuiService implements Listener {
         );
     }
 
-    private ItemStack petStatusCard(Player player, Optional<OwnedPetData> offhandPet, Optional<dev.li2fox.vibepetcore.pet.RuntimePet> runtimePet) {
+    ItemStack petStatusCard(Player player, Optional<OwnedPetData> offhandPet, Optional<dev.li2fox.vibepetcore.pet.RuntimePet> runtimePet) {
         Optional<OwnedPetData> petData = runtimePet.map(dev.li2fox.vibepetcore.pet.RuntimePet::data).or(() -> offhandPet);
         if (petData.isEmpty()) {
             return item(Material.BARRIER, "&c" + GameText.petOverviewNoCore(), List.of(
@@ -1648,7 +1552,7 @@ public final class PetGuiService implements Listener {
         return true;
     }
 
-    private boolean allowGuiAction(Player player) {
+    boolean allowGuiAction(Player player) {
         long now = System.currentTimeMillis();
         guiActionCooldowns.entrySet().removeIf(entry -> entry.getValue() <= now);
         UUID playerId = player.getUniqueId();
@@ -1700,7 +1604,7 @@ public final class PetGuiService implements Listener {
         player.getInventory().setItem(slot, item);
     }
 
-    private ItemStack item(Material material, String name, List<String> lore) {
+    ItemStack item(Material material, String name, List<String> lore) {
 
         ItemStack item = new ItemStack(material);
         ItemMeta meta = item.getItemMeta();
