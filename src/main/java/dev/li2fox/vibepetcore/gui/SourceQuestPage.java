@@ -58,10 +58,11 @@ final class SourceQuestPage implements PetGuiPage {
             int questIndex = startIndex + index;
             QuestDefinition quest = quests.get(questIndex);
             QuestProgressData progress = gui.questManager().progress(player.getUniqueId(), quest.id());
-            int visibleProgress = gui.questManager().displayProgress(player, quest, gui.selectedQuestPetId(player).orElse(null));
+            java.util.UUID selectedPetId = gui.selectedQuestPetId(player).orElse(null);
+            int visibleProgress = gui.questManager().displayProgress(player, quest, selectedPetId);
             inventory.setItem(
                 QUEST_SLOTS[index],
-                gui.item(quest.icon(), gui.questGuiSupport().questName(player, quest, progress), gui.questGuiSupport().questLore(player, quest, progress, visibleProgress))
+                gui.item(quest.icon(), gui.questGuiSupport().questName(player, quest, progress, selectedPetId), gui.questGuiSupport().questLore(player, quest, progress, visibleProgress))
             );
         }
 

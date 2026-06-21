@@ -404,7 +404,7 @@ public final class GameText {
     public static String boxPointsAvailable(long attempts) { return msg("gui.box.points.available", localized("&7Можно открыть за очки: &f{attempts}", "&7Point openings available: &f{attempts}"), "attempts", attempts); }
     public static String boxOpenBasicTitle() { return msg("gui.box.basic.title", localized("&dОткрыть Источник", "&dOpen Source")); }
     public static String boxOpenBasicHint() { return msg("gui.box.basic.hint", localized("&7Даёт обычные и редкие яйца для ядра.", "&7Gives common and rare eggs for the core.")); }
-    public static String boxOpenBasicAttemptsHint() { return msg("gui.box.basic.attempts-hint", localized("&7Тратит бесплатное открытие или очки питомца.", "&7Consumes a free opening or Pet Points.")); }
+    public static String boxOpenBasicAttemptsHint() { return msg("gui.box.basic.attempts-hint", localized("&7Тратит бесплатное открытие, очки или резервную попытку.", "&7Consumes a free opening, Pet Points, or a reserve attempt.")); }
     public static String boxPityTitle() { return msg("gui.box.pity.title", localized("Порог редкости", "Rare pity")); }
     public static String boxPityProgress(int current, int threshold) { return msg("gui.box.pity.progress", localized("&7Прогресс порога: &f{current}/{threshold}", "&7Pity progress: &f{current}/{threshold}"), "current", current, "threshold", threshold); }
     public static String boxPityHint() { return msg("gui.box.pity.hint", localized("&7На пороге Источник выдаёт редкое без топ-редкостей.", "&7At the threshold, the source gives rare without top rarities.")); }

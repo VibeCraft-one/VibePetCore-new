@@ -36,7 +36,8 @@ final class SourceBoxPage implements PetGuiPage {
         Inventory inventory = Bukkit.createInventory(new PetGuiHolder("box:" + gui.normalizeSource(source)), 54, gui.title(GameText.guiTitleBox()));
         gui.fillFrame(inventory);
         inventory.setItem(20, gui.item(Material.CLOCK, GameText.boxStatusTitle(), List.of(
-            minutes <= 0L ? GameText.boxStatusFreeReady() : GameText.boxStatusFreeCooldown(minutes)
+            minutes <= 0L ? GameText.boxStatusFreeReady() : GameText.boxStatusFreeCooldown(minutes),
+            GameText.boxStatusExtraAttempts(data.extraBoxAttempts())
         )));
         long boxCost = Math.max(1L, gui.balanceConfig().boxCost("basic"));
         long pointAttempts = Math.max(0L, gui.economyPoints(player) / boxCost);

@@ -59,12 +59,12 @@ final class PetQuestGuiSupport {
         return lore;
     }
 
-    String questName(Player player, QuestDefinition quest, QuestProgressData progress) {
+    String questName(Player player, QuestDefinition quest, QuestProgressData progress, UUID selectedPetId) {
         if (progress.completed()) {
             boolean readyAgain = quest.repeatable() && questManager.cooldownRemainingMillis(quest, progress) <= 0L;
             return readyAgain ? GameText.questNameReadyAgain(quest.title()) : GameText.questNameCompleted(quest.title());
         }
-        return questManager.readyToTurnIn(player, quest) ? GameText.questNameReadyToTurnIn(quest.title()) : GameText.questNameDefault(quest.title());
+        return questManager.readyToTurnIn(player, quest, selectedPetId) ? GameText.questNameReadyToTurnIn(quest.title()) : GameText.questNameDefault(quest.title());
     }
 
     Optional<String> acceptanceBlockReason(Player player, QuestDefinition quest) {

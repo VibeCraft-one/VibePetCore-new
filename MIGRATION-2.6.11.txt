@@ -1,0 +1,14 @@
+VibePetCore 2.6.11
+
+Scope: quest reward and Source attempt clarity hotfix.
+
+Player-visible changes:
+- Quest turn-in now grants the full configured Pet Points reward.
+- Anti-abuse point caps still apply to repeatable activity/kill rewards, but no longer truncate one-time quest turn-ins.
+- Evolution quest titles now use the selected/active pet binding when deciding whether the quest is ready.
+- Source box GUI now shows reserve attempts and says that openings can consume free cooldown, Pet Points, or reserve attempts.
+
+Admin notes:
+- No data migration is required.
+- Existing quests already completed before this version are not retroactively paid again.
+- Smoke-test one high-reward quest above the minute point cap and confirm full points are added.

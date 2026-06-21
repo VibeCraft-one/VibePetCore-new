@@ -24,6 +24,13 @@ public final class EconomyManager implements CoreModule {
     }
 
     public RewardResult award(UUID playerId, long amount, RewardReason reason, String actionKey) {
+        if (reason == RewardReason.QUEST) {
+            long awarded = Math.max(0L, amount);
+            if (awarded > 0L) {
+                playerDataManager.getOrLoad(playerId).addPoints(awarded);
+            }
+            return new RewardResult(amount, awarded, false, false);
+        }
         RewardResult result = antiAbuseTracker.limit(playerId, amount, reason.name() + ":" + actionKey);
         if (result.awarded() > 0L) {
             playerDataManager.getOrLoad(playerId).addPoints(result.awarded());
