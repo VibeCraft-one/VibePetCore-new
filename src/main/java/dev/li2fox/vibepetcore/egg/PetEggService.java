@@ -327,7 +327,7 @@ public final class PetEggService {
         PetRarity rarity = PetRarity.parse(pet.rarity());
         PetType type = PetType.parse(pet.petType()).orElse(PetType.WOLF);
         meta.displayName(legacy(rarityColor(rarity) + pet.petName() + "&7 (" + localizedTypeName(pet) + ")"));
-        meta.lore(lore(pet, rarity, emptyEgg).stream().map(this::legacy).toList());
+        meta.lore(lore(pet, rarity, activeButton, emptyEgg).stream().map(this::legacy).toList());
         String modelGroup = activeButton ? "active-button" : (emptyEgg ? "empty" : "egg");
         int customModelData = config.eggCustomModelData(type, modelGroup);
         applyCustomModelData(meta, customModelData);
@@ -338,9 +338,9 @@ public final class PetEggService {
         meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
     }
 
-    private List<String> lore(OwnedPetData pet, PetRarity rarity, boolean emptyEgg) {
+    private List<String> lore(OwnedPetData pet, PetRarity rarity, boolean activeButton, boolean emptyEgg) {
         List<String> lore = new ArrayList<>();
-        lore.add("&8" + (emptyEgg ? "Пустое ядро питомца" : "Ядро питомца VibePet"));
+        lore.add("&8" + (activeButton ? "Активный питомец" : (emptyEgg ? "Пустое ядро питомца" : "Ядро питомца VibePet")));
         lore.add("&7Редкость: " + rarityColor(rarity) + localizedRarity(rarity));
         if (pet.evolutionStage() >= 5) {
             lore.add("&7Эволюция: &dMAX");
@@ -360,7 +360,7 @@ public final class PetEggService {
             lore.add("&cДоступен через: " + formatRemaining(pet.inactiveUntilMillis() - System.currentTimeMillis()));
         }
         lore.add("");
-        if (emptyEgg) {
+        if (activeButton || emptyEgg) {
             lore.add("&eПКМ: вернуть питомца в ядро.");
             lore.add("&7Меню питомца: /pet");
         } else {
