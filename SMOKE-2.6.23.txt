@@ -30,6 +30,25 @@ Expected smoke warnings:
 - The smoke server was intentionally started in offline mode on port 25567.
 - The stdin "stop" command hit a Purpur command-source NullPointerException after startup when run through redirected console input. This is not from VibePetCore, but it prevented graceful shutdown; the smoke process was stopped by exact java process id.
 
+Bot player command smoke:
+- Tooling: temporary mineflayer 4.37.1 script in %TEMP%\VibePetCore-bot-smoke
+- Server: same Purpur 1.21.11 build 2568 smoke root, port 25567, offline mode, SmokeBot op level 4.
+- Result: SmokeBot joined, executed player/admin commands, opened two GUI windows, and stopped the server through in-game `/stop`.
+- Commands executed successfully:
+  - /plugins -> VibePetCore listed.
+  - /vpc status -> loaded players=1.
+  - /vpc source set -> Source placed at SmokeBot location.
+  - /vpc source info -> Source location/style/mode reported.
+  - /vpc admin giveegg SmokeBot wolf common -> pet core given.
+  - /pet points -> points balance shown.
+  - /pet help wolf -> wolf help and evolution requirement hint shown.
+  - /pet -> generic_9x6 GUI opened and closed.
+  - /pet menu main -> generic_9x6 GUI opened and closed.
+  - /vpc admin audit SmokeBot -> no audit problems found.
+  - /stop -> server stopped, VibePetCore disabled cleanly.
+- VibePetCore runtime-notes.log remained empty.
+- Only VibePetCore warning: expected MySQL fallback to json storage on the clean smoke server.
+
 Not covered by this smoke:
-- In-game right-click flows: offhand core summon/sync/relog, Source GUI, /pet GUI, evolution click, feeding item click, armor apply.
+- In-game right-click flows: offhand core summon/sync/relog, GUI item clicks inside Source and /pet, evolution click, feeding item click, armor apply.
 - Multi-player TPS/load behavior with 50-100 online and the full real plugin stack.
