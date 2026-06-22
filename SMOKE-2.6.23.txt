@@ -1,0 +1,35 @@
+# VibePetCore 2.6.23 smoke
+
+Date: 2026-06-22
+Branch: codex/refactor-gui-pages
+Commit: 0743651 Block feeding evolution bypass
+
+Build gate:
+- Command: .\gradlew.bat clean processResources compileJava test jar check
+- Result: BUILD SUCCESSFUL
+- Artifact: build/libs/VibePetCore-2.6.23.jar
+- Jar size: 18478 KiB / 40960 KiB
+- plugin.yml inside jar: version 2.6.23, main dev.li2fox.vibepetcore.core.VibePetCorePlugin
+
+Purpur startup smoke:
+- Server: Purpur 1.21.11 build 2568
+- Test root: %TEMP%\VibePetCore-smoke-1.21.11
+- Plugin jar: plugins/VibePetCore-2.6.23.jar
+- Result: plugin remapped, loaded, enabled, and generated config files.
+- Key log lines:
+  - Bukkit plugins (1): VibePetCore (2.6.23)
+  - [VibePetCore] Loading server plugin VibePetCore v2.6.23
+  - [VibePetCore] Enabling VibePetCore v2.6.23
+  - [VibePetCore] Player data emergency fallback enabled: json
+  - [VibePetCore] Player data storage: json
+  - [VibePetCore] VibePetCore enabled.
+  - Done (21.976s)! For help, type "help"
+
+Expected smoke warnings:
+- MySQL was not available in the clean smoke server, so VibePetCore fell back to json storage.
+- The smoke server was intentionally started in offline mode on port 25567.
+- The early stdin "stop" command hit a Purpur command-source NullPointerException after startup. This is not from VibePetCore, but it prevented graceful shutdown; the smoke process was stopped by exact java process id.
+
+Not covered by this smoke:
+- In-game right-click flows: offhand core summon/sync/relog, Source GUI, /pet GUI, evolution click, feeding item click, armor apply.
+- Multi-player TPS/load behavior with 50-100 online and the full real plugin stack.
