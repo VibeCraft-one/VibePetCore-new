@@ -1,0 +1,10 @@
+# VibePetCore 2.6.22
+
+## What changed
+- Pet sync no longer writes the offhand core as an active button when activation save fails.
+- Missing-offhand active-pet cleanup now shows the existing pet save-failed actionbar message instead of failing silently.
+
+## Server action
+- No data migration is required.
+- Re-test active pet sync with normal storage.
+- For failure testing, temporarily force player-data save to fail and verify the offhand core is not changed to an active button.

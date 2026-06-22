@@ -59,6 +59,7 @@ public final class PetEggController implements CoreModule, Listener {
     private final Map<UUID, String> pendingDeathCoreNotice = new java.util.HashMap<>();
     private final Set<UUID> pendingSync = new HashSet<>();
     private final Map<UUID, SummonCharge> summonCharges = new java.util.HashMap<>();
+    private final Map<UUID, Long> saveFailureNoticeUntil = new java.util.HashMap<>();
     private BukkitTask flushTask;
 
     private enum ChargeAction {
@@ -99,6 +100,7 @@ public final class PetEggController implements CoreModule, Listener {
         summonCharges.clear();
         pendingSync.clear();
         pendingDeathCoreNotice.clear();
+        saveFailureNoticeUntil.clear();
     }
 
     private void flushPendingSync() {
@@ -178,7 +180,19 @@ public final class PetEggController implements CoreModule, Listener {
         boolean sameRuntime = runtimePet.map(current -> current.data().petId().equals(pet.petId())).orElse(false);
         if (!sameRuntime) {
             try {
-                petEngineManager.activatePet(player, pet);
+                if (petEngineManager.activatePet(player, pet).isEmpty()) {
+                    debugLogger.warnRateLimited(
+                        "egg:sync:" + player.getUniqueId() + ":activate-save",
+                        "pet-egg",
+                        "Pet sync activation save failed for " + player.getName() + ", keeping core unchanged.",
+                        10_000L
+                    );
+                    player.sendActionBar(Component.text(msg(
+                        "pet-egg.save-failed",
+                        "Could not save pet data. Try again in a moment."
+                    )));
+                    return;
+                }
             } catch (Throwable throwable) {
                 debugLogger.errorRateLimited(
                     "egg:sync:" + player.getUniqueId() + ":activate",
@@ -190,6 +204,11 @@ public final class PetEggController implements CoreModule, Listener {
                     throwable,
                     15_000L
                 );
+                player.sendActionBar(Component.text(msg(
+                    "pet-egg.save-failed",
+                    "Could not save pet data. Try again in a moment."
+                )));
+                return;
             }
         }
         ItemStack item = player.getInventory().getItem(inventorySlot);
@@ -530,6 +549,15 @@ public final class PetEggController implements CoreModule, Listener {
                 + " matchingSlot=" + matchingSlot,
             10_000L
         );
+        long now = System.currentTimeMillis();
+        long nextNotice = saveFailureNoticeUntil.getOrDefault(player.getUniqueId(), 0L);
+        if (nextNotice <= now) {
+            saveFailureNoticeUntil.put(player.getUniqueId(), now + 10_000L);
+            player.sendActionBar(Component.text(msg(
+                "pet-egg.save-failed",
+                "Could not save pet data. Try again in a moment."
+            )));
+        }
         petEngineManager.despawnPet(player);
     }
 
@@ -831,7 +859,9 @@ public final class PetEggController implements CoreModule, Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onQuit(PlayerQuitEvent event) {
-        returnActivePetToInventory(event.getPlayer());
+        Player player = event.getPlayer();
+        saveFailureNoticeUntil.remove(player.getUniqueId());
+        returnActivePetToInventory(player);
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
