@@ -75,8 +75,8 @@ Bot feeding/evolution-item smoke:
   - SmokeBot joined, placed Source, received a common wolf core, equipped it in offhand, and summoned a runtime wolf.
   - /vpc admin audit showed activePetId present.
   - /pet info before item tests showed runtime wolf E1 with satiety 5.0/5.
-  - SmokeBot received `nether_star`, clicked the runtime wolf with entity-position interaction, and the item count stayed 1.
-  - /pet info after `nether_star` still showed E1 and satiety 5.0/5, so feeding did not trigger evolution or consume the evolution item.
+  - SmokeBot received `nether_star`, `echo_shard`, and `diamond`, clicked the runtime wolf with entity-position interaction, and each item count stayed 1.
+  - /pet info after each evolution item still showed E1 and satiety 5.0/5, so feeding did not trigger evolution or consume any evolution item.
   - /vpc admin setsatiety 0 set the active core/runtime satiety to 0.
   - SmokeBot received `cooked_beef`, clicked the runtime wolf with entity-position interaction, and the item count dropped 1 -> 0.
   - /pet info after `cooked_beef` showed satiety 1.0/5.
