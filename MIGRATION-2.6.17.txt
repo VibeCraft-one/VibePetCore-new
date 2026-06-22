@@ -1,0 +1,11 @@
+VibePetCore 2.6.17
+
+Player-facing change:
+- The /pet overview evolution card is shorter now: it shows level and stage quest requirements only.
+- Bond is still required for evolution and is still shown on the detailed evolution page.
+
+Admin/test checklist:
+- Use /vpc source set as the primary Pet Source setup command.
+- Legacy internal pet-master.yml and pet-master message keys are kept for compatibility.
+
+No data migration is required.

@@ -353,22 +353,19 @@ final class PetOverviewPage implements PetGuiPage {
 
     private String shortStageRequirement(int nextStage) {
         int level = gui.balanceConfig().evolutionRequiredLevel(nextStage);
-        int bond = gui.balanceConfig().evolutionRequiredBond(nextStage);
         int quests = gui.balanceConfig().evolutionRequiredQuests(nextStage);
         if (quests > 0) {
             return gui.msg(
                 "gui.pet.requirements.summary-quests",
-                "&7Required: &fLv. {level} &8| &7Bond &f{bond}/10 &8| &7Stage quests: &f{quests}",
+                "&7Required: &fLv. {level} &8| &7Stage quests: &f{quests}",
                 "level", level,
-                "bond", bond,
                 "quests", quests
             );
         }
         return gui.msg(
             "gui.pet.requirements.summary",
-            "&7Required: &fLv. {level} &8| &7Bond &f{bond}/10",
-            "level", level,
-            "bond", bond
+            "&7Required: &fLv. {level}",
+            "level", level
         );
     }
 
