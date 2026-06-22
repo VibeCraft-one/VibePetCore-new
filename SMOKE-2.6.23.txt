@@ -49,6 +49,25 @@ Bot player command smoke:
 - VibePetCore runtime-notes.log remained empty.
 - Only VibePetCore warning: expected MySQL fallback to json storage on the clean smoke server.
 
+Bot offhand/relog smoke:
+- Tooling: temporary mineflayer 4.37.1 script in %TEMP%\VibePetCore-bot-smoke
+- Server state: clean temporary Purpur 1.21.11 smoke world/player/plugin data, survival gamemode.
+- Flow:
+  - SmokeBot joined as a real offline-mode player.
+  - /vpc source set succeeded.
+  - /vpc admin giveegg SmokeBot wolf common gave one `wolf_spawn_egg` pet core.
+  - The bot equipped the core into offhand slot 45.
+  - `activateItem(true)` with the offhand core spawned a wolf runtime pet.
+  - /vpc admin audit showed activePetId present.
+  - /vpc debugpet showed held `WARPED_BUTTON` active button with pet data: WOLF, COMMON, level 1, evolution 1, satiety 5.0, durability 7.
+  - /pet info showed runtime pet `Волк`.
+  - After disconnect/reconnect, /vpc admin audit showed no active runtime pet, but no audit problems.
+  - After reconnect, /vpc debugpet and /pet info showed a normal `WOLF_SPAWN_EGG` core with data intact, not an empty/lost core.
+  - /stop from SmokeBot stopped the server and VibePetCore disabled cleanly.
+- VibePetCore runtime-notes.log remained empty.
+- Server log had no VibePetCore errors.
+- Mineflayer printed `PartialReadError` while reading 1.21.11 particle packets after activation, but the bot stayed connected and the server/plugin flow completed. This is treated as a bot protocol limitation, not a VibePetCore failure.
+
 Not covered by this smoke:
-- In-game right-click flows: offhand core summon/sync/relog, GUI item clicks inside Source and /pet, evolution click, feeding item click, armor apply.
+- In-game GUI item clicks inside Source and /pet, evolution click, feeding item click, armor apply.
 - Multi-player TPS/load behavior with 50-100 online and the full real plugin stack.
