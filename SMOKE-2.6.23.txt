@@ -2,7 +2,7 @@
 
 Date: 2026-06-22
 Branch: codex/refactor-gui-pages
-Commit: 0743651 Block feeding evolution bypass
+Code commit: e91a3ac Document all evolution item smoke
 
 Build gate:
 - Command: .\gradlew.bat clean processResources compileJava test jar check
@@ -85,6 +85,28 @@ Bot feeding/evolution-item smoke:
 - Server log had no VibePetCore errors.
 - Mineflayer again printed `PartialReadError` on 1.21.11 particle packets, but the bot stayed connected and all asserted item/satiety checks passed.
 
+Bot GUI/armor smoke:
+- Tooling: temporary mineflayer 4.37.1 script in %TEMP%\VibePetCore-bot-smoke
+- Server: clean temporary Purpur 1.21.11 smoke root, port 25568, offline mode, SmokeBot op level 4.
+- Flow:
+  - SmokeBot joined, placed Source, received a common wolf core, equipped it in offhand, and summoned a runtime wolf.
+  - /vpc admin audit showed activePetId present.
+  - /pet opened `VibePet - Питомец`.
+  - /pet safe slot clicks worked without errors: distance down, distance up, position front.
+  - /pet help slot opened `VibePet - Уход`.
+  - /pet evolution entry opened the wolf info/evolution page.
+  - /pet menu main opened `VibePet - Меню`.
+  - Source safe navigation clicks opened quests, box info page, legendary traits, growth, forge, help, and armor help pages.
+  - A tagged `copper_nautilus_armor` was given with Bukkit custom data, `/pet` vault opened `Рюкзак питомца - Волк`, and the armor was placed into vault slot 0.
+  - The saved vault file contains `minecraft:copper_nautilus_armor` with `vibepetcore:pet_armor` and `vibepetcore:pet_armor_tier=copper`.
+  - /vpc admin audit after GUI/vault actions still showed activePetId present.
+  - /stop from SmokeBot stopped the server.
+- VibePetCore runtime-notes.log remained empty.
+- Server log had no VibePetCore errors.
+- Only expected VibePetCore warning: MySQL fallback to local storage on the clean smoke server.
+- Mineflayer again printed `PartialReadError` on 1.21.11 particle packets after pet activation, but the bot stayed connected and completed all GUI/armor assertions.
+
 Not covered by this smoke:
-- In-game GUI item clicks inside Source and /pet, explicit Source/GUI evolution button click, armor apply.
+- Destructive/spending GUI clicks: Source box reward open slot, quest accept/turn-in, forge upgrade, and actual evolution attempt button.
+- Direct entity/block right-click on the placed Source while a core is in offhand.
 - Multi-player TPS/load behavior with 50-100 online and the full real plugin stack.
