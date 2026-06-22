@@ -1,0 +1,12 @@
+# VibePetCore 2.6.19
+
+## What changed
+- Active runtime pets now require the matching pet core or active button in the offhand slot.
+- A matching core in a normal inventory slot no longer keeps or restores the runtime pet.
+- With `egg-core.offhand-activation=true`, summoning from the main hand is blocked with a clear actionbar message.
+- `/pet` overview text now says offhand instead of main hand / either hand.
+
+## Server action
+- No data migration is required.
+- Re-test: summon from offhand, move the active button out of offhand, then verify the runtime pet disappears.
+- Also test that right-clicking a filled core from the main hand does not summon while offhand activation is enabled.

@@ -460,7 +460,7 @@ public final class GameText {
     public static String petOverviewFollowForwardTitle() { return msg("gui.pet.overview.follow.forward.title", localized("&dДальше", "&dFurther")); }
     public static String petOverviewFollowDistanceHint() { return msg("gui.pet.overview.follow.distance-hint", localized("&7Кнопки позиции выбирают место; Ближе/Дальше меняют дистанцию.", "&7Position buttons choose the spot; Closer/Further changes distance.")); }
     public static String petOverviewSummonTitle() { return msg("gui.pet.overview.summon.title", localized("&eПризвать питомца", "&eSummon pet")); }
-    public static String petOverviewSummonHint() { return msg("gui.pet.overview.summon.hint", localized("&7Питомец призывается в основную руку. Нажмите, чтобы вернуть его.", "&7The pet is summoned to your main hand. Click to bring it back.")); }
+    public static String petOverviewSummonHint() { return msg("gui.pet.overview.summon.hint", localized("&7Питомец призывается из ядра во второй руке.", "&7The pet is summoned from the offhand core.")); }
     public static String petOverviewAggressiveTitle() { return msg("gui.pet.overview.aggressive.title", localized("&6Боевой стиль", "&6Aggressive style")); }
     public static String petOverviewAggressiveHint(boolean enabled) { return enabled ? msg("gui.pet.overview.aggressive.enabled", localized("&7Включено: питомец атакует и защищает вас.", "&7Enabled: the pet attacks and protects you.")) : msg("gui.pet.overview.aggressive.disabled", localized("&7Выключено: питомец избегает боя и остаётся в безопасности.", "&7Disabled: the pet avoids combat and stays safe.")); }
     public static String petOverviewExitTitle() { return msg("gui.pet.overview.exit.title", localized("&cВыход", "&cExit")); }

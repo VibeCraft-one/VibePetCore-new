@@ -156,12 +156,8 @@ public final class PetEggController implements CoreModule, Listener {
 
         OwnedPetData pet = activePet.get();
         int inventorySlot = findPetSlot(player, pet.petId());
-        if (inventorySlot < 0) {
-            if (hasPetOnCursor(player, pet.petId())) {
-                cancelSummonCharge(player, false);
-                return;
-            }
-            petEngineManager.clearActivePet(player);
+        if (!PetCoreSlotSupport.keepsActiveRuntime(inventorySlot)) {
+            clearActivePetMissingOffhand(player, pet, inventorySlot);
             cancelSummonCharge(player, false);
             return;
         }
@@ -207,6 +203,13 @@ public final class PetEggController implements CoreModule, Listener {
             player.sendActionBar(Component.text(msg(
                 "pet-egg.restricted-mode",
                 "In creative and spectator mode, the pet is kept only as a core."
+            )));
+            return;
+        }
+        if (!PetCoreSlotSupport.canSummonFromHand(config.eggOffhandActivation(), hand)) {
+            player.sendActionBar(Component.text(msg(
+                "pet-egg.offhand-required",
+                "Put the pet core in your offhand and right-click."
             )));
             return;
         }
@@ -305,6 +308,13 @@ public final class PetEggController implements CoreModule, Listener {
             player.sendActionBar(Component.text(msg(
                 "pet-egg.restricted-mode",
                 "In creative and spectator mode, the pet is kept only as a core."
+            )));
+            return;
+        }
+        if (!PetCoreSlotSupport.canSummonFromHand(config.eggOffhandActivation(), hand)) {
+            player.sendActionBar(Component.text(msg(
+                "pet-egg.offhand-required",
+                "Put the pet core in your offhand and right-click."
             )));
             return;
         }
@@ -507,6 +517,22 @@ public final class PetEggController implements CoreModule, Listener {
         petEngineManager.despawnPet(player);
     }
 
+    private void clearActivePetMissingOffhand(Player player, OwnedPetData pet, int matchingSlot) {
+        if (petEngineManager.clearActivePet(player)) {
+            return;
+        }
+        debugLogger.warnRateLimited(
+            "egg:clear-save:" + player.getUniqueId() + ":missing-offhand",
+            "pet-egg",
+            "Could not save active pet clear for " + player.getName()
+                + " after offhand core mismatch; runtime pet was despawned and data kept dirty."
+                + " pet=" + pet.petId()
+                + " matchingSlot=" + matchingSlot,
+            10_000L
+        );
+        petEngineManager.despawnPet(player);
+    }
+
     private void restoreButtonsOutsideOffhand(Player player) {
         ItemStack offhand = player.getInventory().getItemInOffHand();
         for (int slot = 0; slot < player.getInventory().getSize(); slot++) {
@@ -529,10 +555,10 @@ public final class PetEggController implements CoreModule, Listener {
                 continue;
             }
             preferredSlots.merge(pet.get().petId(), slot, (current, candidate) -> {
-                if (candidate == 40) {
+                if (candidate == PetCoreSlotSupport.OFFHAND_SLOT) {
                     return candidate;
                 }
-                return current == 40 ? current : Math.min(current, candidate);
+                return current == PetCoreSlotSupport.OFFHAND_SLOT ? current : Math.min(current, candidate);
             });
         }
         for (int slot = 0; slot < player.getInventory().getSize(); slot++) {
@@ -546,7 +572,7 @@ public final class PetEggController implements CoreModule, Listener {
                 player.getInventory().setItem(slot, null);
                 continue;
             }
-            if (slot != 40 && eggService.isActiveButton(item)) {
+            if (slot != PetCoreSlotSupport.OFFHAND_SLOT && eggService.isActiveButton(item)) {
                 player.getInventory().setItem(slot, eggService.writeEmptyEgg(item, pet.get()));
             }
         }
@@ -616,12 +642,6 @@ public final class PetEggController implements CoreModule, Listener {
         return -1;
     }
 
-    private boolean hasPetOnCursor(Player player, UUID petId) {
-        return eggService.readEgg(player.getItemOnCursor())
-            .map(pet -> pet.petId().equals(petId))
-            .orElse(false);
-    }
-
     private void refreshPetItemSlot(Player player, int slot, OwnedPetData pet) {
         ItemStack item = player.getInventory().getItem(slot);
         if (!eggService.isPetEgg(item)) {
@@ -631,7 +651,7 @@ public final class PetEggController implements CoreModule, Listener {
     }
 
     private ItemStack writeActivePetCoreItem(int slot, ItemStack item, OwnedPetData pet) {
-        return slot == 40
+        return slot == PetCoreSlotSupport.OFFHAND_SLOT
             ? eggService.writeActiveButton(item, pet)
             : eggService.writeEmptyEgg(item, pet);
     }

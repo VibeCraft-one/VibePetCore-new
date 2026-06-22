@@ -375,6 +375,7 @@ economy:
       reward-points: 260
 
 egg-core:
+  offhand-activation: true
   active-button-material: WARPED_BUTTON
   enchanted-glint: true
   custom-model-data:

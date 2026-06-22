@@ -310,9 +310,9 @@ final class PetOverviewPage implements PetGuiPage {
 
     private ItemStack petCoreUsageInfo(boolean summoned) {
         return gui.item(Material.BELL, gui.msg("gui.pet.summon.title", "&ePet core"), List.of(
-            gui.msg("gui.pet.summon.line.one", "&7Summon: hold the filled core and right-click."),
+            gui.msg("gui.pet.summon.line.one", "&7Summon: hold the filled core in offhand and right-click."),
             gui.msg("gui.pet.summon.line.two", "&7Return: hold the empty matching core and right-click."),
-            gui.msg("gui.pet.summon.line.three", "&7The core can be in either hand."),
+            gui.msg("gui.pet.summon.line.three", "&7Active runtime requires the matching offhand core."),
             summoned ? gui.msg("gui.pet.summon.active", "&aPet is active now.") : gui.msg("gui.pet.summon.prompt", "&8Information card")
         ));
     }

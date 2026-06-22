@@ -43,6 +43,35 @@ final class GuiTextReleaseAuditTest {
         assertTrue(enMessages.contains("Closer/Further changes distance"));
     }
 
+    @Test
+    void petOverviewSummonTextsRequireOffhandCore() throws IOException {
+        String ruMessages = read("src/main/resources/messages/ru.yml");
+        String enMessages = read("src/main/resources/messages/en.yml");
+
+        for (String line : List.of(
+            lineStartingWith(ruMessages, "gui.pet.summon.line.one:"),
+            lineStartingWith(ruMessages, "gui.pet.summon.line.three:"),
+            lineStartingWith(ruMessages, "gui.pet.overview.need-core-hint:"),
+            lineStartingWith(ruMessages, "gui.pet.overview.summon.hint:")
+        )) {
+            assertTrue(line.contains("\u0432\u0442\u043e\u0440"), line);
+            assertFalse(line.contains("\u043e\u0441\u043d\u043e\u0432\u043d"), line);
+            assertFalse(line.contains("\u0432 \u043b\u044e\u0431\u043e\u0439 \u0440\u0443\u043a\u0435"), line);
+        }
+
+        for (String line : List.of(
+            lineStartingWith(enMessages, "gui.pet.summon.line.one:"),
+            lineStartingWith(enMessages, "gui.pet.summon.line.three:"),
+            lineStartingWith(enMessages, "gui.pet.overview.need-core-hint:"),
+            lineStartingWith(enMessages, "gui.pet.overview.summon.hint:")
+        )) {
+            String lower = line.toLowerCase(Locale.ROOT);
+            assertTrue(lower.contains("offhand"), line);
+            assertFalse(lower.contains("main hand"), line);
+            assertFalse(lower.contains("either hand"), line);
+        }
+    }
+
     private static void assertNoBondVocabulary(String line, String source) {
         String lower = line.toLowerCase(Locale.ROOT);
         assertFalse(lower.contains("bond"), source + " should keep bond details inside the evolution page");
