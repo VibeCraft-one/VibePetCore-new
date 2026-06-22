@@ -68,6 +68,23 @@ Bot offhand/relog smoke:
 - Server log had no VibePetCore errors.
 - Mineflayer printed `PartialReadError` while reading 1.21.11 particle packets after activation, but the bot stayed connected and the server/plugin flow completed. This is treated as a bot protocol limitation, not a VibePetCore failure.
 
+Bot feeding/evolution-item smoke:
+- Tooling: temporary mineflayer 4.37.1 script in %TEMP%\VibePetCore-bot-smoke
+- Server state: clean temporary Purpur 1.21.11 smoke world/player/plugin data, survival gamemode.
+- Flow:
+  - SmokeBot joined, placed Source, received a common wolf core, equipped it in offhand, and summoned a runtime wolf.
+  - /vpc admin audit showed activePetId present.
+  - /pet info before item tests showed runtime wolf E1 with satiety 5.0/5.
+  - SmokeBot received `nether_star`, clicked the runtime wolf with entity-position interaction, and the item count stayed 1.
+  - /pet info after `nether_star` still showed E1 and satiety 5.0/5, so feeding did not trigger evolution or consume the evolution item.
+  - /vpc admin setsatiety 0 set the active core/runtime satiety to 0.
+  - SmokeBot received `cooked_beef`, clicked the runtime wolf with entity-position interaction, and the item count dropped 1 -> 0.
+  - /pet info after `cooked_beef` showed satiety 1.0/5.
+  - /stop from SmokeBot stopped the server and VibePetCore disabled cleanly.
+- VibePetCore runtime-notes.log remained empty.
+- Server log had no VibePetCore errors.
+- Mineflayer again printed `PartialReadError` on 1.21.11 particle packets, but the bot stayed connected and all asserted item/satiety checks passed.
+
 Not covered by this smoke:
-- In-game GUI item clicks inside Source and /pet, evolution click, feeding item click, armor apply.
+- In-game GUI item clicks inside Source and /pet, explicit Source/GUI evolution button click, armor apply.
 - Multi-player TPS/load behavior with 50-100 online and the full real plugin stack.
