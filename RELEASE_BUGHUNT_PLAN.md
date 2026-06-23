@@ -238,6 +238,12 @@ Hot-path watchlist:
 - `src/main/java/dev/li2fox/vibepetcore/master/PetMasterManager.java`
 - `src/main/java/dev/li2fox/vibepetcore/box/LootBoxManager.java`
 
+Что уже видно по коду:
+- `TaskManager` не выглядит страшной зоной сам по себе: тики завернуты в guarded runner и slow-log уже есть;
+- `PetAbilityService` выглядит как реальный hot-path candidate, но уже имеет nearby-cache и cooldown cleanup;
+- `PetInterestLocator` использует `owner.getNearbyEntities(...)` и локальные циклы, поэтому его нельзя расширять без perf-проверки;
+- `PetMasterManager` и `LootBoxManager` имеют свои `runTaskTimer` visual tick, значит их визуальные эффекты и nearby-checks нельзя раздувать без доказательства.
+
 ## Уже замеченные страшные места
 
 ### Реальный релизный риск
