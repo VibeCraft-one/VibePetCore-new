@@ -244,6 +244,31 @@ Hot-path watchlist:
 - `PetInterestLocator` использует `owner.getNearbyEntities(...)` и локальные циклы, поэтому его нельзя расширять без perf-проверки;
 - `PetMasterManager` и `LootBoxManager` имеют свои `runTaskTimer` visual tick, значит их визуальные эффекты и nearby-checks нельзя раздувать без доказательства.
 
+### 11. VPC-REL-AUDIT-PERSISTENCE-01
+
+Тип: `foundational risk`
+
+Зоны:
+- `src/main/java/dev/li2fox/vibepetcore/player/PlayerDataManager.java`
+- `src/main/java/dev/li2fox/vibepetcore/player/SqlitePlayerStorage.java`
+- `src/main/java/dev/li2fox/vibepetcore/player/MysqlPlayerStorage.java`
+
+Почему важно:
+- все destructive `P0` в итоге упираются в поведение `save(playerId)` и dirty tracking;
+- storage работает синхронно и является источником истины для rollback-контрактов;
+- это не выглядит как отдельный текущий баг, но любой fix в `quest/evolution/forge` нужно проверять через этот слой.
+
+Что уже видно по коду:
+- `PlayerDataManager.save(playerId)` сохраняет только dirty players и не удаляет dirty flag при ошибке;
+- `saveAll()` просто итерирует dirty set, то есть это скорее infra-фундамент, чем место для сложной логики;
+- `SqlitePlayerStorage` и `MysqlPlayerStorage` выглядят прямолинейно и синхронно, без отдельной очереди или async-buffer;
+- fallback/migration/archiving логика есть, но это отдельная зона осторожности при SQL-migration.
+
+Критерии закрытия:
+- при фиксе destructive-flow тесты доказывают контракт именно через текущий persistence layer;
+- если найдётся backend-specific bug, он выносится в отдельный узкий проход;
+- без доказательства не трогать migration/archive логику перед релизом.
+
 ## Уже замеченные страшные места
 
 ### Реальный релизный риск
@@ -259,6 +284,7 @@ Hot-path watchlist:
 - `PetEngineManager` слишком большой orchestration-класс
 - `VibePetCommandHandler` жирный command-router
 - `PetMasterManager` и `LootBoxManager` смешивают interaction, visual tick и infra-flow
+- persistence layer критичен для всех save/rollback фиксов, даже если сам по себе пока не выглядит сломанным
 
 ## Как работать дальше
 
