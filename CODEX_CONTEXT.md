@@ -166,6 +166,7 @@
 - Поднимай версию в `build.gradle.kts`, если меняется поведение плагина.
 - Если этап заметный для сервера/игроков, добавляй новый `MIGRATION-*.txt`.
 - Для координации релизного bug hunt смотри `RELEASE_BUGHUNT_PLAN.md`.
+- Готовые prompts для следующих coordinator/builder/reviewer проходов лежат в `RELEASE_TASK_PROMPTS.md`.
 
 ## Анти-Моjibake
 - Русские файлы правь и читай как UTF-8 без BOM.
