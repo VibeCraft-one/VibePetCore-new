@@ -7,6 +7,9 @@
 - не смешивать destructive bugfix, anti-chaos refactor и smoke в одной задаче;
 - после потери актуальности файл можно удалить.
 
+Смотри также:
+- `RELEASE_EXECUTION_QUEUE.md` — в каком порядке запускать `Builder` и `Reviewer`
+
 ## Builder: Quest Save
 
 ```text
