@@ -33,6 +33,7 @@
 - `VPC-REL-BUGHUNT-QUEST-SAVE-01.md` — точный handoff по первому `P0`
 - `VPC-REL-BUGHUNT-EVOLUTION-SAVE-01.md` — точный handoff по второму `P0`
 - `VPC-REL-BUGHUNT-FORGE-SAVE-01.md` — точный handoff по третьему `P0`
+- `VPC-REL-BUGHUNT-CORE-REPAIR-SAVE-01.md` — точный handoff по четвёртому destructive save-flow
 
 ### Брать первым
 
