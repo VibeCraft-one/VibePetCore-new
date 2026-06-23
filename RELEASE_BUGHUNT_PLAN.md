@@ -9,6 +9,10 @@
 - `P0/P1` ещё не закрыты полностью, релиз `не готов`
 - следующий обязательный проход: `VPC-REL-BUGHUNT-QUEST-SAVE-01`
 - после него по очереди: `EVOLUTION` -> `FORGE` -> `CORE-REPAIR`
+- базовая проверка ветки на `892dab2`:
+  - `./gradlew test` — зелёный
+  - `./gradlew processResources compileJava test jar check` — зелёный
+  - `checkJarSize`: `18478 KiB / 40960 KiB`
 
 Что это значит:
 - прошлый координатор успел запушить базу, текущий coordinator backlog тоже уже на GitHub;
