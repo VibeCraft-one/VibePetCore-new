@@ -6,8 +6,8 @@
 - очередь исполнения: `RELEASE_EXECUTION_QUEUE.md`
 - launch-файл чатов: `RELEASE_CHAT_LAUNCH.md`
 - честная оценка готовности на `2026-06-23`: `~50%`, релиз ещё `не готов`
-- закрыты кодом и тестами: `VPC-REL-BUGHUNT-QUEST-SAVE-01`, `VPC-REL-BUGHUNT-EVOLUTION-SAVE-01`
-- ближайший обязательный Builder-pass: `VPC-REL-BUGHUNT-FORGE-SAVE-01`
+- закрыты кодом и тестами: `VPC-REL-BUGHUNT-QUEST-SAVE-01`, `VPC-REL-BUGHUNT-EVOLUTION-SAVE-01`, `VPC-REL-BUGHUNT-FORGE-SAVE-01`
+- ближайший обязательный Builder-pass: `VPC-REL-BUGHUNT-CORE-REPAIR-SAVE-01`
 
 ## Что это
 `VibePetCore` — Paper/Purpur-плагин про питомцев-спутников.
@@ -67,6 +67,10 @@
 - Не переносить все страницы одним большим патчем; после каждой страницы запускать `compileJava test`.
 
 ## Последние важные изменения
+- `2.6.25`
+  - кузня ядра теперь требует успешного `playerData save` после расхода donor eggs и попытки апгрейда редкости;
+  - при save-fail donor eggs и rarity/state активного питомца откатываются, ложный success не показывается;
+  - добавлен regression-тест на rollback-контракт кузни без Bukkit server.
 - `2.6.24`
   - эволюция активного питомца теперь требует успешного `playerData save` после расхода ресурсов и попытки stage-up;
   - при save-fail откатываются evolution materials из инвентаря и рюкзака питомца, stage/level/bond/xp восстанавливаются, ложный success не показывается;

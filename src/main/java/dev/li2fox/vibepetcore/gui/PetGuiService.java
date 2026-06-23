@@ -696,20 +696,33 @@ public final class PetGuiService implements Listener {
             return;
         }
 
-        for (int slot : donorSlots) {
-            consumeOneInventorySlot(player, slot);
-        }
-
         double successChance = balanceConfig.eggRarityUpgradeChance(rarity.name().toLowerCase(Locale.ROOT));
-        boolean success = ThreadLocalRandom.current().nextDouble() < successChance;
-        if (success) {
-            petData.setRarity(rarity.next().name());
-            petEngineManager.replaceActivePetData(player, petData);
+        PetForgeFlowSupport.ForgeStateSnapshot snapshot = PetForgeFlowSupport.snapshotState(player, petData);
+        PetForgeFlowSupport.ForgeAttemptResult result = PetForgeFlowSupport.attemptRarityUpgrade(
+            player,
+            petData,
+            rarity,
+            donorSlots,
+            snapshot,
+            successChance,
+            ThreadLocalRandom.current()::nextDouble,
+            restored -> petEngineManager.replaceActivePetData(player, restored),
+            () -> playerDataManager.save(player.getUniqueId())
+        );
+        if (result.saveFailed()) {
+            player.sendMessage(GameText.text(
+                "forge.upgrade.save-failed",
+                "Не удалось сохранить кузню ядра. Донорские яйца и состояние питомца восстановлены, попробуйте ещё раз через пару секунд.",
+                "Could not save the core forge upgrade. Donor eggs and pet state were restored. Try again in a few seconds."
+            ));
+            player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 0.7F, 0.75F);
+            openRarityForge(player, source);
+            return;
         }
 
         setHeldPetCore(player, core, writeCoreForState(core.item(), petData));
-        player.sendMessage(success ? GameText.forgeUpgradeSuccess(GameText.rarityName(petData.rarity())) : GameText.forgeUpgradeFail());
-        player.playSound(player.getLocation(), success ? Sound.UI_TOAST_CHALLENGE_COMPLETE : Sound.BLOCK_ANVIL_LAND, 0.75F, success ? 1.1F : 0.8F);
+        player.sendMessage(result.upgraded() ? GameText.forgeUpgradeSuccess(GameText.rarityName(petData.rarity())) : GameText.forgeUpgradeFail());
+        player.playSound(player.getLocation(), result.upgraded() ? Sound.UI_TOAST_CHALLENGE_COMPLETE : Sound.BLOCK_ANVIL_LAND, 0.75F, result.upgraded() ? 1.1F : 0.8F);
         openRarityForge(player, source);
     }
 
@@ -840,19 +853,6 @@ public final class PetGuiService implements Listener {
             player.getInventory().setStorageContents(contents);
             return;
         }
-    }
-
-    private void consumeOneInventorySlot(Player player, int slot) {
-        ItemStack item = player.getInventory().getItem(slot);
-        if (item == null || item.getType().isAir()) {
-            return;
-        }
-        if (item.getAmount() <= 1) {
-            player.getInventory().setItem(slot, null);
-            return;
-        }
-        item.setAmount(item.getAmount() - 1);
-        player.getInventory().setItem(slot, item);
     }
 
     ItemStack item(Material material, String name, List<String> lore) {

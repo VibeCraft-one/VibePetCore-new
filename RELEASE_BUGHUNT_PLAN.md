@@ -1,15 +1,15 @@
 # VibePetCore Release Bug Hunt Plan
 
-Статус: рабочий backlog для координаторов перед релизом `2.6.24`.
+Статус: рабочий backlog для координаторов перед релизом `2.6.25`.
 
 ## Снимок на 2026-06-23
 
 - честная оценка готовности до релиза: `~50%`
 - локальная ветка и `origin/codex/refactor-gui-pages` синхронны на `d0dfbef Add release execution queue`
 - `P0/P1` ещё не закрыты полностью, релиз `не готов`
-- закрыты кодом и тестами: `QUEST-SAVE`, `EVOLUTION-SAVE`
-- следующий обязательный проход: `VPC-REL-BUGHUNT-FORGE-SAVE-01`
-- после него по очереди: `CORE-REPAIR` -> `CONTROLLED SMOKE`
+- закрыты кодом и тестами: `QUEST-SAVE`, `EVOLUTION-SAVE`, `FORGE-SAVE`
+- следующий обязательный проход: `VPC-REL-BUGHUNT-CORE-REPAIR-SAVE-01`
+- после него по очереди: `CONTROLLED SMOKE`
 - подготовлены:
   - `4` точных `P0` handoff-файла
   - `Builder -> Reviewer -> smoke` очередь исполнения

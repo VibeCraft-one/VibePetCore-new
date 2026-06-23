@@ -3,7 +3,7 @@ plugins {
 }
 
 group = "dev.li2fox.vibepetcore"
-version = "2.6.24"
+version = "2.6.25"
 
 repositories {
     mavenCentral()

@@ -1,0 +1,11 @@
+# VibePetCore 2.6.25
+
+## What changed
+- Core forge rarity upgrades now use an immediate save/rollback contract.
+- If player-data save fails after donor eggs are consumed, donor eggs and the active pet rarity/state are restored instead of being silently lost or desynced.
+- Added a regression test for forge save-failure rollback.
+
+## Server action
+- No data migration is required.
+- Re-test one real forge upgrade through the Source GUI.
+- For failure testing, temporarily force player-data save to fail and verify that donor eggs and the held core rarity are restored.
