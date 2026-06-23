@@ -4,6 +4,7 @@
 - release triage/backlog: `RELEASE_BUGHUNT_PLAN.md`
 - role prompts для следующих чатов: `RELEASE_TASK_PROMPTS.md`
 - очередь исполнения: `RELEASE_EXECUTION_QUEUE.md`
+- launch-файл чатов: `RELEASE_CHAT_LAUNCH.md`
 - честная оценка готовности на `2026-06-23`: `~50%`, релиз ещё `не готов`
 - ближайший обязательный Builder-pass: `VPC-REL-BUGHUNT-QUEST-SAVE-01`
 

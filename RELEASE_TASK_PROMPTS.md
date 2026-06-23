@@ -9,6 +9,7 @@
 
 Смотри также:
 - `RELEASE_EXECUTION_QUEUE.md` — в каком порядке запускать `Builder` и `Reviewer`
+- `RELEASE_CHAT_LAUNCH.md` — готовые сообщения для новых чатов
 
 ## Builder: Quest Save
 

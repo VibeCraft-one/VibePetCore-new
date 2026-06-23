@@ -11,6 +11,7 @@
 
 - ветка: `codex/refactor-gui-pages`
 - базовая сборка зелёная
+- launch-файл для новых чатов: `RELEASE_CHAT_LAUNCH.md`
 - handoff уже подготовлены для:
   - `VPC-REL-BUGHUNT-QUEST-SAVE-01`
   - `VPC-REL-BUGHUNT-EVOLUTION-SAVE-01`
