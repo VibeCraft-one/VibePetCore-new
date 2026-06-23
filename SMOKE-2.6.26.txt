@@ -1,0 +1,58 @@
+# VibePetCore 2.6.26 smoke
+
+Date: 2026-06-24
+Branch: codex/refactor-gui-pages
+Code commit: 92cb806 Fix core repair save rollback
+
+Live controlled GUI smoke:
+- Server: Purpur 1.21.11 build 2568
+- Test root: `%TEMP%\VibePetCore-smoke-2.6.26`
+- Plugin jar: `plugins/VibePetCore-2.6.26.jar`
+- Tooling: temporary mineflayer 4.37.1 runtime from `%TEMP%\VibePetCore-bot-smoke`
+- Bot script kept in repo: `tools/bot_release_gate_smoke.js`
+- Player: `SmokeBot`, offline mode, op level 4
+
+Expected smoke warnings:
+- Clean smoke server had no MySQL, so VibePetCore fell back to json storage.
+- Smoke server was intentionally started in offline mode on port `25569`.
+
+Verified by live run:
+- Direct `ПКМ` on the placed Source while a core was in offhand opened `VibePet - Меню`.
+- The same Source click did not summon a runtime pet in parallel.
+- `/pet` opened personal GUI, help page opened from slot `17`, and pet growth/info page opened from slot `13`.
+- Source quests GUI:
+  - `slot 10` from main menu opened quests;
+  - gather tab `slot 5` opened correctly;
+  - quest in `slot 10` was accepted through GUI;
+  - after giving gather resources, the same GUI slot turned the quest in successfully;
+  - points changed `0 -> 45`;
+  - bread stack dropped to `24`, which matches `64 - 40` for the visible bread gather quest.
+- Source forge GUI:
+  - forge page opened from main menu `slot 34`;
+  - forge attempt button `slot 22` consumed exactly 2 donor `wolf_spawn_egg`;
+  - the attempt failed by chance, but the GUI reopened normally and no phantom donor eggs remained.
+- Source box GUI:
+  - box page opened from main menu `slot 16`;
+  - box open button `slot 22` granted a reward egg;
+  - total egg count changed `0 -> 1`;
+  - reward chat in this run: `Источник открыт: обычная Кот.`
+- Post-action audit:
+  - `/vpc admin audit SmokeBot` -> `Проблем аудита не найдено.`
+  - `/vpc debugpet` still showed intact held `WOLF_SPAWN_EGG` core data.
+- Server shutdown through in-game `/stop` was clean; VibePetCore disabled without plugin errors.
+
+Evidence files outside repo:
+- bot log: `%TEMP%\VibePetCore-smoke-2.6.26\release-gate-bot.log`
+- server log: `%TEMP%\VibePetCore-smoke-2.6.26\release-gate-server-out.log`
+
+Not proven by this live smoke:
+- Actual evolution attempt button on production config with honest `bond >= 4`, completed stage quest, and real material spend.
+- Core repair click on production config with a truly damaged core and real totem spend.
+- Multi-player TPS/load behavior on the real proxy+lobby+plugin stack.
+
+Release interpretation:
+- `Source offhand conflict`, `quest accept/turn-in`, `forge donor spend`, and `box reward spend` now have live evidence.
+- Remaining player-facing release uncertainty is reduced to:
+  - real evolution button spend path;
+  - real core repair spend path;
+  - stack-level TPS/manual server check.

@@ -308,17 +308,24 @@
 
 Тип: `release evidence`
 
-Что ещё не закрыто живым доказательством:
+Что уже закрыто живым доказательством:
 - destructive GUI click у `Source box`;
 - `quest accept/turn-in`;
 - `forge upgrade`;
-- actual evolution attempt button;
 - прямой `ПКМ` по установленному Источнику, когда core в offhand.
 
+Что ещё не закрыто на боевом конфиге:
+- actual evolution attempt button;
+- core repair click на реально повреждённом ядре.
+
 Критерии закрытия:
-- controlled smoke записан в `SMOKE-2.6.23.txt` или новый smoke-файл;
+- controlled smoke записан в `SMOKE-2.6.26.txt`;
 - нет VibePetCore ошибок в логе;
 - нет ложного расхода ресурсов/предметов.
+
+Остаток после `SMOKE-2.6.26.txt`:
+- нужен короткий ручной gate `VPC-REL-MANUAL-EVOLUTION-REPAIR-01`;
+- причина: в текущем админ-наборе нет честного детерминированного seed для `bond >= 4` и `damaged core`, который не искажал бы production-config proof.
 
 ### 12. VPC-REL-TPS-RISK-AUDIT-01
 

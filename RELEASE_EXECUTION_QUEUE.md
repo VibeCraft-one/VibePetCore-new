@@ -16,7 +16,12 @@
   - `VPC-REL-BUGHUNT-EVOLUTION-SAVE-01`
   - `VPC-REL-BUGHUNT-FORGE-SAVE-01`
   - `VPC-REL-BUGHUNT-CORE-REPAIR-SAVE-01`
-- следующий обязательный проход: `VPC-REL-SMOKE-DESTRUCTIVE-GUI-01`
+- живым smoke уже подтверждены:
+  - `Source offhand conflict`
+  - `quest accept/turn-in`
+  - `forge upgrade spend path`
+  - `Source box spend path`
+- следующий обязательный проход: `VPC-REL-MANUAL-EVOLUTION-REPAIR-01`
 - launch-файл для новых чатов: `RELEASE_CHAT_LAUNCH.md`
 - handoff уже подготовлены для:
   - `VPC-REL-BUGHUNT-QUEST-SAVE-01`
@@ -73,20 +78,33 @@
 Стартовать только если все 4 save-flow pass закрыты кодом и тестами.
 
 Что проверять живьём:
-- `quest accept/turn-in`
 - actual evolution attempt button
-- forge upgrade
 - core repair
-- прямой `ПКМ` по установленному Источнику, когда core в offhand
+- для справки: `quest accept/turn-in`, `forge upgrade`, `Source box`, прямой `ПКМ` по Источнику при core в offhand уже доказаны в `SMOKE-2.6.26.txt`
 
 Результат:
 - обновить `SMOKE-2.6.23.txt` или новый smoke-файл
+- после `SMOKE-2.6.26.txt` следующий узкий gate: `VPC-REL-MANUAL-EVOLUTION-REPAIR-01`
 
-### 6. Admin Mutation Save Audit
+### 6. Manual Evolution / Repair Gate
+
+Стартовать только если `SMOKE-2.6.26.txt` зелёный.
+
+Что осталось доказать руками:
+- actual evolution attempt button на боевом конфиге;
+- core repair click на реально повреждённом ядре;
+- без подмены bond/durability через тестовый конфиг.
+
+Результат:
+- exact pass/fail шаги зафиксированы в `TEST_CHECKLIST.md`;
+- если найден `P0/P1`, сначала узкий fix, потом повтор;
+- если pass, только тогда идти в следующий аудит.
+
+### 7. Admin Mutation Save Audit
 
 Только после 4 player-facing destructive pass и smoke.
 
-### 7. TPS / Structural Follow-up
+### 8. TPS / Structural Follow-up
 
 Только после закрытия player-facing destructive `P0`.
 
