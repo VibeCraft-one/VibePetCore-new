@@ -1,5 +1,11 @@
 # VibePetCore Context
 
+## Release Snapshot
+- release triage/backlog: `RELEASE_BUGHUNT_PLAN.md`
+- role prompts для следующих чатов: `RELEASE_TASK_PROMPTS.md`
+- честная оценка готовности на `2026-06-23`: `~50%`, релиз ещё `не готов`
+- ближайший обязательный Builder-pass: `VPC-REL-BUGHUNT-QUEST-SAVE-01`
+
 ## Что это
 `VibePetCore` — Paper/Purpur-плагин про питомцев-спутников.
 Основа: ядро питомца в `offhand`, призыв по `ПКМ`, runtime-пет рядом с игроком, кормление, эволюция, боевые и utility-реакции, GUI, квесты и очки.
