@@ -1,0 +1,11 @@
+# VibePetCore 2.6.26
+
+## What changed
+- Core repair now uses an immediate save/rollback contract.
+- If player-data save fails after consuming a totem, the totem and active pet vitals/core state are restored instead of being silently lost or desynced.
+- Added a regression test for core repair save-failure rollback.
+
+## Server action
+- No data migration is required.
+- Re-test one real core repair through `/pet`.
+- For failure testing, temporarily force player-data save to fail and verify that the totem, durability, satiety, and inactive timer are restored.

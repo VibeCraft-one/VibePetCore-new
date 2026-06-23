@@ -757,13 +757,26 @@ public final class PetGuiService implements Listener {
             return false;
         }
 
-        consumeOneMaterial(player, Material.TOTEM_OF_UNDYING);
         int nextDurability = Math.min(maxDurability, currentDurability + 1);
-        data.setDurability(nextDurability);
-        data.setInactiveUntilMillis(0L);
-        data.setSatiety(balanceConfig.eggMaxSatiety());
-        data.setHealth(data.maxHealth());
-        petEngineManager.replaceActivePetData(player, data);
+        PetCoreRepairFlowSupport.RepairStateSnapshot snapshot = PetCoreRepairFlowSupport.snapshotState(player, data);
+        PetCoreRepairFlowSupport.RepairAttemptResult result = PetCoreRepairFlowSupport.attemptRepair(
+            player,
+            data,
+            nextDurability,
+            balanceConfig.eggMaxSatiety(),
+            snapshot,
+            restored -> petEngineManager.replaceActivePetData(player, restored),
+            () -> playerDataManager.save(player.getUniqueId())
+        );
+        if (result.saveFailed()) {
+            player.sendMessage(GameText.text(
+                "core.repair.save-failed",
+                "Не удалось сохранить ремонт ядра. Тотем и состояние питомца восстановлены, попробуйте ещё раз через пару секунд.",
+                "Could not save the core repair. The totem and pet state were restored. Try again in a few seconds."
+            ));
+            player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 0.7F, 0.75F);
+            return false;
+        }
 
         setHeldPetCore(player, core, writeCoreForState(core.item(), data));
         player.sendMessage(GameText.coreRepairIncreased(currentDurability, nextDurability));
@@ -836,23 +849,6 @@ public final class PetGuiService implements Listener {
             }
         }
         return total;
-    }
-
-    private void consumeOneMaterial(Player player, Material material) {
-        ItemStack[] contents = player.getInventory().getStorageContents();
-        for (int index = 0; index < contents.length; index++) {
-            ItemStack item = contents[index];
-            if (item == null || item.getType() != material) {
-                continue;
-            }
-            if (item.getAmount() <= 1) {
-                contents[index] = null;
-            } else {
-                item.setAmount(item.getAmount() - 1);
-            }
-            player.getInventory().setStorageContents(contents);
-            return;
-        }
     }
 
     ItemStack item(Material material, String name, List<String> lore) {

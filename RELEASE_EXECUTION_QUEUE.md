@@ -15,7 +15,8 @@
   - `VPC-REL-BUGHUNT-QUEST-SAVE-01`
   - `VPC-REL-BUGHUNT-EVOLUTION-SAVE-01`
   - `VPC-REL-BUGHUNT-FORGE-SAVE-01`
-- следующий обязательный Builder-pass: `VPC-REL-BUGHUNT-CORE-REPAIR-SAVE-01`
+  - `VPC-REL-BUGHUNT-CORE-REPAIR-SAVE-01`
+- следующий обязательный проход: `VPC-REL-SMOKE-DESTRUCTIVE-GUI-01`
 - launch-файл для новых чатов: `RELEASE_CHAT_LAUNCH.md`
 - handoff уже подготовлены для:
   - `VPC-REL-BUGHUNT-QUEST-SAVE-01`
