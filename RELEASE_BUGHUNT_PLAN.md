@@ -31,6 +31,7 @@
 Смотри также:
 - `RELEASE_TASK_PROMPTS.md` — готовые prompts для `Builder` и `Reviewer`
 - `VPC-REL-BUGHUNT-QUEST-SAVE-01.md` — точный handoff по первому `P0`
+- `VPC-REL-BUGHUNT-EVOLUTION-SAVE-01.md` — точный handoff по второму `P0`
 
 ### Брать первым
 
