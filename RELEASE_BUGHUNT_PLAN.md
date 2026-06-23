@@ -115,7 +115,70 @@
 - offhand/drop/death/relog smoke не ломается;
 - listener заметно короче и понятнее.
 
-### 5. VPC-REL-SMOKE-DESTRUCTIVE-GUI-01
+### 5. VPC-REL-REFAC-GUI-SERVICE-01
+
+Тип: `structural risk`
+
+Зона:
+- `src/main/java/dev/li2fox/vibepetcore/gui/PetGuiService.java`
+
+Почему важно:
+- в одном классе смешаны listener, menu routing, held-core lookup, quest selection, Source actions и forge flow;
+- это не главный TPS-риск, но плохая точка для последующих багфиксов и GUI-регрессий.
+
+Что делать:
+- продолжать выносить страницы и action-handler'ы;
+- вынести destructive `forge` и `box` action flow из GUI-слоя;
+- сократить строковую маршрутизацию `menuId` там, где можно безопасно заменить page/service-обёрткой.
+
+Критерии закрытия:
+- `PetGuiService` остаётся listener/facade, но не хранит business-логику destructive операций;
+- GUI smoke не регрессит;
+- новые страницы и действия читаются отдельно.
+
+### 6. VPC-REL-REFAC-COMMAND-HANDLER-01
+
+Тип: `structural risk`
+
+Зона:
+- `src/main/java/dev/li2fox/vibepetcore/core/VibePetCommandHandler.java`
+
+Почему важно:
+- жирный command-router держит admin/source/quest/pet/help/recovery сценарии в одном месте;
+- это не доказанный perf-баг, но опасная точка для ошибок в командах и трудной навигации по коду.
+
+Что делать:
+- выносить команды малыми support-классами по доменам;
+- не ломать текущий command contract;
+- приоритет на `quest/source/admin diagnostics`, потому что они чаще нужны в релизном bug hunt.
+
+Критерии закрытия:
+- логические группы команд читаются по отдельным support-классам;
+- help/usage/permissions не ломаются;
+- smoke ключевых команд остаётся зелёным.
+
+### 7. VPC-REL-REFAC-PET-ENGINE-01
+
+Тип: `structural risk`
+
+Зона:
+- `src/main/java/dev/li2fox/vibepetcore/pet/PetEngineManager.java`
+
+Почему важно:
+- класс одновременно держит activation, runtime update, feeding, combat, damage, evolution, refresh и recovery;
+- рядом уже находятся реальные destructive `P0`-цепочки, поэтому дальнейшие фиксы в этом файле будут рискованны без локального распила.
+
+Что делать:
+- не переписывать весь engine;
+- выносить только самостоятельные зоны: `activation/save-flow`, `evolution flow`, `incoming damage / combat reactions`, `owner control actions`;
+- оставлять orchestration в manager, но убирать детали из монолита.
+
+Критерии закрытия:
+- risky subflows читаются отдельно;
+- regression-тесты на activation/evolution не ломаются;
+- runtime/smoke не регрессит.
+
+### 8. VPC-REL-SMOKE-DESTRUCTIVE-GUI-01
 
 Тип: `release evidence`
 
@@ -131,7 +194,7 @@
 - нет VibePetCore ошибок в логе;
 - нет ложного расхода ресурсов/предметов.
 
-### 6. VPC-REL-TPS-RISK-AUDIT-01
+### 9. VPC-REL-TPS-RISK-AUDIT-01
 
 Тип: `release evidence`
 
@@ -156,6 +219,7 @@
 ### Structural risk
 
 - `PetEggController` жирный listener и смешанные обязанности
+- `PetGuiService` смешивает GUI listener и business-flow
 - `PetEngineManager` слишком большой orchestration-класс
 - `VibePetCommandHandler` жирный command-router
 
