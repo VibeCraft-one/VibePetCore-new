@@ -11,6 +11,10 @@
 
 - ветка: `codex/refactor-gui-pages`
 - базовая сборка зелёная
+- закрыты кодом и тестами:
+  - `VPC-REL-BUGHUNT-QUEST-SAVE-01`
+  - `VPC-REL-BUGHUNT-EVOLUTION-SAVE-01`
+- следующий обязательный Builder-pass: `VPC-REL-BUGHUNT-FORGE-SAVE-01`
 - launch-файл для новых чатов: `RELEASE_CHAT_LAUNCH.md`
 - handoff уже подготовлены для:
   - `VPC-REL-BUGHUNT-QUEST-SAVE-01`

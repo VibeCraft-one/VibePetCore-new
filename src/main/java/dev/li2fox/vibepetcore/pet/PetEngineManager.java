@@ -1213,6 +1213,9 @@ public final class PetEngineManager implements CoreModule {
             this::completedEvolutionQuestCompletions,
             this::evolutionAttemptChance,
             this::consumeEvolutionMaterials,
+            petVaultService::snapshotContents,
+            petVaultService::restoreContents,
+            this::saveEvolutionState,
             this::finishEvolution,
             this::showActionBar
         );
@@ -1356,6 +1359,10 @@ public final class PetEngineManager implements CoreModule {
 
     private void consumeEvolutionMaterials(Player player, RuntimePet pet, Map<Material, Integer> requirements) {
         PetEvolutionRuntimeSupport.consumeEvolutionMaterials(player, pet, requirements, petVaultService);
+    }
+
+    private boolean saveEvolutionState(Player player, RuntimePet pet) {
+        return playerDataManager.save(player.getUniqueId());
     }
 
     private double counterAttackChance(RuntimePet pet) {

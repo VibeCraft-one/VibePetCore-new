@@ -112,6 +112,14 @@ public final class PetVaultService implements Listener {
         return false;
     }
 
+    public ItemStack[] snapshotContents(RuntimePet pet) {
+        return cloneContents(load(pet).getContents());
+    }
+
+    public void restoreContents(RuntimePet pet, ItemStack[] contents) {
+        save(pet.data().petId(), cloneContents(contents));
+    }
+
     public Optional<ItemStack> equippedArmor(RuntimePet pet) {
         Inventory inventory = load(pet);
         ItemStack bestArmor = null;
@@ -314,5 +322,13 @@ public final class PetVaultService implements Listener {
 
     private File file(UUID petId) {
         return new File(vaultFolder, petId + ".yml");
+    }
+
+    private ItemStack[] cloneContents(ItemStack[] source) {
+        ItemStack[] clone = new ItemStack[source.length];
+        for (int index = 0; index < source.length; index++) {
+            clone[index] = source[index] == null ? null : source[index].clone();
+        }
+        return clone;
     }
 }

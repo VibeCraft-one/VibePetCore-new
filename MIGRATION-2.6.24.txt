@@ -1,0 +1,11 @@
+# VibePetCore 2.6.24
+
+## What changed
+- Active pet evolution now uses an immediate save/rollback contract.
+- If player-data save fails after consuming evolution materials, the pet stage/state and spent materials are restored instead of being silently lost.
+- Added a regression test for evolution save-failure rollback.
+
+## Server action
+- No data migration is required.
+- Re-test one real evolution attempt through `/pet` or the Source GUI.
+- For failure testing, temporarily force player-data save to fail and verify that both player inventory and pet vault materials are restored.

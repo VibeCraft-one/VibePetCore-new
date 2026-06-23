@@ -6,7 +6,8 @@
 - очередь исполнения: `RELEASE_EXECUTION_QUEUE.md`
 - launch-файл чатов: `RELEASE_CHAT_LAUNCH.md`
 - честная оценка готовности на `2026-06-23`: `~50%`, релиз ещё `не готов`
-- ближайший обязательный Builder-pass: `VPC-REL-BUGHUNT-QUEST-SAVE-01`
+- закрыты кодом и тестами: `VPC-REL-BUGHUNT-QUEST-SAVE-01`, `VPC-REL-BUGHUNT-EVOLUTION-SAVE-01`
+- ближайший обязательный Builder-pass: `VPC-REL-BUGHUNT-FORGE-SAVE-01`
 
 ## Что это
 `VibePetCore` — Paper/Purpur-плагин про питомцев-спутников.
@@ -66,6 +67,10 @@
 - Не переносить все страницы одним большим патчем; после каждой страницы запускать `compileJava test`.
 
 ## Последние важные изменения
+- `2.6.24`
+  - эволюция активного питомца теперь требует успешного `playerData save` после расхода ресурсов и попытки stage-up;
+  - при save-fail откатываются evolution materials из инвентаря и рюкзака питомца, stage/level/bond/xp восстанавливаются, ложный success не показывается;
+  - добавлен regression-тест на rollback-контракт эволюции без Bukkit server.
 - `2.6.23`
   - evolution-items больше не запускают эволюцию через обычное right-click кормление питомца;
   - клик по питомцу `NETHER_STAR`/`ECHO_SHARD`/`DIAMOND` теперь даёт короткую подсказку про `/pet` или Источник и не списывает предмет;
