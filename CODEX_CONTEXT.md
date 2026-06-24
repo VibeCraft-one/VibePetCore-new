@@ -6,7 +6,7 @@
 - очередь исполнения: `RELEASE_EXECUTION_QUEUE.md`
 - launch-файл чатов: `RELEASE_CHAT_LAUNCH.md`
 - smoke доказательство по живому GUI/Source: `SMOKE-2.6.26.txt`
-- честная оценка готовности на `2026-06-24`: `~88%`, релиз ещё `не готов`
+- честная оценка готовности на `2026-06-24`: `~90%`, релиз ещё `не готов`
 - закрыты кодом и тестами: `VPC-REL-BUGHUNT-QUEST-SAVE-01`, `VPC-REL-BUGHUNT-EVOLUTION-SAVE-01`, `VPC-REL-BUGHUNT-FORGE-SAVE-01`, `VPC-REL-BUGHUNT-CORE-REPAIR-SAVE-01`
 - живым smoke уже подтверждены: `Source offhand conflict`, `quest accept/turn-in`, `forge spend`, `box spend`, `actual evolution button`, `core repair`
 - код-аудит hot-path не выявил нового очевидного TPS-blocker в `TaskManager`, `PetInterestLocator`, `PetAbilityService`, `PetMasterManager`, `LootBoxManager`
@@ -30,7 +30,7 @@
 - Источник правды по активному питомцу: `PlayerData.activePetId` + `OwnedPetData`.
 - Простое перекладывание ядра во вторую руку не призывает пета само по себе.
 - Призыв: ядро во вторую руку -> `ПКМ` -> отсчёт -> спавн.
-- Первый призыв отдельный: 4 секунды, золотые искры перед игроком, потом появление.
+- Первый призыв отдельный: 3 секунды, обычный призыв: 2 секунды; на первом призыве перед игроком идут золотые искры.
 - Если питомец активен и его ядро во второй руке, предмет меняется на маленькую зачарованную кнопку.
 - Если ядро убрано из второй руки, runtime-пет скрывается, но данные игрока остаются целыми.
 
@@ -78,6 +78,10 @@
   - personal `/pet` flow больше не подменяет active/offhand core случайным `main hand` ядром при выборе repair/growth/quest context;
   - `repair` и `syncOffhandEgg()` теперь держатся за matching active-core в `offhand`, поэтому чужое ядро в `main hand` не уводит клик и не оставляет stale active-button state;
   - добавлен unit-тест на выбор правильного ядра для personal menu.
+- `2.6.28`
+  - `/pet help summon` и pet-type help больше не врут про main-hand summon и больше не обещают одинаковые таймеры призыва;
+  - shipped help теперь честно говорит: filled/matching empty core в `offhand`, первый summon `3 сек`, обычный `2 сек`;
+  - добавлен regression-тест на help summon truthfulness.
 - `2.6.25`
   - кузня ядра теперь требует успешного `playerData save` после расхода donor eggs и попытки апгрейда редкости;
   - при save-fail donor eggs и rarity/state активного питомца откатываются, ложный success не показывается;

@@ -72,6 +72,44 @@ final class GuiTextReleaseAuditTest {
         }
     }
 
+    @Test
+    void helpSummonTextsRequireOffhandAndCorrectDurations() throws IOException {
+        String ruMessages = read("src/main/resources/messages/ru.yml");
+        String enMessages = read("src/main/resources/messages/en.yml");
+
+        for (String line : List.of(
+            lineStartingWith(ruMessages, "help.pet.summon.line1:"),
+            lineStartingWith(ruMessages, "help.pet.summon.line3:"),
+            lineStartingWith(ruMessages, "help.pet.type.tip:"),
+            lineStartingWith(ruMessages, "help.pet.type.short1:")
+        )) {
+            assertTrue(line.contains("\u0432\u0442\u043e\u0440"), line);
+            assertFalse(line.contains("\u0432 \u0440\u0443\u043a\u0443"), line);
+            assertFalse(line.contains("\u0432 \u0440\u0443\u043a\u0435"), line);
+        }
+        String ruDuration = lineStartingWith(ruMessages, "help.pet.summon.line2:");
+        assertTrue(ruDuration.contains("3"), ruDuration);
+        assertTrue(ruDuration.contains("2"), ruDuration);
+        assertFalse(ruDuration.contains("\u041f\u0435\u0440\u0432\u044b\u0439 \u0438 \u043e\u0431\u044b\u0447\u043d\u044b\u0439 \u043f\u0440\u0438\u0437\u044b\u0432 \u0437\u0430\u043d\u0438\u043c\u0430\u044e\u0442 3 \u0441\u0435\u043a\u0443\u043d\u0434\u044b"), ruDuration);
+
+        for (String line : List.of(
+            lineStartingWith(enMessages, "help.pet.summon.line1:"),
+            lineStartingWith(enMessages, "help.pet.summon.line3:"),
+            lineStartingWith(enMessages, "help.pet.type.tip:"),
+            lineStartingWith(enMessages, "help.pet.type.short1:")
+        )) {
+            String lower = line.toLowerCase(Locale.ROOT);
+            assertTrue(lower.contains("offhand"), line);
+            assertFalse(lower.contains("main hand"), line);
+            assertFalse(lower.contains("either hand"), line);
+        }
+        String enDuration = lineStartingWith(enMessages, "help.pet.summon.line2:");
+        String enDurationLower = enDuration.toLowerCase(Locale.ROOT);
+        assertTrue(enDurationLower.contains("3"), enDuration);
+        assertTrue(enDurationLower.contains("2"), enDuration);
+        assertFalse(enDurationLower.contains("both take 3 seconds"), enDuration);
+    }
+
     private static void assertNoBondVocabulary(String line, String source) {
         String lower = line.toLowerCase(Locale.ROOT);
         assertFalse(lower.contains("bond"), source + " should keep bond details inside the evolution page");

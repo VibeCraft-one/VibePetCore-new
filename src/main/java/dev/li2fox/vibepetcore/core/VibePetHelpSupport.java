@@ -42,9 +42,9 @@ final class VibePetHelpSupport {
         switch (args[1].toLowerCase()) {
             case "summon": {
                 send(sender, "help.pet.summon.header", "Summoning:");
-                send(sender, "help.pet.summon.line1", "- Hold the core and right-click.");
-                send(sender, "help.pet.summon.line2", "- The first and normal summon both take 3 seconds.");
-                send(sender, "help.pet.summon.line3", "- Right-click the empty core to return the pet.");
+                send(sender, "help.pet.summon.line1", "- Put the filled core in your offhand and right-click.");
+                send(sender, "help.pet.summon.line2", "- The first summon takes 3 seconds, the normal summon takes 2 seconds.");
+                send(sender, "help.pet.summon.line3", "- Put the matching empty core in your offhand and right-click to return the pet.");
                 send(sender, "help.pet.summon.line4", "- In creative and spectator, the pet is automatically returned to the core.");
                 return;
             }
@@ -139,7 +139,7 @@ final class VibePetHelpSupport {
             }
             send(sender, "help.pet.type.food", "- Favorite food: {food}", "food", GameText.materialList(this.balanceConfig.petFoodMaterials((PetType)((Object)type)), 6));
             send(sender, "help.pet.type.evolution", "- Evolution requires resources, and later stages also need stage quests.");
-            send(sender, "help.pet.type.tip", "- Tip: hold the core and right-click.");
+            send(sender, "help.pet.type.tip", "- Tip: put the core in your offhand and right-click.");
         }, () -> send(sender, "help.pet.unknown", "Unknown help topic or pet type."));
     }
 
@@ -245,7 +245,7 @@ final class VibePetHelpSupport {
                 return;
             }
             sender.sendMessage(GameText.petTypeName(type) + ":");
-            send(sender, "help.pet.type.short1", "- Hold the core and right-click to summon the pet.");
+            send(sender, "help.pet.type.short1", "- Put the core in your offhand and right-click to summon the pet.");
             send(sender, "help.pet.type.short2", "- Food: {food}", "food", GameText.materialList(this.balanceConfig.petFoodMaterials((PetType)((Object)type)), 6));
             send(sender, "help.pet.type.short3", "- Evolution requires resources, and later stages also require stage quests.");
             send(sender, "help.pet.type.short4", "- Commands: /pet call, /pet stay, /pet follow, /pet vault, /pet autoloot, /pet defense, /pet position, /pet evolve, /pet");
