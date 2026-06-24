@@ -2,6 +2,7 @@ package dev.li2fox.vibepetcore.gui;
 
 import dev.li2fox.vibepetcore.core.GameText;
 import dev.li2fox.vibepetcore.egg.PetEggService;
+import dev.li2fox.vibepetcore.player.ActivePetSelectionSupport;
 import dev.li2fox.vibepetcore.player.OwnedPetData;
 import dev.li2fox.vibepetcore.player.QuestProgressData;
 import dev.li2fox.vibepetcore.pet.PetEngineManager;
@@ -166,12 +167,7 @@ final class PetQuestGuiSupport {
         Optional<OwnedPetData> mainHandPet,
         Optional<OwnedPetData> offhandPet
     ) {
-        return PetGuiCoreSelectionSupport.selectPreferredGuiCore(
-            activePetId,
-            mainHandPet,
-            offhandPet,
-            OwnedPetData::petId
-        );
+        return ActivePetSelectionSupport.selectPreferred(activePetId, mainHandPet, offhandPet, OwnedPetData::petId);
     }
 
     private String repeatText(long minutes) {

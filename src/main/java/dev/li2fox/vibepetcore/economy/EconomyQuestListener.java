@@ -2,6 +2,7 @@ package dev.li2fox.vibepetcore.economy;
 
 import dev.li2fox.vibepetcore.config.BalanceConfig;
 import dev.li2fox.vibepetcore.egg.PetEggService;
+import dev.li2fox.vibepetcore.player.ActivePetSelectionSupport;
 import dev.li2fox.vibepetcore.player.OwnedPetData;
 import dev.li2fox.vibepetcore.player.PlayerDataManager;
 import dev.li2fox.vibepetcore.quest.QuestManager;
@@ -72,14 +73,13 @@ public final class EconomyQuestListener implements Listener {
 
     private Optional<UUID> selectedQuestPetId(Player player) {
         Optional<UUID> activePetId = playerDataManager.getOrLoad(player.getUniqueId()).activePetId();
-        if (activePetId.isPresent()) {
-            return activePetId;
-        }
         ItemStack mainHand = player.getInventory().getItemInMainHand();
         Optional<OwnedPetData> mainPet = petEggService.readEgg(mainHand);
-        if (mainPet.isPresent()) {
-            return mainPet.map(OwnedPetData::petId);
-        }
-        return petEggService.readEgg(player.getInventory().getItemInOffHand()).map(OwnedPetData::petId);
+        Optional<OwnedPetData> offhandPet = petEggService.readEgg(player.getInventory().getItemInOffHand());
+        return ActivePetSelectionSupport.selectQuestPetId(
+            activePetId,
+            mainPet.map(OwnedPetData::petId),
+            offhandPet.map(OwnedPetData::petId)
+        );
     }
 }

@@ -8,6 +8,7 @@ import dev.li2fox.vibepetcore.config.BalanceConfig;
 import dev.li2fox.vibepetcore.egg.PetEggService;
 import dev.li2fox.vibepetcore.gui.PetGuiService;
 import dev.li2fox.vibepetcore.master.PetMasterManager;
+import dev.li2fox.vibepetcore.player.ActivePetSelectionSupport;
 import dev.li2fox.vibepetcore.player.OwnedPetData;
 import dev.li2fox.vibepetcore.player.PlayerData;
 import dev.li2fox.vibepetcore.player.PlayerDataManager;
@@ -1157,14 +1158,17 @@ final class VibePetCommandHandler implements CommandExecutor {
     }
 
     private Optional<HeldPetCore> heldPetCore(Player player) {
+        Optional<UUID> activePetId = this.playerDataManager.getOrLoad(player.getUniqueId()).activePetId();
         ItemStack mainHand = player.getInventory().getItemInMainHand();
         Optional<OwnedPetData> mainPet = this.petEggService.readEgg(mainHand);
-        if (mainPet.isPresent()) {
-            return Optional.of(new HeldPetCore(mainHand, true, mainPet.get()));
-        }
         ItemStack offhand = player.getInventory().getItemInOffHand();
         Optional<OwnedPetData> offhandPet = this.petEggService.readEgg(offhand);
-        return offhandPet.map(pet -> new HeldPetCore(offhand, false, pet));
+        return ActivePetSelectionSupport.selectPreferred(
+            activePetId,
+            mainPet.map(pet -> new HeldPetCore(mainHand, true, pet)),
+            offhandPet.map(pet -> new HeldPetCore(offhand, false, pet)),
+            core -> core.data().petId()
+        );
     }
 
     private void setHeldPetCore(Player player, HeldPetCore core, ItemStack item) {

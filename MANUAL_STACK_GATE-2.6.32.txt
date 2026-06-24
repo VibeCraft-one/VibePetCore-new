@@ -1,8 +1,8 @@
-# VibePetCore 2.6.31 manual stack gate
+# VibePetCore 2.6.32 manual stack gate
 
 Дата: 2026-06-24
 Ветка: `codex/refactor-gui-pages`
-Jar для теста: `VibePetCore-2.6.31-release-candidate.jar`
+Jar для теста: `VibePetCore-2.6.32-release-candidate.jar`
 
 ## Что уже доказано и не надо заново раскручивать как bug-hunt
 
@@ -47,12 +47,14 @@ Jar для теста: `VibePetCore-2.6.31-release-candidate.jar`
 4. В главном меню нажать `slot 16`, потом `slot 22` для Source box.
 5. Вернуться в главное меню и нажать `slot 10`.
 6. Открыть вкладку `gather`.
-7. Взять первый gather quest.
-8. Выдать нужный предмет и сдать квест тем же GUI-слотом.
+7. С другим ядром в `main hand` проверить `/pet quest list evolution` или вкладку `evolution`: выбранный питомец и стадия должны идти по активному/offhand ядру.
+8. Взять первый gather quest.
+9. Выдать нужный предмет и сдать квест тем же GUI-слотом.
 
 PASS:
 - клик по Источнику не запускает второй случайный summon;
 - box даёт ровно одну награду;
+- `/pet quest` и Source quest GUI не перескакивают на чужое/main-hand ядро;
 - quest списывает предметы один раз;
 - quest даёт очки один раз;
 - тестеру понятно, куда нажимать без чтения кода.
