@@ -313,6 +313,10 @@ public final class QuestManager implements CoreModule {
     }
 
     public String statusLine(Player player, QuestDefinition quest) {
+        return statusLine(player, quest, null);
+    }
+
+    public String statusLine(Player player, QuestDefinition quest, UUID selectedPetId) {
         QuestProgressData progress = progress(player.getUniqueId(), quest.id());
         if (progress.completed()) {
             long remaining = cooldownRemainingMillis(quest, progress);
@@ -326,7 +330,10 @@ public final class QuestManager implements CoreModule {
         if (!progress.accepted()) {
             return msg("quest.status.available", "Available");
         }
-        int missing = Math.max(0, quest.amount() - displayProgress(player, quest));
+        if (!bindingMatches(quest, progress, selectedPetId)) {
+            return msg("quest.status.wrong-pet", "different pet");
+        }
+        int missing = Math.max(0, quest.amount() - displayProgress(player, quest, progress, selectedPetId));
         return missing == 0
             ? msg("quest.status.ready", "Ready to turn in")
             : msg("quest.status.remaining", "Remaining: {missing}", "missing", missing);

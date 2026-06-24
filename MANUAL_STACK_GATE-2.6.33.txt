@@ -1,8 +1,8 @@
-# VibePetCore 2.6.32 manual stack gate
+# VibePetCore 2.6.33 manual stack gate
 
 Дата: 2026-06-24
 Ветка: `codex/refactor-gui-pages`
-Jar для теста: `VibePetCore-2.6.32-release-candidate.jar`
+Jar для теста: `VibePetCore-2.6.33-release-candidate.jar`
 
 ## Что уже доказано и не надо заново раскручивать как bug-hunt
 
@@ -48,8 +48,9 @@ Jar для теста: `VibePetCore-2.6.32-release-candidate.jar`
 5. Вернуться в главное меню и нажать `slot 10`.
 6. Открыть вкладку `gather`.
 7. С другим ядром в `main hand` проверить `/pet quest list evolution` или вкладку `evolution`: выбранный питомец и стадия должны идти по активному/offhand ядру.
-8. Взять первый gather quest.
-9. Выдать нужный предмет и сдать квест тем же GUI-слотом.
+8. Если evolution-квест уже привязан к другому питомцу, `/pet quest list evolution` должен честно показать `different pet`, а не ложный `Remaining/Ready`.
+9. Взять первый gather quest.
+10. Выдать нужный предмет и сдать квест тем же GUI-слотом.
 
 PASS:
 - клик по Источнику не запускает второй случайный summon;

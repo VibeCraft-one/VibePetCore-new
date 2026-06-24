@@ -1,6 +1,6 @@
 # VibePetCore Release Execution Queue
 
-Статус: кодовый release bug-hunt закрыт на `2.6.32`, в очереди остался только ручной stack gate.
+Статус: кодовый release bug-hunt закрыт на `2.6.33`, в очереди остался только ручной stack gate.
 
 Цель:
 - не спорить о порядке;

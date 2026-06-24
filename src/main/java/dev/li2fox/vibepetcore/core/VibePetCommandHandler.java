@@ -827,7 +827,7 @@ final class VibePetCommandHandler implements CommandExecutor {
                     "id", quest.id(),
                     "progress", visibleProgress,
                     "amount", quest.amount(),
-                    "status", this.questManager.statusLine(player, quest),
+                    "status", this.questManager.statusLine(player, quest, selectedQuestPetId(player).orElse(null)),
                     "reward", GameText.rewardPoints(quest.rewardPoints())
                 ));
             }
