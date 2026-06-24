@@ -6,7 +6,7 @@
 - очередь исполнения: `RELEASE_EXECUTION_QUEUE.md`
 - launch-файл чатов: `RELEASE_CHAT_LAUNCH.md`
 - smoke доказательство по живому GUI/Source: `SMOKE-2.6.26.txt`
-- честная оценка готовности на `2026-06-24`: `~85%`, релиз ещё `не готов`
+- честная оценка готовности на `2026-06-24`: `~88%`, релиз ещё `не готов`
 - закрыты кодом и тестами: `VPC-REL-BUGHUNT-QUEST-SAVE-01`, `VPC-REL-BUGHUNT-EVOLUTION-SAVE-01`, `VPC-REL-BUGHUNT-FORGE-SAVE-01`, `VPC-REL-BUGHUNT-CORE-REPAIR-SAVE-01`
 - живым smoke уже подтверждены: `Source offhand conflict`, `quest accept/turn-in`, `forge spend`, `box spend`, `actual evolution button`, `core repair`
 - код-аудит hot-path не выявил нового очевидного TPS-blocker в `TaskManager`, `PetInterestLocator`, `PetAbilityService`, `PetMasterManager`, `LootBoxManager`
@@ -74,6 +74,10 @@
   - ремонт ядра теперь требует успешного `playerData save` после расхода тотема и изменения durability/vitals;
   - при save-fail тотем и состояние питомца откатываются, ложный success не показывается;
   - добавлен regression-тест на rollback-контракт ремонта ядра без Bukkit server.
+- `2.6.27`
+  - personal `/pet` flow больше не подменяет active/offhand core случайным `main hand` ядром при выборе repair/growth/quest context;
+  - `repair` и `syncOffhandEgg()` теперь держатся за matching active-core в `offhand`, поэтому чужое ядро в `main hand` не уводит клик и не оставляет stale active-button state;
+  - добавлен unit-тест на выбор правильного ядра для personal menu.
 - `2.6.25`
   - кузня ядра теперь требует успешного `playerData save` после расхода donor eggs и попытки апгрейда редкости;
   - при save-fail donor eggs и rarity/state активного питомца откатываются, ложный success не показывается;

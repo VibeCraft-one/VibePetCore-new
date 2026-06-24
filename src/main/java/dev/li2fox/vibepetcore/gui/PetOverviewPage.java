@@ -29,7 +29,7 @@ final class PetOverviewPage implements PetGuiPage {
     @Override
     public void open(Player player) {
         Optional<RuntimePet> runtimePet = gui.runtimePet(player);
-        Optional<OwnedPetData> offhandPet = gui.heldPetData(player);
+        Optional<OwnedPetData> offhandPet = gui.petMenuHeldPetData(player);
         boolean summoned = runtimePet.isPresent();
 
         Inventory inventory = Bukkit.createInventory(new PetGuiHolder(id().menuId()), 54, gui.title(GameText.guiTitlePetOverview()));

@@ -251,7 +251,7 @@ public final class PetGuiService implements Listener {
 
     void openCurrentPetGrowth(Player player, String source) {
         Optional<OwnedPetData> pet = petEngineManager.getPet(player).map(dev.li2fox.vibepetcore.pet.RuntimePet::data)
-            .or(() -> heldPetData(player));
+            .or(() -> petMenuHeldPetData(player));
         if (pet.isPresent()) {
             openPetInfo(player, pet.get().petType(), source);
             return;
@@ -324,7 +324,7 @@ public final class PetGuiService implements Listener {
             return questManager.visibleQuests(player.getUniqueId(), normalizedCategory);
         }
         int currentStage = petEngineManager.getPet(player).map(pet -> pet.data().evolutionStage())
-            .or(() -> heldPetData(player).map(OwnedPetData::evolutionStage))
+            .or(() -> petMenuHeldPetData(player).map(OwnedPetData::evolutionStage))
             .orElse(0);
         if (currentStage <= 0 || currentStage >= 5) {
             return List.of();
@@ -361,7 +361,7 @@ public final class PetGuiService implements Listener {
         if (runtime.isPresent()) {
             return runtime;
         }
-        return heldPetData(player)
+        return petMenuHeldPetData(player)
             .filter(pet -> pet.petType().equalsIgnoreCase(type.name()));
     }
 
@@ -413,21 +413,38 @@ public final class PetGuiService implements Listener {
 
     void syncOffhandEgg(Player player) {
         petEngineManager.getPet(player).ifPresent(pet -> {
-            heldPetCore(player)
+            offhandPetCore(player)
                 .filter(core -> core.data().petId().equals(pet.data().petId()))
                 .ifPresent(core -> setHeldPetCore(player, core, writeCoreForState(core.item(), pet.data())));
         });
     }
 
     private Optional<HeldPetCore> heldPetCore(Player player) {
+        return mainHandPetCore(player).or(() -> offhandPetCore(player));
+    }
+
+    private Optional<HeldPetCore> mainHandPetCore(Player player) {
         ItemStack mainHand = player.getInventory().getItemInMainHand();
         Optional<OwnedPetData> mainPet = petEggService.readEgg(mainHand);
         if (mainPet.isPresent()) {
             return Optional.of(new HeldPetCore(mainHand, true, mainPet.get()));
         }
+        return Optional.empty();
+    }
+
+    private Optional<HeldPetCore> offhandPetCore(Player player) {
         ItemStack offhand = player.getInventory().getItemInOffHand();
         Optional<OwnedPetData> offhandPet = petEggService.readEgg(offhand);
         return offhandPet.map(pet -> new HeldPetCore(offhand, false, pet));
+    }
+
+    private Optional<HeldPetCore> petMenuHeldPetCore(Player player) {
+        return PetGuiCoreSelectionSupport.selectPersonalMenuCore(
+            runtimePet(player).map(pet -> pet.data().petId()),
+            mainHandPetCore(player),
+            offhandPetCore(player),
+            core -> core.data().petId()
+        );
     }
 
     Optional<dev.li2fox.vibepetcore.pet.RuntimePet> runtimePet(Player player) {
@@ -436,6 +453,10 @@ public final class PetGuiService implements Listener {
 
     Optional<OwnedPetData> heldPetData(Player player) {
         return heldPetCore(player).map(HeldPetCore::data);
+    }
+
+    Optional<OwnedPetData> petMenuHeldPetData(Player player) {
+        return petMenuHeldPetCore(player).map(HeldPetCore::data);
     }
 
     PlayerData playerData(Player player) {
@@ -453,7 +474,7 @@ public final class PetGuiService implements Listener {
     Optional<UUID> selectedQuestPetId(Player player) {
         return petEngineManager.getPet(player)
             .map(pet -> pet.data().petId())
-            .or(() -> heldPetData(player).map(OwnedPetData::petId));
+            .or(() -> petMenuHeldPetData(player).map(OwnedPetData::petId));
     }
 
     QuestManager questManager() {
@@ -736,7 +757,7 @@ public final class PetGuiService implements Listener {
     }
 
     boolean repairCore(Player player) {
-        Optional<HeldPetCore> heldCore = heldPetCore(player);
+        Optional<HeldPetCore> heldCore = petMenuHeldPetCore(player);
         if (heldCore.isEmpty()) {
             player.sendMessage(GameText.coreRepairMissing());
             return false;
