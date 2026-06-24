@@ -157,10 +157,21 @@ final class PetQuestGuiSupport {
     private Optional<OwnedPetData> heldPetData(Player player) {
         ItemStack mainHand = player.getInventory().getItemInMainHand();
         Optional<OwnedPetData> mainPet = petEggService.readEgg(mainHand);
-        if (mainPet.isPresent()) {
-            return mainPet;
-        }
-        return petEggService.readEgg(player.getInventory().getItemInOffHand());
+        Optional<OwnedPetData> offhandPet = petEggService.readEgg(player.getInventory().getItemInOffHand());
+        return selectQuestGuiHeldPet(Optional.empty(), mainPet, offhandPet);
+    }
+
+    static Optional<OwnedPetData> selectQuestGuiHeldPet(
+        Optional<UUID> activePetId,
+        Optional<OwnedPetData> mainHandPet,
+        Optional<OwnedPetData> offhandPet
+    ) {
+        return PetGuiCoreSelectionSupport.selectPreferredGuiCore(
+            activePetId,
+            mainHandPet,
+            offhandPet,
+            OwnedPetData::petId
+        );
     }
 
     private String repeatText(long minutes) {

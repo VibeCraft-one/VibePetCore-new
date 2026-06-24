@@ -6,7 +6,7 @@
 - очередь исполнения: `RELEASE_EXECUTION_QUEUE.md`
 - launch-файл чатов: `RELEASE_CHAT_LAUNCH.md`
 - smoke доказательство по живому GUI/Source: `SMOKE-2.6.26.txt`
-- короткий ручной релизный pack для тестеров: `MANUAL_STACK_GATE-2.6.30.txt`
+- короткий ручной релизный pack для тестеров: `MANUAL_STACK_GATE-2.6.31.txt`
 - честная оценка готовности на `2026-06-24`: `~92%`, релиз ещё `не готов`
 - закрыты кодом и тестами: `VPC-REL-BUGHUNT-QUEST-SAVE-01`, `VPC-REL-BUGHUNT-EVOLUTION-SAVE-01`, `VPC-REL-BUGHUNT-FORGE-SAVE-01`, `VPC-REL-BUGHUNT-CORE-REPAIR-SAVE-01`
 - живым smoke уже подтверждены: `Source offhand conflict`, `quest accept/turn-in`, `forge spend`, `box spend`, `actual evolution button`, `core repair`
@@ -91,6 +91,10 @@
   - Source/Forge GUI больше не подменяет целевое ядро случайным `main hand` core, если активное или ожидаемое ядро уже в `offhand`;
   - это закрывает риск, когда кузня могла показать и улучшать не то ядро и сжигать donor eggs не по ожидаемому active/offhand core;
   - helper выбора GUI-ядра сделан общим для personal `/pet` и Source/Forge, добавлен regression-тест на offhand приоритет.
+- `2.6.31`
+  - Source/Quests GUI больше не берёт стадию и выбранного питомца из случайного `main hand` ядра, если правильное ядро уже в `offhand`;
+  - это закрывает риск ложной блокировки `evolution` квеста и неправильного статуса/стадии в Source quest GUI;
+  - добавлен regression-тест на offhand приоритет для quest GUI.
 - `2.6.25`
   - кузня ядра теперь требует успешного `playerData save` после расхода donor eggs и попытки апгрейда редкости;
   - при save-fail donor eggs и rarity/state активного питомца откатываются, ложный success не показывается;
