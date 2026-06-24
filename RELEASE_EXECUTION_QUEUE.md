@@ -1,6 +1,6 @@
 # VibePetCore Release Execution Queue
 
-Статус: рабочая очередь исполнения после code-audit handoff.
+Статус: кодовый release bug-hunt закрыт на `2.6.29`, в очереди остался только ручной stack gate.
 
 Цель:
 - не спорить о порядке;
@@ -16,6 +16,10 @@
   - `VPC-REL-BUGHUNT-EVOLUTION-SAVE-01`
   - `VPC-REL-BUGHUNT-FORGE-SAVE-01`
   - `VPC-REL-BUGHUNT-CORE-REPAIR-SAVE-01`
+- дополнительно закрыты player-facing регрессии:
+  - `offhand/main-hand truthfulness` для summon/help
+  - personal `/pet` core targeting
+  - empty-core overwrite при recall второго питомца того же типа
 - живым smoke уже подтверждены:
   - `Source offhand conflict`
   - `quest accept/turn-in`
@@ -33,62 +37,7 @@
 
 ## Обязательный порядок
 
-### 1. Builder: Quest Save
-
-- взять только `VPC-REL-BUGHUNT-QUEST-SAVE-01`
-- сделать минимальный fix
-- добавить regression-test
-- прогнать:
-  - `./gradlew test`
-  - `./gradlew processResources compileJava test jar check`
-
-Потом сразу:
-- `Reviewer` на свежий diff
-
-### 2. Builder: Evolution Save
-
-Стартовать только если:
-- quest pass зелёный;
-- reviewer не оставил незакрытый `P0/P1`;
-- ветка снова зелёная после правок reviewer.
-
-Потом сразу:
-- `Reviewer` на свежий diff
-
-### 3. Builder: Forge Save
-
-Стартовать только если:
-- evolution pass зелёный;
-- reviewer не оставил незакрытый `P0/P1`;
-- ветка снова зелёная после правок reviewer.
-
-Потом сразу:
-- `Reviewer` на свежий diff
-
-### 4. Builder: Core Repair Save
-
-Стартовать только если:
-- forge pass зелёный;
-- reviewer не оставил незакрытый `P0/P1`;
-- ветка снова зелёная после правок reviewer.
-
-Потом сразу:
-- `Reviewer` на свежий diff
-
-### 5. Controlled Destructive Smoke
-
-Стартовать только если все 4 save-flow pass закрыты кодом и тестами.
-
-Что проверять живьём:
-- actual evolution attempt button
-- core repair
-- для справки: `quest accept/turn-in`, `forge upgrade`, `Source box`, прямой `ПКМ` по Источнику при core в offhand уже доказаны в `SMOKE-2.6.26.txt`
-
-Результат:
-- обновить `SMOKE-2.6.23.txt` или новый smoke-файл
-- после `SMOKE-2.6.26.txt` destructive player-facing paths считаются закрытыми живым доказательством
-
-### 6. Stack / Manual Release Gate
+### 1. Stack / Manual Release Gate
 
 Стартовать только если `SMOKE-2.6.26.txt` зелёный и кодовый bug-hunt не дал новых `P0/P1`.
 
@@ -102,33 +51,36 @@
 - если найден `P0/P1`, сначала узкий fix, потом повтор;
 - если pass, решение можно поднимать до `release candidate`.
 
-### 7. Admin Mutation Save Audit
+### 2. Только если stack gate найдёт новый баг
 
-Только после 4 player-facing destructive pass и smoke.
-
-### 8. TPS / Structural Follow-up
-
-Только после закрытия player-facing destructive `P0`.
+- взять один конкретный `P0/P1`;
+- сделать узкий fix;
+- добавить regression-test, если это возможно без live server;
+- прогнать:
+  - `./gradlew test`
+  - `./gradlew processResources compileJava test jar check`
+- обновить `CODEX_CONTEXT.md` и `TEST_CHECKLIST.md`;
+- повторить stack/manual pass только по затронутой цепочке.
 
 ## Stop-rules
 
-- если Builder полез в соседний destructive flow, проход остановить и сузить scope;
+- если manual gate не дал нового `P0/P1`, не открывать новый code-audit ради красоты;
+- если найден новый баг, брать только одну цепочку за проход;
 - если нет regression-test на новый rollback-contract, проход не считается закрытым;
-- если reviewer нашёл `P0/P1`, следующий Builder-pass не начинать;
 - если `./gradlew test` или полный build красный, дальше не двигаться;
 - если живой smoke противоречит коду или тестам, сначала фикс/док, потом следующий шаг.
 
-## Минимальный done для каждого Builder-pass
+## Минимальный done для следующего реального pass
 
-- узкий diff под один task ID;
-- regression-test на конкретный save-fail/rollback contract;
+- либо `stack/manual gate` прошёл без нового `P0/P1`;
+- либо найден ровно один новый `P0/P1`, узко закрыт кодом и тестом;
 - `./gradlew test` зелёный;
 - `./gradlew processResources compileJava test jar check` зелёный;
-- reviewer-pass выполнен;
-- если поведение для игрока изменилось, docs/smoke обновлены.
+- если поведение для игрока изменилось, docs/smoke обновлены;
+- после этого ветка снова чистая.
 
 ## Чего не делать
 
-- не объединять `quest + evolution` в один commit;
-- не тащить structural refactor до закрытия этих четырёх save-flow;
-- не поднимать честный `% до релиза` выше, пока эти 4 pass не закрыты кодом и review.
+- не возобновлять старые `quest/evolution/forge/repair` очереди без нового доказательства;
+- не тащить structural refactor до ручного релизного gate;
+- не поднимать честный `% до релиза` до `100`, пока stack/manual pass не завершён.

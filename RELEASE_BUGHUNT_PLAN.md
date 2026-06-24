@@ -1,27 +1,28 @@
 # VibePetCore Release Bug Hunt Plan
 
-Статус: рабочий backlog для координаторов перед релизом `2.6.26`.
+Статус: кодовый release bug-hunt закрыт на `2.6.29`, дальше только ручной stack gate и точечные фиксы по факту.
 
-## Снимок на 2026-06-23
+## Снимок на 2026-06-24
 
-- честная оценка готовности до релиза: `~50%`
-- локальная ветка и `origin/codex/refactor-gui-pages` синхронны на `d0dfbef Add release execution queue`
-- `P0/P1` ещё не закрыты полностью, релиз `не готов`
+- честная оценка готовности до релиза: `~92%`
+- локальная ветка и `origin/codex/refactor-gui-pages` синхронны на свежих релизных фиксах
+- кодовых незакрытых `P0/P1` сейчас не доказано, но релиз всё ещё `не готов` без ручного server-stack прохода
 - закрыты кодом и тестами: `QUEST-SAVE`, `EVOLUTION-SAVE`, `FORGE-SAVE`, `CORE-REPAIR-SAVE`
-- следующий обязательный проход: `VPC-REL-SMOKE-DESTRUCTIVE-GUI-01`
-- после него по очереди: `ADMIN MUTATION SAVE AUDIT` -> `TPS / STRUCTURAL FOLLOW-UP`
+- дополнительно закрыты: `/pet` active-core targeting, summon/help truthfulness, empty-core overwrite при recall
+- следующий обязательный проход: `VPC-REL-STACK-MANUAL-01`
+- после него: либо `release candidate`, либо один узкий fix по найденному факту
 - подготовлены:
   - `4` точных `P0` handoff-файла
-  - `Builder -> Reviewer -> smoke` очередь исполнения
-- базовая проверка ветки на `d0dfbef`:
+  - manual release gate в `TEST_CHECKLIST.md`
+- базовая проверка ветки на текущем релизном состоянии:
   - `./gradlew test` — зелёный
   - `./gradlew processResources compileJava test jar check` — зелёный
-  - `checkJarSize`: `18478 KiB / 40960 KiB`
+  - `checkJarSize`: в лимите
 
 Что это значит:
-- прошлый координатор успел запушить базу, текущий coordinator backlog тоже уже на GitHub;
-- сейчас нельзя честно говорить "готово к релизу";
-- structural cleanup жирных классов делать только узко и после ближайших destructive save-flow фиксов.
+- кодовый релизный круг больше не надо крутить без новых фактов;
+- сейчас нельзя честно говорить "готово к релизу" только потому, что ещё не пройден живой server-stack gate;
+- structural cleanup жирных классов не является текущим release blocker без нового доказанного бага.
 
 Цель:
 - довести плагин до безопасного релиз-кандидата;
@@ -40,43 +41,49 @@
 - `VPC-REL-BUGHUNT-FORGE-SAVE-01.md` — точный handoff по третьему `P0`
 - `VPC-REL-BUGHUNT-CORE-REPAIR-SAVE-01.md` — точный handoff по четвёртому destructive save-flow
 
-### Брать первым
+### Уже закрыто первым кругом
 
 - `VPC-REL-BUGHUNT-QUEST-SAVE-01`
 - `VPC-REL-BUGHUNT-EVOLUTION-SAVE-01`
 - `VPC-REL-BUGHUNT-FORGE-SAVE-01`
 - `VPC-REL-BUGHUNT-CORE-REPAIR-SAVE-01`
+- `VPC-REL-SMOKE-DESTRUCTIVE-GUI-01`
 
-### Уже подтверждено код-аудитом
+### Уже подтверждено кодом, тестами или живым smoke
 
 - `QuestManager` risky destructive save-flow
 - `PetEvolutionFlowSupport` / `PetEngineManager` risky evolution save-flow
 - `PetGuiService` forge upgrade risky save-flow
 - `PetGuiService` core repair risky save-flow
+- `Source offhand conflict`
+- `quest accept/turn-in`
+- `forge upgrade spend path`
+- `Source box spend path`
+- `actual evolution button`
+- `core repair`
+- personal `/pet` core targeting
+- summon hand/timer truthfulness
+- recall в пустое ядро больше не может затереть второго питомца того же типа
 
-### Ещё не доказано, но держать в очереди
+### Ещё не доказано и действительно важно
 
-- admin mutation save semantics
-- `PetEggController` anti-chaos split
-- `PetGuiService` anti-chaos split
-- `VibePetCommandHandler` anti-chaos split
-- `PetEngineManager` anti-chaos split
-- Source/altar infra split
-- TPS hot-path audit
-- persistence contract audit
+- реальный proxy/lobby/plugin stack без first-player UX конфликтов
+- нет заметных MSPT spikes на `2-3` игроках в summon/Source/GUI/quest/forge/evolution
+- нет конфликтов по inventory/gui/offhand flow с соседними плагинами
 
 ### Не путать
 
 - `P0/P1` багфиксы идут раньше structural cleanup
-- structural cleanup идёт раньше широкого smoke/TPS разговора
+- ручной stack gate идёт раньше нового structural cleanup
 - migration/archive/storage backend не трогать без доказанного бага
 
 ## Что уже подтверждено
 
 - ветка: `codex/refactor-gui-pages`
-- удалённая ветка была синхронна на момент аудита: `6b15524 Document GUI armor smoke`
+- удалённая ветка синхронна на текущих релизных фиксах
 - smoke есть в:
   - `SMOKE-2.6.23.txt`
+  - `SMOKE-2.6.26.txt`
   - `TEST_CHECKLIST.md`
   - `CODEX_CONTEXT.md`
 
@@ -89,92 +96,26 @@
 
 ## Приоритетный порядок проходов
 
-### 1. VPC-REL-BUGHUNT-QUEST-SAVE-01
+### 1. VPC-REL-STACK-MANUAL-01
 
-Тип: `P0`
+Тип: `release gate`
 
-Подозрение:
-- `quest accept/turn-in` меняет прогресс, предметы и очки без явного immediate save/rollback.
+Что доказать:
+- этот же `jar` на реальном server stack не даёт неприятный first-player UX;
+- нет заметных MSPT spikes при `2-3` одновременных игроках;
+- нет конфликтов с соседними inventory/gui/offhand плагинами.
 
-Файлы:
-- `src/main/java/dev/li2fox/vibepetcore/quest/QuestManager.java`
-- `src/main/java/dev/li2fox/vibepetcore/economy/EconomyManager.java`
-- `src/main/java/dev/li2fox/vibepetcore/gui/SourceQuestPage.java`
-- `src/main/java/dev/li2fox/vibepetcore/core/VibePetCommandHandler.java`
-- `src/main/java/dev/li2fox/vibepetcore/player/PlayerDataManager.java`
-
-Критерии закрытия:
-- при `save-fail` после `turn-in` предметы не теряются;
-- `Pet Points` не дюпаются и не пропадают;
-- `progress/completed` не расходятся;
-- есть regression-test на rollback-контракт;
-- `test/build` зелёные.
-
-### 2. VPC-REL-BUGHUNT-EVOLUTION-SAVE-01
-
-Тип: `P0`
-
-Подозрение:
-- ресурсы эволюции списываются до доказанного save/rollback;
-- возможен рассинхрон `materials/stage/runtime/core`.
-
-Файлы:
-- `src/main/java/dev/li2fox/vibepetcore/pet/PetEvolutionFlowSupport.java`
-- `src/main/java/dev/li2fox/vibepetcore/pet/PetEngineManager.java`
-- `src/main/java/dev/li2fox/vibepetcore/pet/PetEvolutionRuntimeSupport.java`
-- `src/main/java/dev/li2fox/vibepetcore/api/impl/CoreProgressionAPI.java`
-- `src/test/java/dev/li2fox/vibepetcore/api/impl/CoreProgressionAPITest.java`
+Инструкция:
+- шаги и PASS/FAIL уже зафиксированы в `TEST_CHECKLIST.md`;
+- если проходит, можно поднимать статус до `release candidate`;
+- если находит новый `P0/P1`, открыть один узкий fix-pass и не возобновлять общий audit.
 
 Критерии закрытия:
-- ресурсы не теряются при `save-fail`;
-- стадия не меняется без успешного сохранения;
-- `runtime/core/playerdata` не расходятся;
-- есть regression-test;
-- `test/build` зелёные.
+ - manual steps дали pass;
+ - если найден баг, он оформлен как один точный task ID;
+ - после фикса `./gradlew processResources compileJava test jar check` снова зелёный.
 
-### 3. VPC-REL-BUGHUNT-FORGE-SAVE-01
-
-Тип: `P0`
-
-Подозрение:
-- donor eggs уничтожаются без явного save/rollback;
-- rarity/core-state могут измениться при частично неуспешном flow.
-
-Файлы:
-- `src/main/java/dev/li2fox/vibepetcore/gui/PetGuiService.java`
-- `src/main/java/dev/li2fox/vibepetcore/gui/SourceForgePage.java`
-- `src/main/java/dev/li2fox/vibepetcore/egg/PetEggService.java`
-- `src/main/java/dev/li2fox/vibepetcore/player/PlayerDataManager.java`
-
-Критерии закрытия:
-- donor eggs не теряются при `save-fail`;
-- rarity не меняется без успешного сохранения;
-- `held core/runtime/playerdata` не расходятся;
-- GUI не врёт о результате;
-- есть regression-test;
-- `test/build` зелёные.
-
-### 4. VPC-REL-BUGHUNT-CORE-REPAIR-SAVE-01
-
-Тип: `P0 candidate`
-
-Подозрение:
-- `repair core` тратит `TOTEM_OF_UNDYING` и меняет durability/health/satiety/core-state без явного immediate save/rollback.
-
-Файлы:
-- `src/main/java/dev/li2fox/vibepetcore/gui/PetGuiService.java`
-- `src/main/java/dev/li2fox/vibepetcore/gui/PetOverviewPage.java`
-- `src/main/java/dev/li2fox/vibepetcore/pet/PetEngineManager.java`
-- `src/main/java/dev/li2fox/vibepetcore/player/PlayerDataManager.java`
-
-Критерии закрытия:
-- тотем не теряется при `save-fail`;
-- durability/core-state не меняются без успешного сохранения;
-- active runtime/core/playerdata не расходятся;
-- есть regression-test;
-- `test/build` зелёные.
-
-### 5. VPC-REL-REFAC-EGG-LISTENER-01
+### 2. Structural cleanup только после нового доказательства
 
 Тип: `structural risk`
 
@@ -382,10 +323,9 @@ Hot-path watchlist:
 
 ### Реальный релизный риск
 
-- `QuestManager` destructive save-flow
-- `PetEvolutionFlowSupport` / `PetEngineManager` destructive evolution flow
-- `PetGuiService` forge upgrade destructive flow
-- `PetGuiService` core repair destructive flow
+- живой server-stack конфликт
+- MSPT spikes под `2-3` ручными тестерами
+- соседний plugin conflict по inventory/gui/offhand flow
 
 ### Structural risk
 
@@ -398,9 +338,9 @@ Hot-path watchlist:
 
 ## Как работать дальше
 
-Для каждого прохода:
-1. подтвердить баг или риск по текущему коду;
-2. сделать минимальный фикс или узкий рефакторинг;
+Для каждого следующего прохода:
+1. сначала доказать новый баг на ручном stack gate или логами;
+2. сделать минимальный фикс без большого рефакторинга;
 3. добавить regression-test, если меняется поведение;
 4. прогнать `test/build`;
 5. обновить `CODEX_CONTEXT.md`, `TEST_CHECKLIST.md`, `SMOKE-*.txt` только если это реально полезно;
