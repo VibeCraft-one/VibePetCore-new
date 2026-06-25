@@ -21,6 +21,27 @@ final class LegendaryAllayVexSupport {
         this.debugLogger = debugLogger;
     }
 
+    boolean forceTrigger(Player owner, RuntimePet pet) {
+        if (owner == null || pet == null || pet.type() != PetType.ALLAY || pet.temporaryFormActive(PetType.VEX)) {
+            return false;
+        }
+        if (pet.data().evolutionStage() < 3) {
+            return false;
+        }
+        long now = System.currentTimeMillis();
+        long readyAt = cooldowns.getOrDefault(pet.data().petId(), 0L);
+        if (readyAt > now) {
+            return false;
+        }
+        long durationMillis = config.legendaryAllayVexDurationSeconds() * 1000L;
+        if (!pet.activateTemporaryForm(owner, config, PetType.VEX, durationMillis)) {
+            return false;
+        }
+        cooldowns.put(pet.data().petId(), now + config.legendaryAllayVexCooldownSeconds() * 1000L);
+        debug(owner, pet, owner, durationMillis);
+        return true;
+    }
+
     boolean tryTrigger(Player owner, RuntimePet pet, Entity target) {
         if (owner == null || pet == null || target == null || target.isDead()) {
             return false;

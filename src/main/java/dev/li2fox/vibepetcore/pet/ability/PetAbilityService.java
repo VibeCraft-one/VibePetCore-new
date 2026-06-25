@@ -5,6 +5,10 @@ import dev.li2fox.vibepetcore.core.GameText;
 import dev.li2fox.vibepetcore.pet.PetType;
 import dev.li2fox.vibepetcore.pet.RuntimePet;
 import dev.li2fox.vibepetcore.pet.inventory.PetVaultService;
+import dev.li2fox.vibepetcore.pet.skill.PetSkill;
+import dev.li2fox.vibepetcore.pet.skill.PetSkillRegistry;
+import dev.li2fox.vibepetcore.pet.skill.PetSkillSet;
+import dev.li2fox.vibepetcore.pet.skill.SkillActivationResult;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -85,6 +89,84 @@ public final class PetAbilityService {
         }
         damage *= legendaryDamageMultiplier(pet);
         return damage;
+    }
+
+    public SkillActivationResult tryPlayerUltimate(Player owner, RuntimePet pet) {
+        if (owner == null || pet == null) {
+            return SkillActivationResult.NO_PET;
+        }
+        if (pet.data().isDown()) {
+            return SkillActivationResult.PET_DOWN;
+        }
+        if (pet.data().evolutionStage() < 3) {
+            return SkillActivationResult.NOT_READY;
+        }
+        if (pet.entity().isEmpty() || !pet.entity().get().isValid()) {
+            return SkillActivationResult.NO_ENTITY;
+        }
+        if (pet.type() == PetType.ALLAY) {
+            return SkillActivationResult.UNSUPPORTED;
+        }
+        long now = System.currentTimeMillis();
+        String cooldownKey = playerUltimateKey(pet);
+        if (cooldowns.getOrDefault(cooldownKey, 0L) > now) {
+            return SkillActivationResult.COOLDOWN;
+        }
+
+        PetSkill ultimate = PetSkillRegistry.skills(pet.type()).ultimate();
+        String title = ultimate == null
+            ? "Ultimate"
+            : config.message(ultimate.nameKey(), "Ultimate");
+        boolean activated = switch (pet.type()) {
+            case CAT -> activatePlayerDefensiveUltimate(owner, pet, title, BarColor.WHITE, () -> {
+                apply(owner, PotionEffectType.ABSORPTION, 120, 1);
+                apply(owner, PotionEffectType.REGENERATION, 100, 0);
+            });
+            case RABBIT -> activatePlayerDefensiveUltimate(owner, pet, title, BarColor.GREEN, () -> {
+                apply(owner, PotionEffectType.SPEED, 120, 1);
+                apply(owner, PotionEffectType.JUMP_BOOST, 120, 1);
+                apply(owner, PotionEffectType.RESISTANCE, 120, 0);
+            });
+            case ARMADILLO -> activatePlayerDefensiveUltimate(owner, pet, title, BarColor.YELLOW, () -> {
+                apply(owner, PotionEffectType.RESISTANCE, 120, 1);
+                apply(owner, PotionEffectType.ABSORPTION, 100, 0);
+            });
+            case AXOLOTL -> activatePlayerDefensiveUltimate(owner, pet, title, BarColor.BLUE, () -> {
+                if (owner.isInWater()) {
+                    owner.setRemainingAir(owner.getMaximumAir());
+                }
+                apply(owner, PotionEffectType.WATER_BREATHING, 200, 0);
+                apply(owner, PotionEffectType.REGENERATION, 100, 0);
+            });
+            case VEX -> activatePlayerDefensiveUltimate(owner, pet, title, BarColor.PURPLE, () -> {
+                apply(owner, PotionEffectType.SPEED, 140, 1);
+                apply(owner, PotionEffectType.STRENGTH, 100, 0);
+                pet.entity().ifPresent(entity -> entity.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 140, 1, true, true, true)));
+            });
+            default -> {
+                LivingEntity enemy = nearestEnemy(owner);
+                if (enemy == null) {
+                    yield false;
+                }
+                yield forcePlayerUltimateAggression(owner, pet, enemy);
+            }
+        };
+        if (!activated) {
+            return SkillActivationResult.TOO_EARLY;
+        }
+        return SkillActivationResult.SUCCESS;
+    }
+
+    public long playerUltimateCooldownRemainingMillis(RuntimePet pet) {
+        if (pet == null) {
+            return 0L;
+        }
+        long readyAt = cooldowns.getOrDefault(playerUltimateKey(pet), 0L);
+        return Math.max(0L, readyAt - System.currentTimeMillis());
+    }
+
+    public PetSkillSet skillSet(RuntimePet pet) {
+        return pet == null ? PetSkillSet.EMPTY : PetSkillRegistry.skills(pet.type());
     }
 
     public void tryLegendaryAggression(Player owner, RuntimePet pet, Entity target) {
@@ -757,6 +839,62 @@ public final class PetAbilityService {
 
     private String legendaryKey(RuntimePet pet, String suffix) {
         return pet.data().petId() + ":legendary:" + suffix;
+    }
+
+    private String playerUltimateKey(RuntimePet pet) {
+        return pet.data().petId() + ":player-ultimate";
+    }
+
+    private boolean activatePlayerDefensiveUltimate(Player owner, RuntimePet pet, String title, BarColor color, Runnable action) {
+        long now = System.currentTimeMillis();
+        cooldowns.put(playerUltimateKey(pet), now + LEGENDARY_COOLDOWN_MILLIS);
+        activeLegendaryUltimates.put(legendaryKey(pet, "active"), now + LEGENDARY_DURATION_MILLIS);
+        action.run();
+        showLegendary(owner, title, color);
+        return true;
+    }
+
+    private boolean forcePlayerUltimateAggression(Player owner, RuntimePet pet, Entity target) {
+        if (target == null || target.isDead()) {
+            return false;
+        }
+        long now = System.currentTimeMillis();
+        cooldowns.put(playerUltimateKey(pet), now + LEGENDARY_COOLDOWN_MILLIS);
+        activeLegendaryUltimates.put(legendaryKey(pet, "active"), now + LEGENDARY_DURATION_MILLIS);
+        switch (pet.type()) {
+            case WOLF -> {
+                showLegendary(owner, "Blood Alpha", BarColor.RED);
+                pet.entity().ifPresent(entity -> entity.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 200, 0, true, true, true)));
+            }
+            case FOX -> showLegendary(owner, "Sly Wound", BarColor.RED);
+            case BLAZE -> showLegendary(owner, "Firebrand", BarColor.YELLOW);
+            case PANDA -> showLegendary(owner, "Heavy Paw", BarColor.GREEN);
+            case PHANTOM -> showLegendary(owner, "Night Terror", BarColor.PURPLE);
+            case BAT -> {
+                showLegendary(owner, "Venom Night", BarColor.PURPLE);
+                pet.entity().ifPresent(entity -> entity.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 200, 0, true, true, true)));
+            }
+            case FROG -> showLegendary(owner, "Tongue Snap", BarColor.GREEN);
+            case BEE -> {
+                showLegendary(owner, "Royal Swarm", BarColor.YELLOW);
+                spawnBeeSwarm(owner, pet);
+            }
+            case GHAST -> showLegendary(owner, "Soul Howl", BarColor.PURPLE);
+            case BREEZE -> showLegendary(owner, "Wind Volley", BarColor.BLUE);
+            case PARROT -> {
+                showLegendary(owner, "Disrupting Cry", BarColor.BLUE);
+                pulseParrot(owner, pet);
+            }
+            default -> {
+                PetSkill ultimate = PetSkillRegistry.skills(pet.type()).ultimate();
+                String title = ultimate == null
+                    ? "Ultimate"
+                    : config.message(ultimate.nameKey(), "Ultimate");
+                showLegendary(owner, title, BarColor.WHITE);
+            }
+        }
+        pet.attack(target);
+        return true;
     }
 
     private void showLegendary(Player owner, String title, BarColor color) {

@@ -456,6 +456,9 @@ egg-core:
     3: 3
     4: 4
     5: 5
+  death-xp-loss-percent: 15
+  death-level-rollback-enabled: true
+  death-level-rollback-chance: 0.25
   equipped-keep-chance:
     # Это шанс СОХРАНИТЬ надетые вещи при смерти с активным питомцем.
     # Пример: 0.75 значит примерно 25% шанс, что вещь всё-таки выпадет.
