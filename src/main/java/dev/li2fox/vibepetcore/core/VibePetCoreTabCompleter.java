@@ -15,7 +15,7 @@ import org.bukkit.entity.Player;
 
 public final class VibePetCoreTabCompleter implements TabCompleter {
     private static final List<String> PLAYER_ROOTS = List.of(
-        "menu", "name", "vault", "autoloot", "defense", "evolve", "info", "points", "help"
+        "menu", "name", "vault", "autoloot", "defense", "train", "evolve", "info", "points", "help"
     );
     private static final List<String> ADMIN_ROOTS = List.of(
         "status", "reload", "save", "spawn", "remove", "debugpet", "source", "tppoint", "leaderboard", "admin", "danger-delete", "confirm", "help"

@@ -86,6 +86,9 @@ public final class PetEngineManager implements CoreModule {
     private final Map<UUID, Integer> actionBarTicks = new ConcurrentHashMap<>();
     private final Map<UUID, Long> actionBarVisibleUntilMillis = new ConcurrentHashMap<>();
     private final Map<String, Long> bondCooldowns = new ConcurrentHashMap<>();
+    private final Map<String, Long> xpCooldowns = new ConcurrentHashMap<>();
+    private final Map<String, Long> trainingCooldowns = new ConcurrentHashMap<>();
+    private final Map<String, Long> satietyDrainCooldowns = new ConcurrentHashMap<>();
     private final Map<String, Long> socialPairCooldowns = new ConcurrentHashMap<>();
     private final Map<String, PetSocialCoordinatorSupport.CombatLink> combatLinks = new ConcurrentHashMap<>();
     private final Map<UUID, Long> renameCooldowns = new ConcurrentHashMap<>();
@@ -632,7 +635,10 @@ public final class PetEngineManager implements CoreModule {
                 continue;
             }
             try {
+                applyPassiveSatietyDrain(owner, pet);
+                grantNearbyTimeXp(owner, pet);
                 if (movedEnoughForPetXp(owner)) {
+                    grantActivityXpReward(owner, pet);
                     grantBond(pet, balanceConfig.bondNearbyGain(), "nearby", balanceConfig.bondNearbyCooldownMillis());
                 }
                 abilityService.runUtilityTick(owner, pet);
@@ -668,6 +674,115 @@ public final class PetEngineManager implements CoreModule {
                 );
                 deactivatePet(owner, pet, "activity-exception");
             }
+        }
+    }
+
+    private void grantActivityXpReward(Player owner, RuntimePet pet) {
+        grantProgressionXp(owner, pet, balanceConfig.activityXp(), "activity-xp", balanceConfig.activityXpCooldownMillis());
+    }
+
+    private void grantNearbyTimeXp(Player owner, RuntimePet pet) {
+        grantProgressionXp(owner, pet, balanceConfig.nearbyTimeXp(), "nearby-time-xp", balanceConfig.nearbyTimeXpCooldownMillis());
+    }
+
+    private void grantProgressionXp(Player owner, RuntimePet pet, long amount, String reason, long cooldownMillis) {
+        if (progressionAPI == null || amount <= 0L || pet.data().isDown()) {
+            return;
+        }
+        String key = pet.data().petId() + ":" + reason;
+        long now = System.currentTimeMillis();
+        if (cooldownMillis > 0L && xpCooldowns.getOrDefault(key, 0L) > now) {
+            return;
+        }
+        var result = progressionAPI.addXp(pet.data(), amount);
+        if (result.xpAdded() <= 0L) {
+            return;
+        }
+        if (cooldownMillis > 0L) {
+            xpCooldowns.put(key, now + cooldownMillis);
+        }
+        pet.refreshName();
+        syncPetCoreInInventory(owner, pet, false);
+        showActionBar(owner, 1_500L);
+    }
+
+    private void applyPassiveSatietyDrain(Player owner, RuntimePet pet) {
+        double drainAmount = balanceConfig.satietyPassiveDrainAmount();
+        if (drainAmount <= 0.0D) {
+            return;
+        }
+        OwnedPetData data = pet.data();
+        if (data.isDown() || data.isStarving()) {
+            return;
+        }
+        String key = data.petId() + ":passive-drain";
+        long now = System.currentTimeMillis();
+        long cooldownMillis = balanceConfig.satietyPassiveDrainCooldownMillis();
+        if (cooldownMillis > 0L && satietyDrainCooldowns.getOrDefault(key, 0L) > now) {
+            return;
+        }
+        double before = data.satiety();
+        data.adjustSatiety(-drainAmount);
+        if (data.satiety() >= before) {
+            return;
+        }
+        if (cooldownMillis > 0L) {
+            satietyDrainCooldowns.put(key, now + cooldownMillis);
+        }
+        pet.refreshName();
+        syncPetCoreInInventory(owner, pet, false);
+    }
+
+    public TrainResult trainPet(Player player) {
+        if (player == null) {
+            return TrainResult.failure(msg("train.player-only", "Only players can train a pet."));
+        }
+        Optional<RuntimePet> petOptional = getPet(player);
+        if (petOptional.isEmpty()) {
+            return TrainResult.failure(msg("train.no-pet", "Summon your pet first."));
+        }
+        RuntimePet pet = petOptional.get();
+        if (pet.data().isDown()) {
+            return TrainResult.failure(msg("train.pet-down", "The pet is resting and cannot train."));
+        }
+        LivingEntity entity = pet.entity().orElse(null);
+        if (entity == null || !entity.isValid()) {
+            return TrainResult.failure(msg("train.no-entity", "The pet is not nearby."));
+        }
+        if (!player.getWorld().equals(entity.getWorld())
+            || player.getLocation().distanceSquared(entity.getLocation()) > balanceConfig.trainingMaxDistance() * balanceConfig.trainingMaxDistance()) {
+            return TrainResult.failure(msg("train.too-far", "Stay closer to your pet to train."));
+        }
+        String cooldownKey = pet.data().petId() + ":train";
+        long now = System.currentTimeMillis();
+        long readyAt = trainingCooldowns.getOrDefault(cooldownKey, 0L);
+        if (readyAt > now) {
+            long seconds = Math.max(1L, (readyAt - now + 999L) / 1_000L);
+            return TrainResult.failure(msg("train.cooldown", "Training again in {seconds}s.", "seconds", seconds));
+        }
+        if (progressionAPI == null || balanceConfig.trainingXp() <= 0L) {
+            return TrainResult.failure(msg("train.unavailable", "Training is unavailable right now."));
+        }
+        var result = progressionAPI.addXp(pet.data(), balanceConfig.trainingXp());
+        if (result.xpAdded() <= 0L) {
+            return TrainResult.failure(msg("train.no-xp", "The pet is too hungry or already at the level cap."));
+        }
+        trainingCooldowns.put(cooldownKey, now + balanceConfig.trainingCooldownMillis());
+        pet.refreshName();
+        syncPetCoreInInventory(player, pet, false);
+        entity.getWorld().spawnParticle(Particle.HAPPY_VILLAGER, entity.getLocation().add(0.0D, 0.6D, 0.0D), 8, 0.35D, 0.25D, 0.35D, 0.01D);
+        player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.6F, 1.2F);
+        showActionBar(player, 2_000L);
+        return TrainResult.success(msg("train.success", "Training complete. The pet gained experience."));
+    }
+
+    public record TrainResult(boolean success, String message) {
+        public static TrainResult success(String message) {
+            return new TrainResult(true, message);
+        }
+
+        public static TrainResult failure(String message) {
+            return new TrainResult(false, message);
         }
     }
 

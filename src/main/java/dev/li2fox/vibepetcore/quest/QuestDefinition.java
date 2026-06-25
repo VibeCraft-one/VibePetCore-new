@@ -11,6 +11,7 @@ public record QuestDefinition(
     String target,
     int amount,
     long rewardPoints,
+    long rewardPetXp,
     long repeatCooldownMinutes,
     Material icon
 ) {
