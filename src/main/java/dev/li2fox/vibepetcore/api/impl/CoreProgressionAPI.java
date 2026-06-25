@@ -4,6 +4,7 @@ import dev.li2fox.vibepetcore.api.ProgressionAPI;
 import dev.li2fox.vibepetcore.config.BalanceConfig;
 import dev.li2fox.vibepetcore.player.OwnedPetData;
 import dev.li2fox.vibepetcore.player.PlayerDataManager;
+import dev.li2fox.vibepetcore.progression.DeathPenaltyResult;
 import dev.li2fox.vibepetcore.progression.EvolutionResult;
 import dev.li2fox.vibepetcore.progression.FeedResult;
 import dev.li2fox.vibepetcore.progression.FeedType;
@@ -247,5 +248,35 @@ public final class CoreProgressionAPI implements ProgressionAPI {
     public long legacyXpRequiredForLevel(int level) {
         int safeLevel = Math.max(1, level);
         return Math.round(balanceConfig.baseXp() * Math.pow(balanceConfig.xpMultiplier(), safeLevel - 1));
+    }
+
+    @Override
+    public DeathPenaltyResult applyDeathXpPenalty(OwnedPetData pet) {
+        if (pet.evolutionStage() >= 5) {
+            return DeathPenaltyResult.none();
+        }
+
+        long xpLost = 0L;
+        double lossPercent = balanceConfig.deathXpLossPercent();
+        if (lossPercent > 0.0D && pet.xp() > 0L) {
+            long lossAmount = Math.max(1L, Math.round(pet.xp() * (lossPercent / 100.0D)));
+            xpLost = Math.min(pet.xp(), lossAmount);
+            pet.setXp(pet.xp() - xpLost);
+        }
+
+        int levelsLost = 0;
+        boolean rollbackApplied = false;
+        if (balanceConfig.deathLevelRollbackEnabled()
+            && pet.level() > 1
+            && ThreadLocalRandom.current().nextDouble() < balanceConfig.deathLevelRollbackChance()) {
+            pet.setLevel(pet.level() - 1);
+            pet.setSubLevel(balanceConfig.maxSubLevel());
+            pet.setXp(0L);
+            levelsLost = 1;
+            rollbackApplied = true;
+            xpLost = 0L;
+        }
+
+        return new DeathPenaltyResult(xpLost, levelsLost, rollbackApplied);
     }
 }

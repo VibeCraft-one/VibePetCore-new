@@ -2,6 +2,9 @@ package dev.li2fox.vibepetcore.pet;
 
 import dev.li2fox.vibepetcore.config.BalanceConfig;
 import dev.li2fox.vibepetcore.pet.ability.PetAbilityService;
+import dev.li2fox.vibepetcore.pet.behavior.PetCombatBehavior;
+import dev.li2fox.vibepetcore.pet.behavior.PetCombatBehaviorSupport;
+import dev.li2fox.vibepetcore.pet.skill.PetPersonality;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Consumer;
@@ -52,13 +55,14 @@ final class PetCombatSupport {
             return new CombatState(attackTargetId, sparringAttack, attackPattern, attackStepsRemaining, nextAttackActionMillis, attackOrbitClockwise, lastAttackMillis);
         }
 
-        double verticalGap = target.getLocation().getY() - entity.getLocation().getY();
-        double distance = entity.getLocation().distance(target.getLocation());
-        if (!type.flying() && verticalGap > 1.8D && distance > config.attackRange()) {
+        Location targetLocation = target.getLocation().clone();
+        PetCombatBehavior behavior = PetCombatBehaviorSupport.forType(type);
+        if (!behavior.canReachTarget(type, entity, targetLocation, config)) {
             finishAttackSequence.accept(true);
             return new CombatState(attackTargetId, sparringAttack, attackPattern, attackStepsRemaining, nextAttackActionMillis, attackOrbitClockwise, lastAttackMillis);
         }
 
+        double distance = entity.getLocation().distance(targetLocation);
         if (distance > config.teleportDistance()) {
             finishAttackSequence.accept(true);
             return new CombatState(attackTargetId, sparringAttack, attackPattern, attackStepsRemaining, nextAttackActionMillis, attackOrbitClockwise, lastAttackMillis);
@@ -73,7 +77,6 @@ final class PetCombatSupport {
         }
 
         long now = System.currentTimeMillis();
-        Location targetLocation = target.getLocation().clone();
         return switch (state.attackPattern()) {
             case COMBO -> updateComboAttack(owner, entity, pet, damageable, targetLocation, type, evolutionStage, config, abilityService, distance, now, state, movement, face, finishAttackSequence, playSparEffect, scaledAttackDelay);
             case POUNCE -> updatePounceAttack(owner, entity, pet, damageable, targetLocation, type, evolutionStage, config, abilityService, distance, now, state, movement, face, finishAttackSequence, playSparEffect, scaledAttackDelay);
@@ -131,9 +134,9 @@ final class PetCombatSupport {
         Consumer<Location> playSparEffect,
         ScaledAttackDelay scaledAttackDelay
     ) {
-        double reach = config.attackRange() + 0.2D;
+        double reach = config.attackRange() + 0.2D + PetCombatBehaviorSupport.forType(type).attackReachBonus(type);
         if (distance > reach) {
-            movement.moveToward(targetLocation.add(0.0D, type.flying() ? 0.45D : 0.0D, 0.0D), config.petSprintSpeed());
+            movement.moveToward(targetLocation.add(0.0D, PetCombatBehaviorSupport.forType(type).approachYOffset(type), 0.0D), config.petSprintSpeed());
             return state;
         }
         if (now < state.nextAttackActionMillis()) {
@@ -165,8 +168,8 @@ final class PetCombatSupport {
         Consumer<Location> playSparEffect,
         ScaledAttackDelay scaledAttackDelay
     ) {
-        if (distance > config.attackRange() + 0.75D) {
-            movement.moveToward(targetLocation.add(0.0D, type.flying() ? 0.55D : 0.0D, 0.0D), config.petSprintSpeed());
+        if (distance > config.attackRange() + 0.75D + PetCombatBehaviorSupport.forType(type).attackReachBonus(type)) {
+            movement.moveToward(targetLocation.add(0.0D, PetCombatBehaviorSupport.forType(type).approachYOffset(type), 0.0D), config.petSprintSpeed());
             return state;
         }
         if (now < state.nextAttackActionMillis()) {
@@ -330,7 +333,7 @@ final class PetCombatSupport {
     ) {
         AttackPattern pattern = abilityService != null && abilityService.prefersLegendaryRanged(pet)
             ? AttackPattern.RANGED
-            : PetAttackProfile.selectPattern(type, evolutionStage);
+            : PetAttackProfile.selectPattern(type, evolutionStage, resolvePersonality(config, type));
         int steps = PetAttackProfile.stepsFor(
             pattern,
             evolutionStage,
@@ -340,6 +343,13 @@ final class PetCombatSupport {
         long nextAttackActionMillis = System.currentTimeMillis() + scaledAttackDelay.scale(config, 3, 5);
         boolean orbitClockwise = ThreadLocalRandom.current().nextBoolean();
         return new CombatState(state.attackTargetId(), state.sparringAttack(), pattern, steps, nextAttackActionMillis, orbitClockwise, state.lastAttackMillis());
+    }
+
+    private static PetPersonality resolvePersonality(BalanceConfig config, PetType type) {
+        if (config == null) {
+            return PetPersonality.BALANCED;
+        }
+        return PetPersonality.parse(config.petPersonality(type));
     }
 
     record CombatState(

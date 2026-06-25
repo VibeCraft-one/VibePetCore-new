@@ -9,8 +9,11 @@ import dev.li2fox.vibepetcore.master.PetMasterManager;
 import dev.li2fox.vibepetcore.player.OwnedPetData;
 import dev.li2fox.vibepetcore.player.PlayerData;
 import dev.li2fox.vibepetcore.player.PlayerDataManager;
+import dev.li2fox.vibepetcore.progression.DeathPenaltyResult;
 import dev.li2fox.vibepetcore.progression.FeedResult;
 import dev.li2fox.vibepetcore.progression.FeedType;
+import dev.li2fox.vibepetcore.pet.skill.PetPersonality;
+import dev.li2fox.vibepetcore.pet.skill.SkillActivationResult;
 import dev.li2fox.vibepetcore.api.ProgressionAPI;
 import dev.li2fox.vibepetcore.pet.ability.PetAbilityService;
 import dev.li2fox.vibepetcore.pet.armor.PetArmorService;
@@ -875,7 +878,7 @@ public final class PetEngineManager implements CoreModule {
         }
         mobTargetCoverCooldowns.put(monster.getUniqueId(), now + 3_500L);
         return coverPet
-            .filter(pet -> roll(PetCombatChanceSupport.coverTargetChance(pet)))
+            .filter(pet -> roll(PetCombatChanceSupport.coverTargetChance(pet, petPersonality(pet))))
             .flatMap(pet -> pet.entity()
                 .filter(petEntity -> petEntity.getWorld().equals(monster.getWorld()))
                 .filter(petEntity -> petEntity.getLocation().distanceSquared(owner.getLocation()) <= Math.pow(balanceConfig.aggroRadius() + 2.0D, 2.0D))
@@ -992,6 +995,9 @@ public final class PetEngineManager implements CoreModule {
         int penaltyMinutes = balanceConfig.deathPenaltyMinutes(pet.data().evolutionStage());
         pet.data().setInactiveUntilMillis(now + penaltyMinutes * 60_000L);
         adjustBond(pet, -balanceConfig.bondDeathLoss());
+        DeathPenaltyResult xpPenalty = progressionAPI == null
+            ? DeathPenaltyResult.none()
+            : progressionAPI.applyDeathXpPenalty(pet.data());
         int durabilityBefore = pet.data().durability();
         pet.data().setDurability(pet.data().durability() - 1);
         if (pet.data().satiety() <= 1.0D) {
@@ -1006,7 +1012,74 @@ public final class PetEngineManager implements CoreModule {
         if (owner != null) {
             syncPetCoreInInventory(owner, pet, pet.data().durability() <= 0);
             showPetDeathCoreNotice(owner, pet.data().durability(), balanceConfig.eggMaxDurability());
+            if (xpPenalty.xpLost() > 0L || xpPenalty.levelsLost() > 0) {
+                owner.sendMessage(msg(
+                    "death.xp-penalty",
+                    "Pet lost {xp} XP{rollback}.",
+                    "xp", xpPenalty.xpLost(),
+                    "rollback", xpPenalty.levelRollbackApplied()
+                        ? msg("death.level-rollback-suffix", " and dropped 1 level.")
+                        : ""
+                ));
+            }
         }
+    }
+
+    public SkillActivationResult activateSkill(Player player) {
+        if (player == null) {
+            return SkillActivationResult.NO_PET;
+        }
+        Optional<RuntimePet> petOptional = getPet(player);
+        if (petOptional.isEmpty()) {
+            return SkillActivationResult.NO_PET;
+        }
+        RuntimePet pet = petOptional.get();
+        if (pet.type() == PetType.ALLAY) {
+            if (pet.data().evolutionStage() < 3) {
+                return SkillActivationResult.NOT_READY;
+            }
+            if (pet.entity().isEmpty() || !pet.entity().get().isValid()) {
+                return SkillActivationResult.NO_ENTITY;
+            }
+            if (legendaryAllayVexSupport.forceTrigger(player, pet)) {
+                player.sendMessage(msg("skill.activated", "Ultimate activated: {name}.", "name",
+                    balanceConfig.message("skills.allay.ultimate.vex_echo.name", "Vex Echo")));
+                showActionBar(player, 3_000L);
+                return SkillActivationResult.SUCCESS;
+            }
+            long readyAt = specialTraitCooldowns.getOrDefault(pet.data().petId(), 0L);
+            if (readyAt > System.currentTimeMillis()) {
+                return SkillActivationResult.COOLDOWN;
+            }
+            return SkillActivationResult.TOO_EARLY;
+        }
+        SkillActivationResult result = abilityService.tryPlayerUltimate(player, pet);
+        if (result == SkillActivationResult.SUCCESS) {
+            player.sendMessage(msg("skill.activated", "Ultimate activated: {name}.", "name",
+                abilityService.skillSet(pet).ultimate() == null
+                    ? "Ultimate"
+                    : balanceConfig.message(abilityService.skillSet(pet).ultimate().nameKey(), "Ultimate")));
+            showActionBar(player, 3_000L);
+            syncPetCoreInInventory(player, pet, false);
+        }
+        return result;
+    }
+
+    public String skillActivationMessage(SkillActivationResult result) {
+        return switch (result) {
+            case SUCCESS -> msg("skill.success", "Ultimate activated.");
+            case NO_PET -> msg("skill.no-pet", "Summon your pet first.");
+            case PET_DOWN -> msg("skill.pet-down", "The pet is resting and cannot use skills.");
+            case NO_ENTITY -> msg("skill.no-entity", "The pet is not nearby.");
+            case NOT_READY -> msg("skill.not-ready", "Ultimate unlocks at evolution stage 3.");
+            case COOLDOWN -> msg("skill.cooldown", "Ultimate is on cooldown.");
+            case TOO_EARLY -> msg("skill.no-target", "No enemy nearby for the ultimate.");
+            case UNSUPPORTED -> msg("skill.unsupported", "This pet cannot use that skill right now.");
+        };
+    }
+
+    private PetPersonality petPersonality(RuntimePet pet) {
+        return PetPersonality.parse(balanceConfig.petPersonality(pet.type()));
     }
 
     private void syncPetCoreInInventory(Player owner, RuntimePet pet, boolean removeBrokenCore) {
@@ -1481,16 +1554,16 @@ public final class PetEngineManager implements CoreModule {
     }
 
     private double counterAttackChance(RuntimePet pet) {
-        return PetCombatChanceSupport.counterAttackChance(pet);
+        return PetCombatChanceSupport.counterAttackChance(pet, petPersonality(pet));
     }
 
     private double assistAttackChance(RuntimePet pet) {
-        return PetCombatChanceSupport.assistAttackChance(pet);
+        return PetCombatChanceSupport.assistAttackChance(pet, petPersonality(pet));
     }
 
     private double autoAggroChance(RuntimePet pet) {
         Player owner = ownerFor(pet);
-        return PetCombatChanceSupport.autoAggroChance(pet, owner != null && isPetWorldCombatSuppressed(owner));
+        return PetCombatChanceSupport.autoAggroChance(pet, owner != null && isPetWorldCombatSuppressed(owner), petPersonality(pet));
     }
 
     private boolean roll(double chance) {

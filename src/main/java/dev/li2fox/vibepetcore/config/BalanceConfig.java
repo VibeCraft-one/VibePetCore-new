@@ -358,6 +358,18 @@ public final class BalanceConfig implements CoreModule {
         return config.getInt("egg-core.death-penalty-minutes." + safeEvolution, 3);
     }
 
+    public double deathXpLossPercent() {
+        return Math.max(0.0D, Math.min(100.0D, config.getDouble("egg-core.death-xp-loss-percent", 15.0D)));
+    }
+
+    public boolean deathLevelRollbackEnabled() {
+        return config.getBoolean("egg-core.death-level-rollback-enabled", true);
+    }
+
+    public double deathLevelRollbackChance() {
+        return Math.max(0.0D, Math.min(1.0D, config.getDouble("egg-core.death-level-rollback-chance", 0.25D)));
+    }
+
     public double equippedKeepChance(int evolution) {
         int safeEvolution = Math.max(1, Math.min(5, evolution));
         return config.getDouble("egg-core.equipped-keep-chance." + safeEvolution, 0.75D);

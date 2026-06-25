@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import dev.li2fox.vibepetcore.api.ProgressionAPI;
 import dev.li2fox.vibepetcore.player.OwnedPetData;
+import dev.li2fox.vibepetcore.progression.DeathPenaltyResult;
 import dev.li2fox.vibepetcore.progression.EvolutionResult;
 import dev.li2fox.vibepetcore.progression.FeedResult;
 import dev.li2fox.vibepetcore.progression.ProgressionResult;
@@ -153,6 +154,11 @@ final class PetEvolutionFlowRollbackTest {
             @Override
             public FeedResult feed(OwnedPetData pet, Material material) {
                 throw new UnsupportedOperationException();
+            }
+
+            @Override
+            public DeathPenaltyResult applyDeathXpPenalty(OwnedPetData pet) {
+                return DeathPenaltyResult.none();
             }
         };
     }
