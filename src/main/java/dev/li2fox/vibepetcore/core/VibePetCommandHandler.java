@@ -637,6 +637,19 @@ final class VibePetCommandHandler implements CommandExecutor {
             this.syncOffhandEgg(player);
             return true;
         }
+        if (root.equals("train")) {
+            if (!(sender instanceof Player)) {
+                sendNormalizedMessage(sender, msg("train.player-only", "Only players can train a pet."));
+                return true;
+            }
+            Player player = (Player)sender;
+            PetEngineManager.TrainResult result = this.petEngineManager.trainPet(player);
+            sendNormalizedMessage(sender, result.message());
+            if (result.success()) {
+                this.syncOffhandEgg(player);
+            }
+            return true;
+        }
         if (root.equals("position")) {
             if (!(sender instanceof Player)) {
                 sendNormalizedMessage(sender, msg("position.player-only", "Only players can use this command."));
@@ -1081,11 +1094,11 @@ final class VibePetCommandHandler implements CommandExecutor {
     }
 
     private boolean isPlayerRoot(String root) {
-        return List.of("menu", "name", "call", "stay", "follow", "vault", "autoloot", "defense", "position", "evolve", "info", "petinfo", "points", "quest", "box").contains(root);
+        return List.of("menu", "name", "call", "stay", "follow", "vault", "autoloot", "defense", "train", "position", "evolve", "info", "petinfo", "points", "quest", "box").contains(root);
     }
 
     private boolean isHiddenPlayerChatRoot(String root) {
-        return List.of("call", "stay", "follow", "position", "quest", "box").contains(root);
+        return List.of("call", "stay", "follow", "train", "position", "quest", "box").contains(root);
     }
 
     private boolean isAdminRoot(String root) {

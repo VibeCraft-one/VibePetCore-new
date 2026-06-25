@@ -8,6 +8,7 @@ import dev.li2fox.vibepetcore.config.BalanceConfig;
 import dev.li2fox.vibepetcore.player.OwnedPetData;
 import dev.li2fox.vibepetcore.progression.FeedResult;
 import dev.li2fox.vibepetcore.progression.FeedType;
+import dev.li2fox.vibepetcore.progression.ProgressionResult;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.UUID;
@@ -65,6 +66,30 @@ final class CoreProgressionAPITest {
         assertEquals(3.0D, pet.satiety());
     }
 
+    @Test
+    void lowSatietyReducesXpGain() throws Exception {
+        CoreProgressionAPI progressionAPI = progressionApi();
+        OwnedPetData pet = pet();
+        pet.setSatiety(1.5D);
+
+        ProgressionResult result = progressionAPI.addXp(pet, 10L);
+
+        assertEquals(5L, result.xpAdded());
+        assertEquals(5L, pet.xp());
+    }
+
+    @Test
+    void starvingPetReceivesNoXp() throws Exception {
+        CoreProgressionAPI progressionAPI = progressionApi();
+        OwnedPetData pet = pet();
+        pet.setSatiety(1.0D);
+
+        ProgressionResult result = progressionAPI.addXp(pet, 10L);
+
+        assertEquals(0L, result.xpAdded());
+        assertEquals(0L, pet.xp());
+    }
+
     private CoreProgressionAPI progressionApi() throws Exception {
         BalanceConfig balanceConfig = new BalanceConfig(null);
         setConfig(balanceConfig, config());
@@ -94,6 +119,9 @@ final class CoreProgressionAPITest {
         yaml.set("progression.feeding.common-foods", List.of("APPLE"));
         yaml.set("progression.feeding.rare-resources", List.of("EMERALD"));
         yaml.set("progression.feeding.evolution-items", List.of("NETHER_STAR"));
+        yaml.set("progression.satiety.xp-multiplier.starving", 0.0D);
+        yaml.set("progression.satiety.xp-multiplier.hungry", 0.5D);
+        yaml.set("progression.satiety.xp-multiplier.peckish", 0.85D);
         return yaml;
     }
 

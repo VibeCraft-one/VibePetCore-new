@@ -208,8 +208,22 @@ progression:
   max-level: 10
   max-sub-level: 10
   activity-xp: 1
+  activity-xp-cooldown-seconds: 120
   combat-xp: 3
   nearby-time-xp: 1
+  nearby-time-xp-cooldown-seconds: 300
+  training-xp: 2
+  training-cooldown-seconds: 180
+  training-max-distance: 6.0
+  quest:
+    evolution-pet-xp-percent: 3.0
+  satiety:
+    passive-drain-amount: 0.04
+    passive-drain-cooldown-seconds: 180
+    xp-multiplier:
+      starving: 0.0
+      hungry: 0.5
+      peckish: 0.85
   bond:
     max: 10
     nearby-gain: 1

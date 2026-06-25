@@ -13,7 +13,7 @@ commands:
     permission: vibepetcore.admin
   pet:
     description: Player-facing VibePet command.
-    usage: /pet <menu|call|stay|follow|vault|autoloot|defense|position|evolve|info|points|quest|box|help>
+    usage: /pet <menu|call|stay|follow|vault|autoloot|defense|train|position|evolve|info|points|quest|box|help>
     permission: vibepetcore.use
 permissions:
   vibepetcore.admin:

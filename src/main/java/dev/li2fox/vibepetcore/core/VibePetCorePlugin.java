@@ -87,6 +87,7 @@ public final class VibePetCorePlugin extends JavaPlugin {
         petAPI = new CorePetAPI(playerDataManager, petEngineManager);
         progressionAPI = new CoreProgressionAPI(playerDataManager, balanceConfig);
         petEngineManager.setProgressionAPI(progressionAPI);
+        questManager.setProgressionAPI(progressionAPI);
         economyAPI = new CoreEconomyAPI(economyManager);
 
         moduleManager = new ModuleManager(debugLogger);
