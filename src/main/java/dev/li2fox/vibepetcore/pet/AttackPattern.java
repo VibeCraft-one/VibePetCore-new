@@ -1,6 +1,6 @@
 package dev.li2fox.vibepetcore.pet;
 
-enum AttackPattern {
+public enum AttackPattern {
     NONE("combo"),
     COMBO("combo"),
     POUNCE("pounce"),

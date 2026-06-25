@@ -1,11 +1,66 @@
 package dev.li2fox.vibepetcore.pet;
 
+import dev.li2fox.vibepetcore.pet.skill.PetPersonality;
+
 final class PetCombatChanceSupport {
     private PetCombatChanceSupport() {
     }
 
-    static double counterAttackChance(RuntimePet pet) {
-        double base = switch (pet.type()) {
+    static double counterAttackChance(RuntimePet pet, PetPersonality personality) {
+        return Math.min(0.96D, typeCounterBase(pet) + combatStageBonus(pet) + personalityCounterBonus(personality));
+    }
+
+    static double assistAttackChance(RuntimePet pet, PetPersonality personality) {
+        return Math.min(0.92D, typeAssistBase(pet) + combatStageBonus(pet) * 0.9D + personalityAssistBonus(personality));
+    }
+
+    static double autoAggroChance(RuntimePet pet, boolean combatSuppressed, PetPersonality personality) {
+        if (combatSuppressed) {
+            return 0.0D;
+        }
+        return Math.min(0.34D, typeAggroBase(pet) + combatStageBonus(pet) * 0.45D + personalityAggroBonus(personality));
+    }
+
+    static double coverTargetChance(RuntimePet pet, PetPersonality personality) {
+        return Math.min(0.46D, typeCoverBase(pet) + combatStageBonus(pet) * 0.55D + personalityCoverBonus(personality));
+    }
+
+    private static double personalityCounterBonus(PetPersonality personality) {
+        return switch (personality) {
+            case AGGRESSIVE, BURST -> 0.04D;
+            case PASSIVE, SUPPORT -> -0.03D;
+            case DEFENSIVE -> 0.01D;
+            default -> 0.0D;
+        };
+    }
+
+    private static double personalityAssistBonus(PetPersonality personality) {
+        return switch (personality) {
+            case SUPPORT, DEFENSIVE -> 0.04D;
+            case AGGRESSIVE, BURST -> -0.02D;
+            default -> 0.0D;
+        };
+    }
+
+    private static double personalityAggroBonus(PetPersonality personality) {
+        return switch (personality) {
+            case AGGRESSIVE, BURST -> 0.03D;
+            case PASSIVE, SUPPORT -> -0.02D;
+            case SCOUT -> 0.01D;
+            default -> 0.0D;
+        };
+    }
+
+    private static double personalityCoverBonus(PetPersonality personality) {
+        return switch (personality) {
+            case DEFENSIVE, SUPPORT -> 0.04D;
+            case AGGRESSIVE, BURST -> -0.02D;
+            default -> 0.0D;
+        };
+    }
+
+    private static double typeCounterBase(RuntimePet pet) {
+        return switch (pet.type()) {
             case WOLF -> 0.78D;
             case GHAST, VEX, BLAZE, BREEZE -> 0.74D;
             case BEE, ARMADILLO -> 0.66D;
@@ -16,11 +71,10 @@ final class PetCombatChanceSupport {
             case BAT, AXOLOTL -> 0.38D;
             case ALLAY -> 0.36D;
         };
-        return Math.min(0.96D, base + combatStageBonus(pet));
     }
 
-    static double assistAttackChance(RuntimePet pet) {
-        double base = switch (pet.type()) {
+    private static double typeAssistBase(RuntimePet pet) {
+        return switch (pet.type()) {
             case WOLF -> 0.72D;
             case GHAST, VEX, BLAZE, BREEZE -> 0.68D;
             case BEE, AXOLOTL, ARMADILLO -> 0.56D;
@@ -31,14 +85,10 @@ final class PetCombatChanceSupport {
             case BAT -> 0.34D;
             case ALLAY -> 0.32D;
         };
-        return Math.min(0.92D, base + combatStageBonus(pet) * 0.9D);
     }
 
-    static double autoAggroChance(RuntimePet pet, boolean combatSuppressed) {
-        if (combatSuppressed) {
-            return 0.0D;
-        }
-        double base = switch (pet.type()) {
+    private static double typeAggroBase(RuntimePet pet) {
+        return switch (pet.type()) {
             case WOLF -> 0.18D;
             case GHAST, VEX, BLAZE, BREEZE -> 0.15D;
             case BEE, AXOLOTL, ARMADILLO -> 0.12D;
@@ -49,11 +99,10 @@ final class PetCombatChanceSupport {
             case BAT -> 0.06D;
             case ALLAY -> 0.05D;
         };
-        return Math.min(0.34D, base + combatStageBonus(pet) * 0.45D);
     }
 
-    static double coverTargetChance(RuntimePet pet) {
-        double base = switch (pet.type()) {
+    private static double typeCoverBase(RuntimePet pet) {
+        return switch (pet.type()) {
             case WOLF, ARMADILLO -> 0.28D;
             case PANDA, BEE -> 0.25D;
             case GHAST, VEX, BLAZE, BREEZE -> 0.23D;
@@ -62,7 +111,6 @@ final class PetCombatChanceSupport {
             case PARROT, PHANTOM, BAT -> 0.16D;
             case ALLAY -> 0.14D;
         };
-        return Math.min(0.46D, base + combatStageBonus(pet) * 0.55D);
     }
 
     private static double combatStageBonus(RuntimePet pet) {
