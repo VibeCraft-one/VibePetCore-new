@@ -190,10 +190,15 @@ public final class CoreProgressionAPI implements ProgressionAPI {
     }
 
     private long boostedAmount(OwnedPetData pet, long amount) {
-        if (pet.growthBoostUntil() > Bukkit.getCurrentTick()) {
-            return Math.max(1L, Math.round(amount * balanceConfig.growthBoostMultiplier()));
+        long scaled = amount;
+        if (Bukkit.getServer() != null && pet.growthBoostUntil() > Bukkit.getCurrentTick()) {
+            scaled = Math.max(1L, Math.round(scaled * balanceConfig.growthBoostMultiplier()));
         }
-        return amount;
+        double satietyMultiplier = balanceConfig.satietyXpMultiplier(pet.satiety());
+        if (satietyMultiplier <= 0.0D) {
+            return 0L;
+        }
+        return Math.max(0L, Math.round(scaled * satietyMultiplier));
     }
 
     private boolean isCapped(OwnedPetData pet, int maxLevel) {

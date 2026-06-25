@@ -65,6 +65,7 @@ final class VibePetHelpSupport {
                 send(sender, "help.pet.growth.line6", "- {text}", "text", this.evolutionRequirementSummary(5));
                 send(sender, "help.pet.growth.line7", "- Bond grows from staying nearby, feeding, and completing pet quests.");
                 send(sender, "help.pet.growth.line8", "- At the first stage pets look small; later they grow more visibly.");
+                send(sender, "help.pet.growth.line9", "- /pet train near a summoned pet grants training XP on cooldown.");
                 return;
             }
             case "backpack": {

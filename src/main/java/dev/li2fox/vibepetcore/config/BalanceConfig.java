@@ -372,12 +372,57 @@ public final class BalanceConfig implements CoreModule {
         return config.getLong("progression.activity-xp", 1L);
     }
 
+    public long activityXpCooldownMillis() {
+        return Math.max(0L, config.getLong("progression.activity-xp-cooldown-seconds", 120L)) * 1_000L;
+    }
+
     public long combatXp() {
         return config.getLong("progression.combat-xp", 3L);
     }
 
     public long nearbyTimeXp() {
         return config.getLong("progression.nearby-time-xp", 1L);
+    }
+
+    public long nearbyTimeXpCooldownMillis() {
+        return Math.max(0L, config.getLong("progression.nearby-time-xp-cooldown-seconds", 300L)) * 1_000L;
+    }
+
+    public long trainingXp() {
+        return Math.max(0L, config.getLong("progression.training-xp", 2L));
+    }
+
+    public long trainingCooldownMillis() {
+        return Math.max(0L, config.getLong("progression.training-cooldown-seconds", 180L)) * 1_000L;
+    }
+
+    public double trainingMaxDistance() {
+        return Math.max(1.0D, config.getDouble("progression.training-max-distance", 6.0D));
+    }
+
+    public double questEvolutionPetXpPercent() {
+        return Math.max(0.0D, config.getDouble("progression.quest.evolution-pet-xp-percent", 3.0D));
+    }
+
+    public double satietyPassiveDrainAmount() {
+        return Math.max(0.0D, config.getDouble("progression.satiety.passive-drain-amount", 0.04D));
+    }
+
+    public long satietyPassiveDrainCooldownMillis() {
+        return Math.max(0L, config.getLong("progression.satiety.passive-drain-cooldown-seconds", 180L)) * 1_000L;
+    }
+
+    public double satietyXpMultiplier(double satiety) {
+        if (satiety <= 1.0D) {
+            return Math.max(0.0D, config.getDouble("progression.satiety.xp-multiplier.starving", 0.0D));
+        }
+        if (satiety <= 2.0D) {
+            return Math.max(0.0D, config.getDouble("progression.satiety.xp-multiplier.hungry", 0.5D));
+        }
+        if (satiety <= 3.0D) {
+            return Math.max(0.0D, config.getDouble("progression.satiety.xp-multiplier.peckish", 0.85D));
+        }
+        return 1.0D;
     }
 
     public int bondMax() {
@@ -666,6 +711,13 @@ public final class BalanceConfig implements CoreModule {
             return questsConfig.getLong("quests." + questId + ".reward-points", questCompletePoints());
         }
         return config.getLong("economy.quests." + questId + ".reward-points", questCompletePoints());
+    }
+
+    public long questRewardPetXp(String questId) {
+        if (questsConfig != null && questsConfig.isSet("quests." + questId + ".reward-pet-xp")) {
+            return questsConfig.getLong("quests." + questId + ".reward-pet-xp", 0L);
+        }
+        return config.getLong("economy.quests." + questId + ".reward-pet-xp", 0L);
     }
 
     public long questRepeatCooldownMinutes(String questId) {

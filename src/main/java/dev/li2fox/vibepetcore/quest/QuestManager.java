@@ -1,9 +1,11 @@
 package dev.li2fox.vibepetcore.quest;
 
+import dev.li2fox.vibepetcore.api.ProgressionAPI;
 import dev.li2fox.vibepetcore.config.BalanceConfig;
 import dev.li2fox.vibepetcore.core.CoreModule;
 import dev.li2fox.vibepetcore.economy.EconomyManager;
 import dev.li2fox.vibepetcore.economy.RewardReason;
+import dev.li2fox.vibepetcore.player.OwnedPetData;
 import dev.li2fox.vibepetcore.player.PlayerData;
 import dev.li2fox.vibepetcore.player.PlayerDataManager;
 import dev.li2fox.vibepetcore.player.QuestProgressData;
@@ -30,12 +32,17 @@ public final class QuestManager implements CoreModule {
     private final BalanceConfig config;
     private final PlayerDataManager playerDataManager;
     private final EconomyManager economyManager;
+    private ProgressionAPI progressionAPI;
     private final Map<String, QuestDefinition> quests = new LinkedHashMap<>();
 
     public QuestManager(BalanceConfig config, PlayerDataManager playerDataManager, EconomyManager economyManager) {
         this.config = config;
         this.playerDataManager = playerDataManager;
         this.economyManager = economyManager;
+    }
+
+    public void setProgressionAPI(ProgressionAPI progressionAPI) {
+        this.progressionAPI = progressionAPI;
     }
 
     private String msg(String key, String fallback, Object... replacements) {
@@ -66,6 +73,7 @@ public final class QuestManager implements CoreModule {
                 config.questTarget(id).toUpperCase(Locale.ROOT),
                 config.questAmount(id),
                 config.questRewardPoints(id),
+                config.questRewardPetXp(id),
                 config.questRepeatCooldownMinutes(id),
                 config.questIcon(id, iconFor(type))
             ));
@@ -363,6 +371,52 @@ public final class QuestManager implements CoreModule {
         progress.setCompleted(true);
         playerData.statistics().addQuestCompleted();
         economyManager.award(playerId, quest.rewardPoints(), RewardReason.QUEST, quest.id());
+        grantQuestPetXp(playerData, quest, progress);
+    }
+
+    private void grantQuestPetXp(PlayerData playerData, QuestDefinition quest, QuestProgressData progress) {
+        if (progressionAPI == null) {
+            return;
+        }
+        UUID petId = progress.boundPetId();
+        if (petId == null) {
+            petId = playerData.activePetId().orElse(null);
+        }
+        if (petId == null) {
+            return;
+        }
+        OwnedPetData pet = findPet(playerData, petId);
+        if (pet == null) {
+            return;
+        }
+        long rewardXp = resolveQuestPetXp(quest, pet);
+        if (rewardXp <= 0L) {
+            return;
+        }
+        progressionAPI.addXp(pet, rewardXp);
+    }
+
+    private long resolveQuestPetXp(QuestDefinition quest, OwnedPetData pet) {
+        if (quest.rewardPetXp() > 0L) {
+            return quest.rewardPetXp();
+        }
+        if (!isEvolutionQuest(quest)) {
+            return 0L;
+        }
+        double percent = config.questEvolutionPetXpPercent();
+        if (percent <= 0.0D) {
+            return 0L;
+        }
+        return Math.max(1L, Math.round(progressionAPI.xpRequiredForSubLevel(pet) * percent / 100.0D));
+    }
+
+    private OwnedPetData findPet(PlayerData playerData, UUID petId) {
+        for (OwnedPetData pet : playerData.pets()) {
+            if (pet.petId().equals(petId)) {
+                return pet;
+            }
+        }
+        return null;
     }
 
     static TurnInStateSnapshot snapshotTurnInState(PlayerData playerData, QuestProgressData progress) {
