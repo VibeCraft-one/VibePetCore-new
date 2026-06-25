@@ -17,6 +17,7 @@ import dev.li2fox.vibepetcore.pet.PetEngineManager;
 import dev.li2fox.vibepetcore.pet.PetRarity;
 import dev.li2fox.vibepetcore.pet.PetType;
 import dev.li2fox.vibepetcore.pet.RuntimePet;
+import dev.li2fox.vibepetcore.pet.skill.SkillActivationResult;
 import dev.li2fox.vibepetcore.quest.QuestDefinition;
 import dev.li2fox.vibepetcore.quest.QuestManager;
 import java.util.ArrayList;
@@ -650,6 +651,19 @@ final class VibePetCommandHandler implements CommandExecutor {
             }
             return true;
         }
+        if (root.equals("skill")) {
+            if (!(sender instanceof Player)) {
+                sendNormalizedMessage(sender, msg("skill.player-only", "Only players can use this command."));
+                return true;
+            }
+            Player player = (Player)sender;
+            SkillActivationResult result = this.petEngineManager.activateSkill(player);
+            if (result != SkillActivationResult.SUCCESS) {
+                sendNormalizedMessage(sender, this.petEngineManager.skillActivationMessage(result));
+            }
+            this.syncOffhandEgg(player);
+            return true;
+        }
         if (root.equals("position")) {
             if (!(sender instanceof Player)) {
                 sendNormalizedMessage(sender, msg("position.player-only", "Only players can use this command."));
@@ -1094,11 +1108,11 @@ final class VibePetCommandHandler implements CommandExecutor {
     }
 
     private boolean isPlayerRoot(String root) {
-        return List.of("menu", "name", "call", "stay", "follow", "vault", "autoloot", "defense", "train", "position", "evolve", "info", "petinfo", "points", "quest", "box").contains(root);
+        return List.of("menu", "name", "call", "stay", "follow", "vault", "autoloot", "defense", "skill", "train", "position", "evolve", "info", "petinfo", "points", "quest", "box").contains(root);
     }
 
     private boolean isHiddenPlayerChatRoot(String root) {
-        return List.of("call", "stay", "follow", "train", "position", "quest", "box").contains(root);
+        return List.of("call", "stay", "follow", "skill", "train", "position", "quest", "box").contains(root);
     }
 
     private boolean isAdminRoot(String root) {

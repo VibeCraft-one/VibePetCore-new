@@ -2,6 +2,9 @@ package dev.li2fox.vibepetcore.core;
 
 import dev.li2fox.vibepetcore.config.BalanceConfig;
 import dev.li2fox.vibepetcore.pet.PetType;
+import dev.li2fox.vibepetcore.pet.skill.PetSkill;
+import dev.li2fox.vibepetcore.pet.skill.PetSkillRegistry;
+import dev.li2fox.vibepetcore.pet.skill.PetSkillSet;
 import java.util.List;
 import java.util.function.Predicate;
 import org.bukkit.command.CommandSender;
@@ -53,6 +56,7 @@ final class VibePetHelpSupport {
                 send(sender, "help.pet.death.line1", "- After pet death, a recovery penalty applies.");
                 send(sender, "help.pet.death.line2", "- While the penalty is active, the pet cannot be summoned.");
                 send(sender, "help.pet.death.line3", "- The core lore shows the penalty only while it is active.");
+                send(sender, "help.pet.death.line4", "- The pet may also lose XP; at higher levels it can drop a level.");
                 return;
             }
             case "growth": {
@@ -86,7 +90,7 @@ final class VibePetHelpSupport {
                 send(sender, "help.pet.commands.header", "Player commands:");
                 send(sender, "help.pet.commands.line1", "- /pet, /pet menu, /pet call, /pet stay, /pet follow");
                 send(sender, "help.pet.commands.line2", "- /pet menu main - open the Pet Source hub.");
-                send(sender, "help.pet.commands.line3", "- /pet vault, /pet autoloot, /pet defense, /pet position, /pet evolve");
+                send(sender, "help.pet.commands.line3", "- /pet vault, /pet autoloot, /pet defense, /pet skill, /pet position, /pet evolve");
                 send(sender, "help.pet.commands.line4", "- /pet info, /pet points, /pet quest, /pet box");
                 return;
             }
@@ -134,6 +138,10 @@ final class VibePetHelpSupport {
             }
             sender.sendMessage(GameText.petTypeName(type) + ":");
             send(sender, "help.pet.type.role", "- Role: {role}.", "role", this.shortRole((PetType)((Object)type)));
+            send(sender, "help.pet.type.skills.header", "- Skills:");
+            for (String line : this.petSkillHelp(type)) {
+                sender.sendMessage("  " + line);
+            }
             send(sender, "help.pet.type.buffs", "- Buffs:");
             for (String line : this.petBuffHelp((PetType)((Object)type))) {
                 sender.sendMessage("  " + line);
@@ -249,7 +257,8 @@ final class VibePetHelpSupport {
             send(sender, "help.pet.type.short1", "- Put the core in your offhand and right-click to summon the pet.");
             send(sender, "help.pet.type.short2", "- Food: {food}", "food", GameText.materialList(this.balanceConfig.petFoodMaterials((PetType)((Object)type)), 6));
             send(sender, "help.pet.type.short3", "- Evolution requires resources, and later stages also require stage quests.");
-            send(sender, "help.pet.type.short4", "- Commands: /pet call, /pet stay, /pet follow, /pet vault, /pet autoloot, /pet defense, /pet position, /pet evolve, /pet");
+            send(sender, "help.pet.type.short4", "- /pet skill activates the ultimate at E3+ (300 sec cooldown).");
+            send(sender, "help.pet.type.short5", "- Commands: /pet call, /pet stay, /pet follow, /pet vault, /pet autoloot, /pet defense, /pet position, /pet evolve, /pet");
         }, () -> send(sender, "help.pet.unknown-short", "Unknown pet type."));
     }
 
@@ -286,6 +295,28 @@ final class VibePetHelpSupport {
             case PetType.ARMADILLO -> "armor, defense, stability";
             case PetType.VEX -> "dashes and burst damage";
         };
+    }
+
+    private List<String> petSkillHelp(PetType type) {
+        PetSkillSet skills = PetSkillRegistry.skills(type);
+        return List.of(
+            formatSkillLine("help.pet.skill.basic", "Basic", skills.basic()),
+            formatSkillLine("help.pet.skill.passive", "Passive", skills.passive()),
+            formatSkillLine("help.pet.skill.ultimate", "Ultimate", skills.ultimate())
+        );
+    }
+
+    private String formatSkillLine(String labelKey, String labelFallback, PetSkill skill) {
+        if (skill == null) {
+            return msg(labelKey, "{kind}: -", "kind", labelFallback, "name", "-", "desc", "-");
+        }
+        return msg(
+            labelKey,
+            "{kind}: {name} - {desc}",
+            "kind", labelFallback,
+            "name", balanceConfig.message(skill.nameKey(), skill.nameKey()),
+            "desc", balanceConfig.message(skill.descriptionKey(), skill.descriptionKey())
+        );
     }
 
     private List<String> petBuffHelp(PetType type) {
