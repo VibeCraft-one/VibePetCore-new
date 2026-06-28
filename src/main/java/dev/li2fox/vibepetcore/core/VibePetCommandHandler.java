@@ -1112,7 +1112,7 @@ final class VibePetCommandHandler implements CommandExecutor {
     }
 
     private boolean isHiddenPlayerChatRoot(String root) {
-        return List.of("call", "stay", "follow", "skill", "train", "position", "quest", "box").contains(root);
+        return List.of("call", "stay", "follow", "skill", "position", "quest", "box").contains(root);
     }
 
     private boolean isAdminRoot(String root) {
