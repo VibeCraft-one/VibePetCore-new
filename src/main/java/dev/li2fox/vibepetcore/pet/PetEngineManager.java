@@ -779,6 +779,15 @@ public final class PetEngineManager implements CoreModule {
         return TrainResult.success(msg("train.success", "Training complete. The pet gained experience."));
     }
 
+    public long trainingCooldownRemainingSeconds(UUID petId) {
+        if (petId == null) {
+            return 0L;
+        }
+        long readyAt = trainingCooldowns.getOrDefault(petId + ":train", 0L);
+        long remaining = readyAt - System.currentTimeMillis();
+        return remaining <= 0L ? 0L : (remaining + 999L) / 1_000L;
+    }
+
     public record TrainResult(boolean success, String message) {
         public static TrainResult success(String message) {
             return new TrainResult(true, message);

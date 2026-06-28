@@ -432,6 +432,10 @@ public final class GameText {
     public static String petOverviewDefenseHint() { return msg("gui.pet.overview.defense-hint", localized("&7Питомец вступит в бой за владельца", "&7The pet will join combat for the owner")); }
     public static String petOverviewRepairCore() { return msg("gui.pet.overview.repair-core", localized("Починить ядро", "Repair core")); }
     public static String petOverviewRepairHint() { return msg("gui.pet.overview.repair-hint", localized("&7Ремонт тратит один тотем и даёт +1 прочности", "&7Repair consumes one totem and adds +1 durability")); }
+    public static String petOverviewTrainTitle() { return msg("gui.pet.overview.train", localized("Тренировка", "Training")); }
+    public static String petOverviewTrainHint() { return msg("gui.pet.overview.train-hint", localized("&7Дайте опыт призванному питомцу рядом с вами.", "&7Grant XP to your summoned pet while it is nearby.")); }
+    public static String petOverviewTrainCooldown(long seconds) { return msg("gui.pet.overview.train-cooldown", localized("&7Повтор через &f{seconds} &7с.", "&7Again in &f{seconds} &7s."), "seconds", seconds); }
+    public static String petOverviewTrainReady() { return msg("gui.pet.overview.train-ready", localized("&aГотово к тренировке.", "&aReady to train.")); }
     public static String forgeNeedActiveCore() { return msg("gui.forge.need-active-core", localized("Держите ядро питомца в руке.", "Hold the pet core.")); }
     public static String guiTitleForge() { return msg("gui.forge.title", localized("VibePet - Кузня", "VibePet - Forge")); }
     public static String guiTitlePetOverview() { return msg("gui.pet.overview.title", localized("VibePet - Питомец", "VibePet - Pet")); }
