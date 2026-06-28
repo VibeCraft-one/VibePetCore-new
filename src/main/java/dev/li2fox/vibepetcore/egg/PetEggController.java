@@ -225,14 +225,16 @@ public final class PetEggController implements CoreModule, Listener {
             )));
             return;
         }
-        if (!PetCoreSlotSupport.canSummonFromHand(config.eggOffhandActivation(), hand)) {
+        Optional<EquipmentSlot> preparedHand = prepareSummonHand(player, hand);
+        if (preparedHand.isEmpty()) {
             player.sendActionBar(Component.text(msg(
                 "pet-egg.offhand-required",
                 "Put the pet core in your offhand and right-click."
             )));
             return;
         }
-        ItemStack heldItem = itemInHand(player, hand);
+        final EquipmentSlot summonHand = preparedHand.get();
+        ItemStack heldItem = itemInHand(player, summonHand);
         Optional<OwnedPetData> heldPet = eggService.readEgg(heldItem);
         if (heldPet.isEmpty()) {
             player.sendActionBar(Component.text(msg(
@@ -243,7 +245,7 @@ public final class PetEggController implements CoreModule, Listener {
         }
 
         OwnedPetData pet = heldPet.get();
-        recoverExpiredPet(player, hand, heldItem, pet);
+        recoverExpiredPet(player, summonHand, heldItem, pet);
         SummonCharge currentCharge = summonCharges.get(player.getUniqueId());
         if (currentCharge != null && currentCharge.action() == ChargeAction.SUMMON && currentCharge.petId().equals(pet.petId())) {
             player.sendActionBar(Component.text(msg(
@@ -289,7 +291,7 @@ public final class PetEggController implements CoreModule, Listener {
                 return;
             }
 
-            Optional<OwnedPetData> currentHeld = eggService.readEgg(itemInHand(player, hand));
+            Optional<OwnedPetData> currentHeld = eggService.readEgg(itemInHand(player, summonHand));
             if (currentHeld.isEmpty() || !currentHeld.get().petId().equals(pet.petId())) {
                 cancelSummonCharge(player, true);
                 return;
@@ -310,7 +312,7 @@ public final class PetEggController implements CoreModule, Listener {
             }
 
             cancelSummonCharge(player, false);
-            activateHeldPet(player, hand, firstSummon, summonAnchor);
+            activateHeldPet(player, summonHand, firstSummon, summonAnchor);
         }, 0L, 20L);
         summonCharges.put(player.getUniqueId(), new SummonCharge(pet.petId(), ChargeAction.SUMMON, task, summonAnchor));
     }
@@ -330,14 +332,16 @@ public final class PetEggController implements CoreModule, Listener {
             )));
             return;
         }
-        if (!PetCoreSlotSupport.canSummonFromHand(config.eggOffhandActivation(), hand)) {
+        Optional<EquipmentSlot> preparedHand = prepareSummonHand(player, hand);
+        if (preparedHand.isEmpty()) {
             player.sendActionBar(Component.text(msg(
                 "pet-egg.offhand-required",
                 "Put the pet core in your offhand and right-click."
             )));
             return;
         }
-        ItemStack heldItem = itemInHand(player, hand);
+        final EquipmentSlot summonHand = preparedHand.get();
+        ItemStack heldItem = itemInHand(player, summonHand);
         Optional<OwnedPetData> heldPet = eggService.readEgg(heldItem);
         if (heldPet.isEmpty()) {
             player.sendActionBar(Component.text(msg(
@@ -348,7 +352,7 @@ public final class PetEggController implements CoreModule, Listener {
         }
 
         OwnedPetData pet = heldPet.get();
-        recoverExpiredPet(player, hand, heldItem, pet);
+        recoverExpiredPet(player, summonHand, heldItem, pet);
         if (pet.inactiveUntilMillis() > System.currentTimeMillis()) {
             player.sendActionBar(Component.text(msg(
                 "pet-egg.inactive",
@@ -386,7 +390,7 @@ public final class PetEggController implements CoreModule, Listener {
             if (firstSummon) {
                 playFirstSummonFinish(player, summonAnchor);
             }
-            setItemInHand(player, hand, hand == EquipmentSlot.OFF_HAND
+            setItemInHand(player, summonHand, summonHand == EquipmentSlot.OFF_HAND
                 ? eggService.writeActiveButton(heldItem, activeData)
                 : eggService.writeEmptyEgg(heldItem, activeData));
             syncPlayer(player);
@@ -686,10 +690,11 @@ public final class PetEggController implements CoreModule, Listener {
         if (event.getAction() != Action.RIGHT_CLICK_AIR && event.getAction() != Action.RIGHT_CLICK_BLOCK) {
             return;
         }
-        ItemStack item = event.getItem();
-        if (!eggService.isPetCoreLikeItem(item)) {
+        Optional<CoreUse> coreUse = resolveCoreUse(event);
+        if (coreUse.isEmpty()) {
             return;
         }
+        CoreUse use = coreUse.get();
         if (shouldPreserveBlockInteraction(event)) {
             event.setUseItemInHand(org.bukkit.event.Event.Result.DENY);
             return;
@@ -697,18 +702,59 @@ public final class PetEggController implements CoreModule, Listener {
         event.setCancelled(true);
         event.setUseItemInHand(org.bukkit.event.Event.Result.DENY);
         event.setUseInteractedBlock(org.bukkit.event.Event.Result.DENY);
-        if (!eggService.isPetEgg(item)) {
+        if (!eggService.isPetEgg(use.item())) {
             blockLegacyPetCoreUse(event.getPlayer());
             return;
         }
-        EquipmentSlot hand = event.getHand() == EquipmentSlot.OFF_HAND
-            ? EquipmentSlot.OFF_HAND
-            : EquipmentSlot.HAND;
-        if (eggService.isEmptyEgg(item)) {
-            returnActivePetToEgg(event.getPlayer(), hand, item);
+        if (eggService.isEmptyEgg(use.item())) {
+            returnActivePetToEgg(event.getPlayer(), use.hand(), use.item());
         } else {
-            startSummonCharge(event.getPlayer(), hand);
+            startSummonCharge(event.getPlayer(), use.hand());
         }
+    }
+
+    private Optional<CoreUse> resolveCoreUse(PlayerInteractEvent event) {
+        ItemStack eventItem = event.getItem();
+        if (eggService.isPetCoreLikeItem(eventItem)) {
+            EquipmentSlot hand = event.getHand() == EquipmentSlot.OFF_HAND
+                ? EquipmentSlot.OFF_HAND
+                : EquipmentSlot.HAND;
+            return Optional.of(new CoreUse(hand, eventItem));
+        }
+        if (!config.eggOffhandActivation() || event.getHand() != EquipmentSlot.HAND) {
+            return Optional.empty();
+        }
+        if (event.getAction() != Action.RIGHT_CLICK_AIR) {
+            return Optional.empty();
+        }
+        ItemStack offhand = event.getPlayer().getInventory().getItemInOffHand();
+        if (!eggService.isPetCoreLikeItem(offhand)) {
+            return Optional.empty();
+        }
+        return Optional.of(new CoreUse(EquipmentSlot.OFF_HAND, offhand));
+    }
+
+    private Optional<EquipmentSlot> prepareSummonHand(Player player, EquipmentSlot hand) {
+        if (PetCoreSlotSupport.canSummonFromHand(config.eggOffhandActivation(), hand)) {
+            return Optional.of(hand);
+        }
+        if (!config.eggOffhandActivation() || hand != EquipmentSlot.HAND) {
+            return Optional.empty();
+        }
+        ItemStack mainHand = player.getInventory().getItemInMainHand();
+        if (!eggService.isPetEgg(mainHand) || eggService.isEmptyEgg(mainHand) || eggService.readEgg(mainHand).isEmpty()) {
+            return Optional.empty();
+        }
+        ItemStack offhand = player.getInventory().getItemInOffHand();
+        if (offhand != null && !offhand.getType().isAir()) {
+            return Optional.empty();
+        }
+        player.getInventory().setItemInOffHand(mainHand);
+        player.getInventory().setItemInMainHand(null);
+        return Optional.of(EquipmentSlot.OFF_HAND);
+    }
+
+    private record CoreUse(EquipmentSlot hand, ItemStack item) {
     }
 
     private boolean shouldPreserveBlockInteraction(PlayerInteractEvent event) {

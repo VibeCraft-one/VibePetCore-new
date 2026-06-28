@@ -42,6 +42,7 @@ final class PetOverviewPage implements PetGuiPage {
         inventory.setItem(18, followPositionButton(runtimePet, offhandPet, 6));
         inventory.setItem(19, followControllerCenter(runtimePet, offhandPet));
         inventory.setItem(20, followPositionButton(runtimePet, offhandPet, 2));
+        inventory.setItem(22, trainButton(runtimePet, offhandPet));
         inventory.setItem(24, repairCoreButton(player, runtimePet, offhandPet));
         inventory.setItem(26, aggressiveStyleButton(runtimePet, offhandPet));
         inventory.setItem(27, followPositionButton(runtimePet, offhandPet, 5));
@@ -69,6 +70,10 @@ final class PetOverviewPage implements PetGuiPage {
     @Override
     public boolean handleClick(Player player, int slot) {
         if (!gui.allowPetMenuClick(player)) {
+            return true;
+        }
+        if (slot == 22) {
+            gui.trainPet(player);
             return true;
         }
         if (slot == 24) {
@@ -234,6 +239,26 @@ final class PetOverviewPage implements PetGuiPage {
             lore.add(gui.msg("gui.pet.overview.info.click", "&eClick: open evolution, quests, and materials."));
         }, () -> lore.add(GameText.petOverviewNeedCoreHint()));
         return gui.item(Material.CALIBRATED_SCULK_SENSOR, "&d" + GameText.petOverviewInfoTitle(), lore);
+    }
+
+    private ItemStack trainButton(Optional<RuntimePet> runtimePet, Optional<OwnedPetData> offhandPet) {
+        if (runtimePet.isEmpty()) {
+            return gui.item(Material.TARGET, "&e" + GameText.petOverviewTrainTitle(), List.of(
+                activePetRequiredLine(offhandPet),
+                GameText.guiUnavailable()
+            ));
+        }
+        long cooldownSeconds = gui.trainingCooldownSeconds(runtimePet.get().data().petId());
+        List<String> lore = new ArrayList<>();
+        lore.add(GameText.petOverviewTrainHint());
+        lore.add(cooldownSeconds > 0L
+            ? GameText.petOverviewTrainCooldown(cooldownSeconds)
+            : GameText.petOverviewTrainReady());
+        return gui.item(
+            cooldownSeconds > 0L ? Material.CROSSBOW : Material.TARGET,
+            "&e" + GameText.petOverviewTrainTitle(),
+            lore
+        );
     }
 
     private ItemStack repairCoreButton(Player player, Optional<RuntimePet> runtimePet, Optional<OwnedPetData> offhandPet) {

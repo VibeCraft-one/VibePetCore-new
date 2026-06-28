@@ -834,6 +834,22 @@ public final class PetGuiService implements Listener {
         openPetOverview(player);
     }
 
+    void trainPet(Player player) {
+        if (!allowPetMenuClick(player)) {
+            return;
+        }
+        PetEngineManager.TrainResult result = petEngineManager.trainPet(player);
+        player.sendMessage(result.message());
+        if (result.success()) {
+            syncOffhandEgg(player);
+        }
+        openPetOverview(player);
+    }
+
+    long trainingCooldownSeconds(UUID petId) {
+        return petEngineManager.trainingCooldownRemainingSeconds(petId);
+    }
+
     void decreaseFollowDistance(Player player) {
         petEngineManager.decreaseFollowDistance(player);
         syncOffhandEgg(player);
