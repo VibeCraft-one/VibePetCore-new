@@ -24,6 +24,7 @@ import dev.li2fox.vibepetcore.pet.PetType;
 import dev.li2fox.vibepetcore.pet.armor.PetArmorService;
 import dev.li2fox.vibepetcore.pet.inventory.PetVaultService;
 import dev.li2fox.vibepetcore.quest.QuestManager;
+import dev.li2fox.vibepetcore.resourcepack.ResourcePackManager;
 import dev.li2fox.vibepetcore.task.TaskManager;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -53,6 +54,7 @@ public final class VibePetCorePlugin extends JavaPlugin {
     private PetGuiService petGuiService;
     private PetMasterManager petMasterManager;
     private TaskManager taskManager;
+    private ResourcePackManager resourcePackManager;
     private PetDebugLogger debugLogger;
     private VibePetCommandHandler commandHandler;
     private PetAPI petAPI;
@@ -84,6 +86,7 @@ public final class VibePetCorePlugin extends JavaPlugin {
         petMasterManager.setGuiService(petGuiService);
         petEggController = new PetEggController(this, balanceConfig, petEngineManager, petEggService, debugLogger);
         taskManager = new TaskManager(this, balanceConfig, playerDataManager, petEngineManager, debugLogger);
+        resourcePackManager = new ResourcePackManager(this, balanceConfig);
         petAPI = new CorePetAPI(playerDataManager, petEngineManager);
         progressionAPI = new CoreProgressionAPI(playerDataManager, balanceConfig);
         petEngineManager.setProgressionAPI(progressionAPI);
@@ -100,6 +103,7 @@ public final class VibePetCorePlugin extends JavaPlugin {
         moduleManager.register(lootBoxManager);
         moduleManager.register(petEggController);
         moduleManager.register(petMasterManager);
+        moduleManager.register(resourcePackManager);
         moduleManager.register(taskManager);
         moduleManager.enableAll();
 
@@ -125,6 +129,7 @@ public final class VibePetCorePlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(lootBoxManager, this);
         getServer().getPluginManager().registerEvents(petGuiService, this);
         getServer().getPluginManager().registerEvents(petMasterManager, this);
+        getServer().getPluginManager().registerEvents(resourcePackManager, this);
     }
 
     private void registerCommands() {

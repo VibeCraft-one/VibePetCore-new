@@ -5,20 +5,21 @@ language: ru
 # en / eng - English messages from messages/en.yml.
 
 resource-pack:
-  # Выключено: VibePetCore не отправляет и не раздаёт ресурс-пак.
+  # Включите, чтобы отправлять клиентам pack с миниатюрами яиц.
   enabled: false
+  # Если url заполнен, auto-host не используется для раздачи.
   url: ""
   sha1: ""
   required: false
   prompt: "Для миниатюр питомцев нужен ресурс-пак VibePetCore."
   auto-host:
-    enabled: false
+    # Раздаёт plugins/VibePetCore/resource-pack/VibePetCore-resource-pack.zip по HTTP.
+    enabled: true
     bind-host: "0.0.0.0"
     port: 25512
-    # Если server-ip пустой, локальный fallback будет 127.0.0.1.
-    # Для игроков извне лучше указать IP/домен сервера, например: "play.example.ru"
+    # Для игроков извне укажите IP/домен сервера, например: "play.example.ru"
     public-host: ""
-    # Если нужен полный адрес вручную, он перекрывает public-host/port.
+    # Полный URL перекрывает public-host/port.
     public-url: ""
 
 debug:
