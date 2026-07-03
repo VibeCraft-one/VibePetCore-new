@@ -1,0 +1,23 @@
+VibePetCore 2.6.37
+
+Resource pack runtime:
+- Added ResourcePackManager with auto-host and setResourcePack on join/reload.
+- Bundled client pack is copied to plugins/VibePetCore/resource-pack/ on first enable.
+
+Jar slimming:
+- MySQL driver is no longer bundled; add mysql-connector-j.jar manually when storage.backend=mysql.
+- SQLite native libraries are trimmed to Linux x86_64 only for production jar size.
+
+Server config example:
+  resource-pack:
+    enabled: true
+    url: "https://raw.githubusercontent.com/PrincessXVII/VibePetCore-new/main/dist/VibePetCore-resource-pack.zip"
+    sha1: "996118a5a85f33292f85157780201ec8cc1381d4"
+    required: false
+
+MySQL servers:
+- Put mysql-connector-j-8.4.0.jar into plugins/VibePetCore/lib/ or the global plugins folder classpath.
+
+Smoke check:
+- Enable resource-pack, join with a client, confirm egg miniatures render.
+- storage.backend=sqlite still loads players.db on Linux x86_64.

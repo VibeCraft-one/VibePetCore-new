@@ -38,7 +38,11 @@ final class MysqlPlayerStorage implements PlayerStorage {
             ensureConnection();
             migrate();
         } catch (ClassNotFoundException exception) {
-            throw new IOException("MySQL driver is not available", exception);
+            throw new IOException(
+                "MySQL driver is not available. Either switch storage.backend to sqlite/json, "
+                    + "or place mysql-connector-j.jar on the server classpath (for example plugins/VibePetCore/lib/).",
+                exception
+            );
         } catch (SQLException exception) {
             throw new IOException("Could not open mysql database: " + jdbcUrl, exception);
         }
