@@ -8,10 +8,8 @@ build/
 
 ### Build artifacts and archives ###
 !gradle/wrapper/gradle-wrapper.jar
-/libs/
 *.zip
 !dist/VibePetCore-resource-pack.zip
-!src/main/resources/resource-pack/VibePetCore-resource-pack.zip
 *.tar
 *.tar.gz
 *.tgz

@@ -1,6 +1,8 @@
 package dev.li2fox.vibepetcore.resourcepack;
 
-import java.nio.charset.StandardCharsets;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Locale;
@@ -38,14 +40,21 @@ final class ResourcePackSupport {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-1");
             byte[] hash = digest.digest(data);
-            StringBuilder builder = new StringBuilder(hash.length * 2);
-            for (byte value : hash) {
-                builder.append(String.format(Locale.ROOT, "%02x", value));
-            }
-            return builder.toString();
+            return hex(hash);
         } catch (NoSuchAlgorithmException exception) {
             throw new IllegalStateException("SHA-1 is not available", exception);
         }
+    }
+
+    static String hex(byte[] data) {
+        if (data == null || data.length == 0) {
+            return "";
+        }
+        StringBuilder builder = new StringBuilder(data.length * 2);
+        for (byte value : data) {
+            builder.append(String.format(Locale.ROOT, "%02x", value));
+        }
+        return builder.toString();
     }
 
     static String resolvePublicUrl(
@@ -76,6 +85,40 @@ final class ResourcePackSupport {
     static String sanitizeBindHost(String bindHost) {
         String normalized = bindHost == null ? "" : bindHost.trim();
         return normalized.isEmpty() ? "0.0.0.0" : normalized;
+    }
+
+    static void validateLocalPack(Path target, String configuredSha1) throws IOException {
+        if (!Files.exists(target) || Files.size(target) == 0L) {
+            throw new IOException(missingPackMessage(target));
+        }
+        String expected = configuredSha1 == null ? "" : configuredSha1.trim();
+        if (expected.isEmpty()) {
+            return;
+        }
+        String localSha1 = sha1Hex(Files.readAllBytes(target));
+        if (!expected.equalsIgnoreCase(localSha1)) {
+            throw new IOException(stalePackMessage(target, localSha1, expected));
+        }
+    }
+
+    static String missingPackMessage(Path target) {
+        return "Resource pack file is missing: " + target
+            + System.lineSeparator()
+            + "Place " + PACK_FILE_NAME + " into plugins/VibePetCore/resource-pack/."
+            + System.lineSeparator()
+            + "Build artifact: ./gradlew buildResourcePack (outputs build/resource-pack/) or ./gradlew publishResourcePack (outputs dist/)."
+            + System.lineSeparator()
+            + "Alternatively host the zip at resource-pack.url and set resource-pack.sha1.";
+    }
+
+    static String stalePackMessage(Path target, String localSha1, String expectedSha1) {
+        return "Resource pack SHA1 mismatch at " + target
+            + System.lineSeparator()
+            + "Local: " + localSha1
+            + System.lineSeparator()
+            + "Expected (resource-pack.sha1): " + expectedSha1
+            + System.lineSeparator()
+            + "Replace the file manually after plugin upgrade. Do not serve a stale pack with updated custom-model-data.";
     }
 
     private static boolean isHexDigit(int value) {
