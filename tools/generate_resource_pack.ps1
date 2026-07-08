@@ -5,9 +5,10 @@ param(
 $ErrorActionPreference = 'Stop'
 
 $packRoot = Join-Path $Root 'resource-pack\VibePetCore'
-$distDir = Join-Path $Root 'build\resource-pack'
-$zipPath = Join-Path $distDir 'VibePetCore-resource-pack.zip'
-$bundledZipPath = Join-Path $Root 'src\main\resources\resource-pack\VibePetCore-resource-pack.zip'
+$buildDir = Join-Path $Root 'build\resource-pack'
+$distDir = Join-Path $Root 'dist'
+$zipPath = Join-Path $buildDir 'VibePetCore-resource-pack.zip'
+$distZipPath = Join-Path $distDir 'VibePetCore-resource-pack.zip'
 
 $pets = @(
     @{ key='axolotl'; material='axolotl_spawn_egg'; egg=200101; empty=200201; color='#e9899a' },
@@ -146,7 +147,7 @@ foreach ($pet in $pets) {
 }
 
 Compress-Archive -Path (Join-Path $packRoot '*') -DestinationPath $zipPath -Force
-New-Item -ItemType Directory -Force -Path (Split-Path -Parent $bundledZipPath) | Out-Null
-Copy-Item -LiteralPath $zipPath -Destination $bundledZipPath -Force
+New-Item -ItemType Directory -Force -Path $distDir | Out-Null
+Copy-Item -LiteralPath $zipPath -Destination $distZipPath -Force
 Write-Host "Resource pack generated: $zipPath"
-Write-Host "Bundled resource updated: $bundledZipPath"
+Write-Host "Published resource pack: $distZipPath"

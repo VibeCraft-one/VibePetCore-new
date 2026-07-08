@@ -2,7 +2,7 @@ plugins {
     id("java")
 }
 
-import java.net.URI
+import java.util.zip.ZipFile
 
 group = "dev.li2fox.vibepetcore"
 version = "2.6.37"
@@ -10,11 +10,12 @@ version = "2.6.37"
 repositories {
     mavenCentral()
     maven("https://repo.papermc.io/repository/maven-public/")
+    maven("https://repo.extendedclip.com/content/repositories/placeholderapi/")
 }
 
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
-    compileOnly(files("libs/placeholderapi-2.11.6.jar"))
+    compileOnly("me.clip:placeholderapi:2.11.6")
     compileOnly("com.mysql:mysql-connector-j:8.4.0")
     implementation("com.google.code.gson:gson:2.13.2")
     implementation("org.xerial:sqlite-jdbc:3.45.3.0")
@@ -36,27 +37,6 @@ java {
 
 val resourcePackSourceDir = layout.projectDirectory.dir("resource-pack/VibePetCore")
 val resourcePackZip = layout.buildDirectory.file("resource-pack/VibePetCore-resource-pack.zip")
-val bundledResourcePack = layout.projectDirectory.file("src/main/resources/resource-pack/VibePetCore-resource-pack.zip")
-val placeholderApiJar = layout.projectDirectory.file("libs/placeholderapi-2.11.6.jar")
-
-tasks.register("ensurePlaceholderApi") {
-    val jarFile = placeholderApiJar.asFile
-    outputs.file(jarFile)
-    doLast {
-        if (jarFile.exists() && jarFile.length() > 100_000L) {
-            return@doLast
-        }
-        jarFile.parentFile.mkdirs()
-        URI("https://hangar.papermc.io/api/v1/projects/PlaceholderAPI/versions/2.11.6/PAPER/download")
-            .toURL()
-            .openStream()
-            .use { input ->
-                jarFile.outputStream().use { output ->
-                    input.copyTo(output)
-                }
-            }
-    }
-}
 
 tasks.register<Zip>("buildResourcePack") {
     group = "build"
@@ -68,11 +48,12 @@ tasks.register<Zip>("buildResourcePack") {
     isReproducibleFileOrder = true
 }
 
-tasks.register<Copy>("bundleResourcePack") {
+tasks.register<Copy>("publishResourcePack") {
+    group = "distribution"
+    description = "Publishes the built resource pack zip to dist/."
     dependsOn("buildResourcePack")
     from(resourcePackZip)
-    into(bundledResourcePack.asFile.parentFile)
-    rename { bundledResourcePack.asFile.name }
+    into(layout.projectDirectory.dir("dist"))
 }
 
 tasks.test {
@@ -80,18 +61,16 @@ tasks.test {
 }
 
 tasks.withType<JavaCompile>().configureEach {
-    dependsOn("ensurePlaceholderApi")
     options.encoding = "UTF-8"
 }
 
 tasks.processResources {
-    dependsOn("bundleResourcePack")
     val props = mapOf("version" to version)
     inputs.properties(props)
     filteringCharset = "UTF-8"
     exclude("MIGRATION-*")
     exclude("**/MIGRATION-*")
-    exclude("resource-pack/VibePetCore/**")
+    exclude("resource-pack/**")
     filesMatching("plugin.yml") {
         expand(props)
     }
@@ -104,7 +83,7 @@ tasks.jar {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     exclude("MIGRATION-*")
     exclude("**/MIGRATION-*")
-    exclude("resource-pack/VibePetCore/**")
+    exclude("resource-pack/**")
     exclude("org/sqlite/native/Linux-Android/**")
     exclude("org/sqlite/native/Windows/**")
     exclude("org/sqlite/native/FreeBSD/**")
@@ -140,6 +119,25 @@ tasks.register("checkJarSize") {
     }
 }
 
+tasks.register("checkJarHasNoBundledResourcePack") {
+    group = "verification"
+    description = "Verifies that the plugin jar does not contain a bundled resource pack zip."
+    dependsOn(tasks.jar)
+
+    doLast {
+        val jarFile = tasks.jar.get().archiveFile.get().asFile
+        val bundledEntries = ZipFile(jarFile).use { zip ->
+            zip.entries().asSequence()
+                .map { it.name }
+                .filter { it.startsWith("resource-pack/") && it.endsWith(".zip") }
+                .toList()
+        }
+        require(bundledEntries.isEmpty()) {
+            "Plugin jar must not bundle resource pack archives: ${bundledEntries.joinToString()}"
+        }
+    }
+}
+
 tasks.check {
-    dependsOn("checkJarSize")
+    dependsOn("checkJarSize", "checkJarHasNoBundledResourcePack")
 }
