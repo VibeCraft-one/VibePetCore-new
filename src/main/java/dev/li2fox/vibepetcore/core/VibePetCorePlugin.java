@@ -14,6 +14,7 @@ import dev.li2fox.vibepetcore.egg.PetEggService;
 import dev.li2fox.vibepetcore.economy.EconomyManager;
 import dev.li2fox.vibepetcore.economy.EconomyQuestListener;
 import dev.li2fox.vibepetcore.gui.PetGuiService;
+import dev.li2fox.vibepetcore.license.LicenseGuard;
 import dev.li2fox.vibepetcore.master.PetMasterManager;
 import dev.li2fox.vibepetcore.player.PlayerDataListener;
 import dev.li2fox.vibepetcore.player.PlayerDataManager;
@@ -65,6 +66,10 @@ public final class VibePetCorePlugin extends JavaPlugin {
     public void onEnable() {
         ensureVersionedConfig();
         saveBundledConfigs();
+
+        if (!LicenseGuard.verifyOrDisable(this)) {
+            return;
+        }
 
         balanceConfig = new BalanceConfig(this);
         GameText.bind(balanceConfig);
