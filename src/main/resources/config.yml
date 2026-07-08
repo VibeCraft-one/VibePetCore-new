@@ -6,6 +6,8 @@ language: ru
 
 resource-pack:
   # Включите, чтобы отправлять клиентам pack с миниатюрами яиц.
+  # Перед включением скопируйте dist/VibePetCore-resource-pack.zip
+  # в plugins/VibePetCore/resource-pack/VibePetCore-resource-pack.zip
   enabled: false
   # Если url заполнен, auto-host не используется для раздачи.
   url: ""
