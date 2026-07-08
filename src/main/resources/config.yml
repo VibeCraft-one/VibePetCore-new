@@ -480,3 +480,11 @@ pet-vault:
     4: 27
     5: 36
   allay-bonus-slots: 9
+
+license:
+  # Без купленного ключа плагин НЕ запустится.
+  # URL, product-id и public-key вшиты в jar — подменить нельзя.
+  enabled: true
+  key: ""
+  fail-mode: disable
+  heartbeat-interval-hours: 6
